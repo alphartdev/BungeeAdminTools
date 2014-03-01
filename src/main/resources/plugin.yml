@@ -1,0 +1,5 @@
+name: BungeeAdminTools
+author: Alphart
+version: ${project.version}
+main: fr.Alphart.BAT.BAT
+depends: ['BungeeYAML']
