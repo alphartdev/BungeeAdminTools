@@ -25,14 +25,17 @@ public class FormatUtils {
 	 * @param reason
 	 * @return message filled with data
 	 */
-	public static String formatBroadcastMsg(final String message, final String pName, final String staff, final String server, final String reason, final String duration){
-		String formattedMsg = message.replaceAll("%entity%", pName).replaceAll("%staff%", staff).replaceAll("%duration%", duration);
+	public static String formatBroadcastMsg(final String message, final String pName, final String staff, final String server, final String reason, final int duration){
+		String formattedMsg = message.replaceAll("%entity%", pName).replaceAll("%staff%", staff);
 		if(server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER)){
-			formattedMsg = formattedMsg.replaceAll("%serv%", "global");
+			formattedMsg = formattedMsg.replaceAll("%serv%", IModule.STR_GLOBAL);
 		}else{
 			formattedMsg = formattedMsg.replaceAll("%serv%", server);
 		}
-		formattedMsg = (reason != null) ? formattedMsg.replaceAll("%reason%", reason) : formattedMsg.replaceAll("%reason%", "Non specifie");
+		formattedMsg = (reason != null) ? formattedMsg.replaceAll("%reason%", reason) : formattedMsg.replaceAll("%reason%", IModule.STR_NO_REASON);
+		if(duration > 0){
+			formattedMsg = formattedMsg.replaceAll("%duration%", secToDate(duration));
+		}
 		return formattedMsg;
 	}
 
@@ -50,7 +53,7 @@ public class FormatUtils {
 			seconds -= 86400;
 		}
 		if(days > 0) {
-			item.add(days + " jours");
+			item.add(days + " days");
 		}
 
 		int hours = 0;
@@ -59,7 +62,7 @@ public class FormatUtils {
 			seconds -= 3600;
 		}
 		if(hours > 0) {
-			item.add(hours + " heures");
+			item.add(hours + " hours");
 		}
 
 		int mins = 0;
@@ -68,11 +71,11 @@ public class FormatUtils {
 			seconds -= 60;
 		}
 		if(mins > 0) {
-			item.add(mins + " minutes");
+			item.add(mins + " mins");
 		}
 
 		if(seconds > 0) {
-			item.add(seconds + " secondes");
+			item.add(seconds + " secs");
 		}
 
 		return Joiner.on(", ").join(item);
@@ -112,5 +115,13 @@ public class FormatUtils {
 			bsList.add( TextComponent.fromLegacyText(strMessageArray[i]) );
 		}
 		return bsList;
+	}
+
+	/**
+	 * Shortcut to the chatcolor and the textcomponent converter
+	 * @return BaseComponent[] message
+	 */
+	public static BaseComponent[] _(String message){
+		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
 	}
 }

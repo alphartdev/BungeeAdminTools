@@ -3,14 +3,19 @@ package fr.Alphart.BAT.Modules;
 import java.util.List;
 
 public interface IModule {
-	public final static Integer ON_STATE = 1;
-	public final static Integer OFF_STATE = 0;
-
-	// Server groups related var
+	// Constants
+	// Server groups related
 	public static final String NO_REASON = "noreason";
 	public static final String GLOBAL_SERVER = "(global)";
 	public static final String ANY_SERVER = "(any)";
 
+	// Used for text formatting 
+	public static final String STR_GLOBAL = "global";
+	public static final String STR_NO_REASON = "not specified";
+	
+	// Module part
+	public final static Integer ON_STATE = 1;
+	public final static Integer OFF_STATE = 0;
 	public String getName();
 
 	/**

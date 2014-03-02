@@ -1,5 +1,7 @@
 package fr.Alphart.BAT.Modules.Mute;
 
+import static fr.Alphart.BAT.BAT.__;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +33,10 @@ import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
+/**
+ * This module handles all the mute.<br>
+ * The mute data of online players are <b>cached</b> in order to avoid lag. 
+ */
 public class Mute implements IModule, Listener{
 	private final String name = "mute";
 	public static final String MUTE_PERM = "BAT.mute";
@@ -43,6 +49,10 @@ public class Mute implements IModule, Listener{
 	private static final String MUTETEMP_MSG = "&a%entity%&e a ete &6mute &ependant &a%duration%&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
 	private static final String UNMUTE_MSG = "&a%entity%&e a ete &6demute &epar &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
 
+	private static final String WAS_MUTED_MSG = "You was muted. Reason : %reason%";
+	private static final String WAS_UNMUTED_MSG = "You was unmuted. Reason : %reason%";
+	private final static String ISMUTE_MSG = "You're muted, you can't talk.";
+	private final static String LOADINGMUTE_MSG = "Loading of data in progress : you may speak in a little while.";
 
 	@Override
 	public List<BATCommand> getCommands() {
@@ -105,6 +115,7 @@ public class Mute implements IModule, Listener{
 		mutedPlayers = null;
 		return true;
 	}
+	
 	public class MuteConfig extends ModuleConfiguration{
 		private final List<String> forbiddenCmds;
 
@@ -122,59 +133,6 @@ public class Mute implements IModule, Listener{
 		public List<String> getForbiddenCmds(){
 			return forbiddenCmds;
 		}
-	}
-
-	public static void updateMuteData(final String pName) {
-		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-		if (player == null) {
-			return;
-		}
-		PlayerMuteData pMuteData;
-		if (mutedPlayers.containsKey(pName)) {
-			pMuteData = mutedPlayers.get(pName);
-			pMuteData.clearServers();
-			pMuteData.unsetGlobal();
-		} else {
-			pMuteData = new PlayerMuteData(pName, new ArrayList<String>());
-		}
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		try  (Connection conn  = BAT.getConnection()) {
-			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND BAT_player = ?;");
-			statement.setString(1, pName);
-			resultSet = statement.executeQuery();
-			while (resultSet.next()){
-				final String server = resultSet.getString("mute_server");
-				if(GLOBAL_SERVER.equals(server)){
-					pMuteData.setGlobal();
-				}else{
-					pMuteData.addServer(server);
-				}
-			}
-			resultSet.close();
-			statement.close();
-
-			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND mute_ip = ?;");
-			statement.setString(1, player.getAddress().getHostName());
-			resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				final String server = resultSet.getString("mute_server");
-				if(GLOBAL_SERVER.equals(server)){
-					pMuteData.setGlobal();
-				}else{
-					pMuteData.addServer(server);
-				}
-			}
-		} catch (final SQLException e) {
-			DataSourceHandler.handleException(e);
-		} finally{
-			DataSourceHandler.close(statement, resultSet);
-		}
-		mutedPlayers.put(pName, pMuteData);
-	}
-
-	public static void unloadMuteData(final ProxiedPlayer player) {
-		mutedPlayers.remove(player.getName());
 	}
 
 	/**
@@ -271,11 +229,11 @@ public class Mute implements IModule, Listener{
 						else{
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
-						player.sendMessage(BAT.__("Vous avez ete mute. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) )));
+						player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, ip, staff, server, reason, (duration > 0) ? FormatUtils.secToDate(duration) : "");
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, ip, staff, server, reason, duration);
 			}
 
 			// Otherwise it's a player
@@ -301,10 +259,10 @@ public class Mute implements IModule, Listener{
 					else{
 						mutedPlayers.get(player.getName()).addServer(server);
 					}
-					player.sendMessage(BAT.__("Vous avez ete mute. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) )));
+					player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, pName, staff, server, reason, (duration > 0) ? FormatUtils.secToDate(duration) : "");		
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, pName, staff, server, reason, duration);		
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -323,8 +281,8 @@ public class Mute implements IModule, Listener{
 	 */
 	public static String muteIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		mute(Utils.getPlayerIP(player), server, staff, duration, reason);
-		player.sendMessage(BAT.__("Vous avez ete mute. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) )));
-		return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, player.getName(), staff, server, reason, FormatUtils.secToDate(duration));
+		player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+		return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, player.getName(), staff, server, reason, duration);
 	}
 
 	/**
@@ -362,7 +320,7 @@ public class Mute implements IModule, Listener{
 				statement.executeUpdate();
 				statement.close();
 
-				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, ip, staff, server, reason, "");
+				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, ip, staff, server, reason, 0);
 			}
 
 			// Otherwise it's a player
@@ -401,10 +359,10 @@ public class Mute implements IModule, Listener{
 							pma.removeServer(server);
 						}
 					}
-					ProxyServer.getInstance().getPlayer(pName).sendMessage(BAT.__("Vous avez ete demute ! Raison : " + reason));
+					player.sendMessage(__(WAS_UNMUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 				}
 
-				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, pName, staff, server, reason, "");
+				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, pName, staff, server, reason, 0);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -423,45 +381,7 @@ public class Mute implements IModule, Listener{
 	 */
 	public static String unMuteIP(final String entity, final String server, final String staff, final String reason){
 		Mute.unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
-		return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, entity, staff, server, reason, "");
-	}
-
-	public static class PlayerMuteData{
-		private final List<String> servers;
-		private boolean globalMute = false;
-
-		public PlayerMuteData(final String pName, final List<String> servers){
-			this.servers = new ArrayList<String>(servers);
-		}
-
-		public void setGlobal(){
-			globalMute = true;
-		}
-
-		public void unsetGlobal(){
-			globalMute = false;
-		}
-
-		public void addServer(final String server){
-			if(!servers.contains(server)) {
-				servers.add(server);
-			}
-		}
-
-		public void removeServer(final String server){
-			servers.remove(server);
-		}
-
-		public void clearServers(){
-			servers.clear();
-		}
-
-		public boolean isMute(final String server){
-			if(globalMute || servers.contains(server)) {
-				return true;
-			}
-			return false;
-		}
+		return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, entity, staff, server, reason, 0);
 	}
 
 	/**
@@ -521,10 +441,101 @@ public class Mute implements IModule, Listener{
 		return banList;
 	}
 
-	// Event Listener
-	private final static String ISMUTE_MSG = "Vous etes muet, vous ne pouvez pas parler.";
-	private final static String LOADINGMUTE_MSG = "Chargement des donnees : vous pourrez parler dans quelques instants.";
+	/**
+	 * This class is used to cache the mute data of a player.
+	 */
+	public static class PlayerMuteData{
+		private final List<String> servers;
+		private boolean globalMute = false;
 
+		public PlayerMuteData(final String pName, final List<String> servers){
+			this.servers = new ArrayList<String>(servers);
+		}
+
+		public void setGlobal(){
+			globalMute = true;
+		}
+
+		public void unsetGlobal(){
+			globalMute = false;
+		}
+
+		public void addServer(final String server){
+			if(!servers.contains(server)) {
+				servers.add(server);
+			}
+		}
+
+		public void removeServer(final String server){
+			servers.remove(server);
+		}
+
+		public void clearServers(){
+			servers.clear();
+		}
+
+		public boolean isMute(final String server){
+			if(globalMute || servers.contains(server)) {
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	public static void updateMuteData(final String pName) {
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
+		if (player == null) {
+			return;
+		}
+		PlayerMuteData pMuteData;
+		if (mutedPlayers.containsKey(pName)) {
+			pMuteData = mutedPlayers.get(pName);
+			pMuteData.clearServers();
+			pMuteData.unsetGlobal();
+		} else {
+			pMuteData = new PlayerMuteData(pName, new ArrayList<String>());
+		}
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try  (Connection conn  = BAT.getConnection()) {
+			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND BAT_player = ?;");
+			statement.setString(1, pName);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()){
+				final String server = resultSet.getString("mute_server");
+				if(GLOBAL_SERVER.equals(server)){
+					pMuteData.setGlobal();
+				}else{
+					pMuteData.addServer(server);
+				}
+			}
+			resultSet.close();
+			statement.close();
+
+			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND mute_ip = ?;");
+			statement.setString(1, player.getAddress().getHostName());
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				final String server = resultSet.getString("mute_server");
+				if(GLOBAL_SERVER.equals(server)){
+					pMuteData.setGlobal();
+				}else{
+					pMuteData.addServer(server);
+				}
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally{
+			DataSourceHandler.close(statement, resultSet);
+		}
+		mutedPlayers.put(pName, pMuteData);
+	}
+
+	public static void unloadMuteData(final ProxiedPlayer player) {
+		mutedPlayers.remove(player.getName());
+	}
+	
+	// Event Listener
 	@EventHandler
 	public void onServerConnect(final ServerConnectedEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
@@ -541,7 +552,7 @@ public class Mute implements IModule, Listener{
 				}
 			});
 		}else if(muteState == 1){
-			player.sendMessage(BAT.__(ISMUTE_MSG));
+			player.sendMessage(__(ISMUTE_MSG));
 		}
 	}
 
@@ -564,10 +575,10 @@ public class Mute implements IModule, Listener{
 			}
 		}
 		if(muteState == 1){
-			player.sendMessage(BAT.__(ISMUTE_MSG));
+			player.sendMessage(__(ISMUTE_MSG));
 			e.setCancelled(true);
 		}else if(muteState == -1){
-			player.sendMessage(BAT.__(LOADINGMUTE_MSG));
+			player.sendMessage(__(LOADINGMUTE_MSG));
 			e.setCancelled(true);
 		}
 	}

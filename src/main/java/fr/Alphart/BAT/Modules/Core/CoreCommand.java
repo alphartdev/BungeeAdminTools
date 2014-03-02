@@ -1,6 +1,7 @@
 package fr.Alphart.BAT.Modules.Core;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static fr.Alphart.BAT.BAT.__;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -79,10 +80,10 @@ public class CoreCommand{
 					if(sender.hasPermission(cmd.getPermission())) {
 						cmd.execute(sender, cleanArgs);
 					} else {
-						sender.sendMessage(BAT.__("&cVous n'avez pas la permission !"));
+						sender.sendMessage(__("&cVous n'avez pas la permission !"));
 					}
 				}else{
-					sender.sendMessage(BAT.__("Commande invalide !"));
+					sender.sendMessage(__("Commande invalide !"));
 				}
 			}
 		}
@@ -107,7 +108,7 @@ public class CoreCommand{
 		public ModulesCmd() {super("bat modules", "- Affiche les modules actifs", "bat.modules");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			sender.sendMessage(BAT.__("Les modules chargés sont :&a"));
+			sender.sendMessage(__("Les modules chargés sont :&a"));
 			for(final IModule module : BAT.getInstance().getModules().getLoadedModules()){
 				if(module instanceof Core) {
 					continue;
@@ -162,7 +163,7 @@ public class CoreCommand{
 
 			if(!ipDetails.exist()){
 				final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-				returnedMsg.add(BAT.__("&eL'adresse ip &a" + ip + "&e n'a pas d'enregistrement associé."));
+				returnedMsg.add(__("&eL'adresse ip &a" + ip + "&e n'a pas d'enregistrement associé."));
 				return returnedMsg;
 			}
 
@@ -247,7 +248,7 @@ public class CoreCommand{
 
 			if(!pDetails.exist()){
 				final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-				returnedMsg.add(BAT.__("&eLe joueur &a" + pName + "&e est introuvable."));
+				returnedMsg.add(__("&eLe joueur &a" + pName + "&e est introuvable."));
 				return returnedMsg;
 			}
 
@@ -352,7 +353,7 @@ public class CoreCommand{
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			checkArgument(args.length == 0);
 
-			sender.sendMessage(BAT.__("Insertion des infos en cours ..."));
+			sender.sendMessage(__("Insertion des infos en cours ..."));
 
 			final int rowsNumber = 10000;
 

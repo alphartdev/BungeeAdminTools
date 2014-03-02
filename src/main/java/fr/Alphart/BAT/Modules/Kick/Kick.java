@@ -1,5 +1,7 @@
 package fr.Alphart.BAT.Modules.Kick;
 
+import static fr.Alphart.BAT.BAT.__;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,9 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -30,6 +30,8 @@ public class Kick implements IModule{
 	// Message
 	private final static String KICK_MSG = "&a%entity%&e a ete &6kicke&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
 	private final static String GKICK_MSG = "&a%entity%&e a ete &6kicke&e par &a%staff%&e du proxy. Raison : %reason%";
+	
+	private final static String WAS_KICKED_MSG = "You was kicked from this server ! Reason : %reason%";
 
 	@Override
 	public List<BATCommand> getCommands() {return commandHandler.getCmds();}
@@ -111,9 +113,9 @@ public class Kick implements IModule{
 			statement.executeUpdate();
 			statement.close();
 			player.connect( ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()) );
-			player.sendMessage(BAT.__("Vous avez ete expulse de ce serveur ! Raison : " +  ((reason != null) ? reason : "Non specifie") ));
+			player.sendMessage(__(WAS_KICKED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
 
-			return FormatUtils.formatBroadcastMsg(KICK_MSG, player.getName(), staff, server, reason, "");
+			return FormatUtils.formatBroadcastMsg(KICK_MSG, player.getName(), staff, server, reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally{
@@ -141,9 +143,8 @@ public class Kick implements IModule{
 			statement.setString(5, "(global)");
 			statement.executeUpdate();
 			statement.close();
-			player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "Vous avez ete expulse de ce serveur ! Raison : " + ((reason != null) ? reason : "Non specifie")) ));
-
-			return FormatUtils.formatBroadcastMsg(GKICK_MSG, player.getName(), staff, GLOBAL_SERVER, reason, "");
+			player.disconnect( FormatUtils._(WAS_KICKED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+			return FormatUtils.formatBroadcastMsg(GKICK_MSG, player.getName(), staff, GLOBAL_SERVER, reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally{

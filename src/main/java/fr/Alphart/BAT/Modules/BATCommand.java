@@ -1,5 +1,7 @@
 package fr.Alphart.BAT.Modules;
 
+import static fr.Alphart.BAT.BAT.__;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -64,11 +66,12 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return ChatColor.translateAlternateColorCodes('&', getUsage().replaceAll("(\\w*\\s)(.*)", "$1&6$2").replaceAll(" - ", "&f : &B"));
 	}
 
+	// TODO: Need to make an autocomplete db related
 	@Override
 	public Iterable<String> onTabComplete(final CommandSender sender, final String[] args) {
 		final List<String> result = new ArrayList<String>();
 		if(args.length == 0){
-			sender.sendMessage( BAT.__("Add the first letter to autocomplete") );
+			sender.sendMessage( __("Add the first letter to autocomplete") );
 			return result;
 		}
 		final String playerToCheck = args[args.length - 1];
@@ -93,10 +96,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 						onCommand(sender, args);
 					}catch(final IllegalArgumentException exception){
 						if(exception.getMessage() == null){
-							sender.sendMessage(BAT.__("&cArguments invalides. &BUsage : "));
+							sender.sendMessage(__("&cArguments invalides. &BUsage : "));
 							sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
 						} else {
-							sender.sendMessage(BAT.__("&cArguments invalides. &6" + exception.getMessage()));
+							sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
 						}
 					}
 				}			
@@ -107,10 +110,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 				onCommand(sender, args);
 			}catch(final IllegalArgumentException exception){
 				if(exception.getMessage() == null){
-					sender.sendMessage(BAT.__("&cArguments invalides. &BUsage : "));
+					sender.sendMessage(__("&cArguments invalides. &BUsage : "));
 					sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
 				} else {
-					sender.sendMessage(BAT.__("&cArguments invalides. &6" + exception.getMessage()));
+					sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
 				}
 			}	
 		}
@@ -141,9 +144,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 
 	public static void invalidArgs(final CommandSender sender, final String message){
 		if(message == null) {
-			sender.sendMessage(BAT.__("&cArguments invalides. "));
+			sender.sendMessage(__("&cArguments invalides. "));
 		} else{
-			sender.sendMessage(BAT.__("&cArguments invalides."));
+			sender.sendMessage(__("&cArguments invalides."));
 			sender.sendMessage( TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Utilisation: &B" + message)) );
 		}
 	}

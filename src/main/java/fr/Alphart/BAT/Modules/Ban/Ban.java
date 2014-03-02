@@ -1,5 +1,7 @@
 package fr.Alphart.BAT.Modules.Ban;
 
+import static fr.Alphart.BAT.BAT.__;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,21 +31,21 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
 public class Ban implements IModule, Listener{
-	//TODO: Maybe cache the ban data when a player enter in a server
 	private final String name = "ban";
 	public static final String BAN_PERM = "BAT.ban";
 	private ScheduledTask task;
 	private BanCommand commandHandler;
 	private BanConfig config;
 	// Message
-	private static final String BAN_MSG = "&a%entity%&e a ete &6banni definitivement&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-	private static final String BANTEMP_MSG = "&a%entity%&e a ete &6banni &ependant &a%duration%&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-
-	private static final String UNBAN_MSG = "&a%entity%&e a ete &6debanni&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-
+	private static final String BAN_MSG = "&a%entity%&e was &6banned definitively&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private static final String BANTEMP_MSG = "&a%entity%&e was &6banned &e &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private static final String UNBAN_MSG = "&a%entity%&e was &6unbanned&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	
+	private static final String WAS_BANNED_MSG = "Vous avez ete banni. Raison : %reason%";
+	private static final String IS_BANNED = "You are banned from this server.";
 
 	@Override
-	public List<BATCommand> getCommands() {
+ 	public List<BATCommand> getCommands() {
 		return commandHandler.getCmds();
 	}
 
@@ -99,11 +101,13 @@ public class Ban implements IModule, Listener{
 		task.cancel();
 		return false;
 	}
+	
 	public class BanConfig extends ModuleConfiguration{
 		public BanConfig(final IModule module) {
 			super(module);
 		}
 	}
+	
 	/**
 	 * Check if both ip and name of this player are banned
 	 * @param player
@@ -188,11 +192,11 @@ public class Ban implements IModule, Listener{
 
 				for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
 					if(Utils.getPlayerIP(player).equals(ip)){
-						BAT.kick(player, "Vous avez ete banni. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) ));
+						BAT.kick(player, WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, ip, staff, server, reason, (duration > 0) ? FormatUtils.secToDate(duration) : "");
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, ip, staff, server, reason, duration);
 			}
 
 			// Otherwise it's a player
@@ -212,10 +216,10 @@ public class Ban implements IModule, Listener{
 
 				// Kick player if he's online and on the server where he's banned
 				if(player != null && (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))){
-					BAT.kick(player, "Vous avez ete banni. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) ));
+					BAT.kick(player, WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, pName, staff, server, reason, (duration > 0) ? FormatUtils.secToDate(duration) : "");		
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, pName, staff, server, reason, duration);		
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -232,8 +236,8 @@ public class Ban implements IModule, Listener{
 	 */
 	public static String banIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		ban(Utils.getPlayerIP(player), server, staff, duration, reason);
-		BAT.kick(player, "Vous avez ete banni. Raison : " + ( ((NO_REASON.equals(reason)) ? "non specifié" : reason) ));
-		return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, player.getName(), staff, server, reason, FormatUtils.secToDate(duration));
+		BAT.kick(player, WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+		return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, player.getName(), staff, server, reason, duration);
 	}
 
 	/**
@@ -269,7 +273,7 @@ public class Ban implements IModule, Listener{
 				}
 				statement.executeUpdate();
 
-				return FormatUtils.formatBroadcastMsg(UNBAN_MSG, ip, staff, server, reason, "");
+				return FormatUtils.formatBroadcastMsg(UNBAN_MSG, ip, staff, server, reason, 0);
 			}
 
 			// Otherwise it's a player
@@ -294,7 +298,7 @@ public class Ban implements IModule, Listener{
 				}
 				statement.executeUpdate();
 
-				return FormatUtils.formatBroadcastMsg(UNBAN_MSG, pName, staff, server, reason, "");
+				return FormatUtils.formatBroadcastMsg(UNBAN_MSG, pName, staff, server, reason, 0);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -314,7 +318,7 @@ public class Ban implements IModule, Listener{
 	 */
 	public static String unBanIP(final String entity, final String server, final String staff, final String reason){
 		Ban.unBan((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
-		return FormatUtils.formatBroadcastMsg(UNBAN_MSG, entity, staff, server, reason, "");
+		return FormatUtils.formatBroadcastMsg(UNBAN_MSG, entity, staff, server, reason, 0);
 	}
 
 	/**
@@ -389,7 +393,7 @@ public class Ban implements IModule, Listener{
 				playerToKick.add(player.getName());
 				return;
 			}
-			player.sendMessage(BAT.__("Vous etes banni de ce serveur."));
+			player.sendMessage(__(IS_BANNED));
 			if(player.getServer() == null){
 				player.connect(ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()));
 			}
@@ -401,7 +405,7 @@ public class Ban implements IModule, Listener{
 	@EventHandler
 	public void onServerConnected(final ServerConnectedEvent e){
 		if(playerToKick.remove(e.getPlayer().getName())) {
-			e.getPlayer().disconnect(BAT.__("Vous etes banni !"));
+			e.getPlayer().disconnect(__(IS_BANNED));
 		}
 	}  
 	@EventHandler
@@ -412,9 +416,9 @@ public class Ban implements IModule, Listener{
 			public void run() {
 				try {
 					final String pName = e.getConnection().getName();
-					if(Ban.isBan(pName, "(global)")){
+					if(Ban.isBan(pName, GLOBAL_SERVER)){
 						e.setCancelled(true);
-						e.setCancelReason("Vous etes banni !");
+						e.setCancelReason(IS_BANNED);
 					}
 
 				} finally {
