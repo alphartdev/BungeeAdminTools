@@ -359,7 +359,7 @@ public class MuteCommand extends CommandHandler{
 
 	@RunAsync
 	public static class UnmuteCmd extends BATCommand{
-		public UnmuteCmd() {super("unmute", "<player> [server] [reason] - Unmute the player", MUTE_PERM);}
+		public UnmuteCmd() {super("unmute", "<player> [server] [reason] - Unmute the player from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
