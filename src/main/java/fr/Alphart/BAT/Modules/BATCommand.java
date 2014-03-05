@@ -8,6 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -15,13 +17,20 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.TabExecutor;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+
 import fr.Alphart.BAT.BAT;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor{
+	private static final Pattern pattern = Pattern.compile("<.*?>");
 	private final String name;
+	private final String syntax;
 	private final String description;
-	private final String permission;
 	private boolean runAsync = false;
+	
+	private int minArgs = 0;
 
 	/**
 	 * Constructor
@@ -30,31 +39,30 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	 * @param permission  permission required to use this commands
 	 * @param aliases  aliases of this commnad (optionnal)
 	 */
-	public BATCommand(final String name, final String description, final String permission, final String... aliases){
+	public BATCommand(final String name, final String syntax, final String description, final String permission, final String... aliases){
 		super(name, permission, aliases);
 		this.name = name;
+		this.syntax = syntax;
 		this.description = description;
-		this.permission = permission;
 
+		// Compute min args
+		Matcher matcher = pattern.matcher(syntax);
+		while(matcher.find()){
+			minArgs++;
+		}
+		
 		final RunAsync asyncAnnot = getClass().getAnnotation(RunAsync.class);
 		if(asyncAnnot != null){
 			runAsync = true;
 		}
 	}
 
-	@Override
-	public String getName(){return name;}
+	public String getDescription(){
+		return description;
+	}
 
-	public String getDescription(){return description;}
-
-	public String getPermissions(){return permission;}
-
-	/**
-	 * Get command usage
-	 * @return command's usage
-	 */
 	public String getUsage(){
-		final String usage = name + " " + description;
+		final String usage = Joiner.on(' ').join(name, syntax, description);
 		return usage;
 	}
 
@@ -63,7 +71,41 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	 * @return coloured usage
 	 */
 	public String getFormatUsage(){
-		return ChatColor.translateAlternateColorCodes('&', getUsage().replaceAll("(\\w*\\s)(.*)", "$1&6$2").replaceAll(" - ", "&f : &B"));
+		return ChatColor.translateAlternateColorCodes('&', "&e" + name + " &6" + syntax + " &f-&B " + description);
+	}
+
+	@Override
+	public void execute(final CommandSender sender, final String[] args) {
+			Preconditions.checkArgument(args.length >= minArgs);
+			if(runAsync){
+				ProxyServer.getInstance().getScheduler().runAsync(BAT.getInstance(), new Runnable(){
+					@Override
+					public void run() {
+						executeCmd(sender, args);
+					}			
+				});
+			}
+			else{
+				executeCmd(sender, args);
+			}
+	}
+	
+	/**
+	 * Intermediate function to catch the error regardless of the command is executed sync or async
+	 * @param sender
+	 * @param args
+	 */
+	public void executeCmd(final CommandSender sender, final String[] args){
+		try{
+			onCommand(sender, args);
+		}catch(final IllegalArgumentException exception){
+			if(exception.getMessage() == null){
+				sender.sendMessage(__("&cArguments invalides. &BUsage : "));
+				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
+			} else {
+				sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
+			}
+		}	
 	}
 
 	// TODO: Need to make an autocomplete db related
@@ -84,41 +126,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		}
 		return result;
 	}
-
-
-	@Override
-	public void execute(final CommandSender sender, final String[] args) {
-		if(runAsync){
-			ProxyServer.getInstance().getScheduler().runAsync(BAT.getInstance(), new Runnable(){
-				@Override
-				public void run() {
-					try{
-						onCommand(sender, args);
-					}catch(final IllegalArgumentException exception){
-						if(exception.getMessage() == null){
-							sender.sendMessage(__("&cArguments invalides. &BUsage : "));
-							sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
-						} else {
-							sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
-						}
-					}
-				}			
-			});
-		}
-		else{
-			try{
-				onCommand(sender, args);
-			}catch(final IllegalArgumentException exception){
-				if(exception.getMessage() == null){
-					sender.sendMessage(__("&cArguments invalides. &BUsage : "));
-					sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
-				} else {
-					sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
-				}
-			}	
-		}
-	}
-
+	
 	public abstract void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException;
 
 	/**
@@ -141,14 +149,4 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		}
 		return false;
 	}
-
-	public static void invalidArgs(final CommandSender sender, final String message){
-		if(message == null) {
-			sender.sendMessage(__("&cArguments invalides. "));
-		} else{
-			sender.sendMessage(__("&cArguments invalides."));
-			sender.sendMessage( TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&6Utilisation: &B" + message)) );
-		}
-	}
-
 }

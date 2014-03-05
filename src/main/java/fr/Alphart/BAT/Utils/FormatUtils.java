@@ -88,14 +88,10 @@ public class FormatUtils {
 		sb.append("&9 - &fAIDE &9---- ");
 		msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',  sb.toString())));
 		sb.setLength(0);
-		for(final BATCommand cmd: cmds){
+		for(final BATCommand cmd : cmds){
 			if(sender.hasPermission(cmd.getPermission())){
 				sb.append(" &f- &e/");
-				if(helpName.equals("CORE")) {
-					sb.append(cmd.getUsage().replaceFirst("(\\w*\\s\\w*)", "$1&6").replaceAll("-", "&f:&B"));
-				} else {
-					sb.append(cmd.getFormatUsage());
-				}
+				sb.append(cmd.getFormatUsage());
 				msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',  sb.toString())));
 				sb.setLength(0);
 			}

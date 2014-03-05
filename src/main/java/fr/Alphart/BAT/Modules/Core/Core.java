@@ -76,12 +76,16 @@ public class Core implements IModule, Listener{
 		return "bat";
 	}
 
-	public void updatePlayerIP(final ProxiedPlayer player){
+	/**
+	 * Update the IP and UUID of a player in the database
+	 * @param player
+	 */
+	public void updatePlayerIP_UUID(final ProxiedPlayer player){
 		PreparedStatement statement = null; 
 		try  (Connection conn  = BAT.getConnection()) {
 			statement = (DataSourceHandler.isSQLite())
 					? conn.prepareStatement(SQLQueries.Core.SQLite.updateIP)
-							: conn.prepareStatement(SQLQueries.Core.updateIP);
+					: conn.prepareStatement(SQLQueries.Core.updateIP);
 					statement.setString(1, player.getName());
 					final String ip = Utils.getPlayerIP(player);
 					statement.setString(2, ip);
@@ -94,7 +98,7 @@ public class Core implements IModule, Listener{
 		}
 
 	}
-
+	
 	public static String getPlayerIP(final String pName){
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if(player != null) {
@@ -121,10 +125,10 @@ public class Core implements IModule, Listener{
 	@EventHandler
 	public void onPlayerJoin(final PostLoginEvent e){
 		BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
-
 			@Override
 			public void run() {
-				updatePlayerIP(e.getPlayer());
+				updatePlayerIP_UUID(e.getPlayer());
+				e.getPlayer().getUUID();
 			}
 		});
 	}

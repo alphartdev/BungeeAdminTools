@@ -19,11 +19,10 @@ public class KickCommand extends CommandHandler {
 	}
 
 	public static class KickCmd extends BATCommand{
-		public KickCmd() {super("kick", "<player> [reason] - Kick the player from his current server to the lobby", KICK_PERM);}
+		public KickCmd() {super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", KICK_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("kick").getCommands(), sender, "KICK");
@@ -34,10 +33,7 @@ public class KickCommand extends CommandHandler {
 			}
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			if(player == null){
-				BATCommand.invalidArgs(sender, "&cLe joueur est introuvable.");
-				return;
-			}
+			checkArgument(player != null, "&cLe joueur est introuvable.");
 			String returnedMsg;
 
 			// Command pattern : /kick <name>
@@ -55,17 +51,13 @@ public class KickCommand extends CommandHandler {
 	}
 
 	public static class GKickCmd extends BATCommand{
-		public GKickCmd() {super("gkick", "<player> [reason] - Kick the player from the proxy", KICK_PERM);}
+		public GKickCmd() {super("gkick", "<player> [reason]", "Kick the player from the proxy", KICK_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			if(player == null){
-				BATCommand.invalidArgs(sender, "&cLe joueur est introuvable.");
-				return;
-			}
+			checkArgument(player != null, "&cLe joueur est introuvable.");
 			String returnedMsg;
 
 			// Command pattern : /kick <name>

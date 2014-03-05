@@ -32,11 +32,10 @@ public class MuteCommand extends CommandHandler{
 
 	@RunAsync
 	public static class MuteCmd extends BATCommand{
-		public MuteCmd() {super("mute", "<player> [server] [reason] - Mute definitively the player from the specified server", MUTE_PERM);}
+		public MuteCmd() {super("mute", "<player> [server] [reason]", "Mute definitively the player from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("mute").getCommands(), sender, "MUTE");
@@ -81,11 +80,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class MuteIPCmd extends BATCommand{
-		public MuteIPCmd() {super("muteip", "<player/ip> [server] [reason] - Mute definitively the player's IP", MUTE_PERM);}
+		public MuteIPCmd() {super("muteip", "<player/ip> [server] [reason]", "Mute definitively the player's IP", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -140,11 +138,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GMuteCmd extends BATCommand{
-		public GMuteCmd() {super("gmute", "<name> [reason] - Mute definitively the player from the whole network", MUTE_PERM);}
+		public GMuteCmd() {super("gmute", "<name> [reason]", "Mute definitively the player from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String pName = args[0];
 			String returnedMsg;
@@ -164,11 +161,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GMuteIPCmd extends BATCommand{
-		public GMuteIPCmd() {super("gmuteip", "<player/ip> [reason] - Mute definitively player's IP from the whole network", MUTE_PERM);}
+		public GMuteIPCmd() {super("gmuteip", "<player/ip> [reason]", "Mute definitively player's IP from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -202,11 +198,10 @@ public class MuteCommand extends CommandHandler{
 
 	@RunAsync
 	public static class TempMuteCmd extends BATCommand{
-		public TempMuteCmd() {super("tempmute", "<player/ip> <duration> [server] [reason] - Mute temporarily the player from the specified server", MUTE_PERM);}
+		public TempMuteCmd() {super("tempmute", "<player/ip> <duration> [server] [reason]", "Mute temporarily the player from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 			final String pName = args[0];
 			String returnedMsg;
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
@@ -238,11 +233,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class TempMuteIPCmd extends BATCommand{
-		public TempMuteIPCmd() {super("tempmuteip", "<player> <duration> [server] [reason] - Mute temporarily player's IP from the specified server", MUTE_PERM);}
+		public TempMuteIPCmd() {super("tempmuteip", "<player> <duration> [server] [reason]", "Mute temporarily player's IP from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -295,11 +289,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GTempMuteCmd extends BATCommand{
-		public GTempMuteCmd() {super("gtempmute", "<player> <duration> [reason] - Mute temporarily the player from the whole network", MUTE_PERM);}
+		public GTempMuteCmd() {super("gtempmute", "<player> <duration> [reason]", "Mute temporarily the player from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String pName = args[0];
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
@@ -320,11 +313,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GTempMuteIPCmd extends BATCommand{
-		public GTempMuteIPCmd() {super("gtempmuteip", "<player/ip> <duration> [reason] - Mute temporarily player's IP from the whole network", MUTE_PERM);}
+		public GTempMuteIPCmd() {super("gtempmuteip", "<player/ip> <duration> [reason]", "Mute temporarily player's IP from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -359,11 +351,10 @@ public class MuteCommand extends CommandHandler{
 
 	@RunAsync
 	public static class UnmuteCmd extends BATCommand{
-		public UnmuteCmd() {super("unmute", "<player> [server] [reason] - Unmute the player from the specified server", MUTE_PERM);}
+		public UnmuteCmd() {super("unmute", "<player> [server] [reason]", "Unmute the player from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -395,11 +386,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class UnmuteIPCmd extends BATCommand{
-		public UnmuteIPCmd() {super("unmuteip", "<player/ip> [server] [reason] - Unmute IP from the specified server", MUTE_PERM);}
+		public UnmuteIPCmd() {super("unmuteip", "<player/ip> [server] [reason]", "Unmute IP from the specified server", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String entity = args[0];
 			String returnedMsg = null;
 
@@ -431,11 +421,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GUnmuteCmd extends BATCommand{
-		public GUnmuteCmd() {super("gunmute", "<player> [reason] - Unmute the player from the whole network", MUTE_PERM);}
+		public GUnmuteCmd() {super("gunmute", "<player> [reason]", "Unmute the player from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -453,11 +442,10 @@ public class MuteCommand extends CommandHandler{
 	}
 	@RunAsync
 	public static class GUnmuteIPCmd extends BATCommand{
-		public GUnmuteIPCmd() {super("gunmuteip", "<player/ip> [reason] - Unmute IP from the whole network", MUTE_PERM);}
+		public GUnmuteIPCmd() {super("gunmuteip", "<player/ip> [reason]", "Unmute IP from the whole network", MUTE_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String entity = args[0];
 			String returnedMsg = null;
 

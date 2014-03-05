@@ -29,11 +29,10 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class BanCmd extends BATCommand{
-		public BanCmd() {super("ban", "<player> [server] [reason] - Ban definitively the player from the specified server", BAN_PERM);}
+		public BanCmd() {super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("ban").getCommands(), sender, "BAN");
@@ -78,11 +77,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class BanIPCmd extends BATCommand{
-		public BanIPCmd() {super("banip", "<player/ip> [server] [reason] - Ban definitively player's IP from the specified server", BAN_PERM);}
+		public BanIPCmd() {super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -137,11 +135,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanCmd extends BATCommand{
-		public GBanCmd() {super("gban", "<player> [reason] - Ban definitively the player from the whole network", BAN_PERM);}
+		public GBanCmd() {super("gban", "<player> [reason]", "Ban definitively the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String pName = args[0];
 			String returnedMsg;
@@ -161,11 +158,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanIPCmd extends BATCommand{
-		public GBanIPCmd() {super("gbanip", "<player/ip> [reason] - Ban définitivement player's IP from the whole network", BAN_PERM);}
+		public GBanIPCmd() {super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -199,11 +195,10 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class TempBanCmd extends BATCommand{
-		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason] - Ban temporarily the player from the specified server", BAN_PERM);}
+		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason]", "Ban temporarily the player from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 			final String pName = args[0];
 			String returnedMsg;
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
@@ -235,11 +230,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class TempBanIPCmd extends BATCommand{
-		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason] - Ban temporarily player's IP from the specified server", BAN_PERM);}
+		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason]", "Ban temporarily player's IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -293,11 +287,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanCmd extends BATCommand{
-		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason] - Ban temporarily the player from the whole network", BAN_PERM);}
+		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String pName = args[0];
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
@@ -318,11 +311,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanIPCmd extends BATCommand{
-		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason] - Ban temporarily player's IP from the whole network", BAN_PERM);}
+		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason]", "Ban temporarily player's IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 2);
 
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
@@ -357,11 +349,10 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
-		public PardonCmd() {super("pardon", "<player> [server] [reason] - Unban the player from the specified server", BAN_PERM);}
-
+		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", BAN_PERM);}
+		
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -393,11 +384,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class PardonIPCmd extends BATCommand{
-		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason] - Unban IP from the specified server", BAN_PERM);}
+		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String entity = args[0];
 			String returnedMsg = null;
 
@@ -429,11 +419,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonCmd extends BATCommand{
-		public GPardonCmd() {super("gpardon", "<player> [reason] - Unban the player from the whole network", BAN_PERM);}
+		public GPardonCmd() {super("gpardon", "<player> [reason]", "Unban the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -451,11 +440,10 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonIPCmd extends BATCommand{
-		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason] - Unban IP from the whole network", BAN_PERM);}
+		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 			final String entity = args[0];
 			String returnedMsg = null;
 

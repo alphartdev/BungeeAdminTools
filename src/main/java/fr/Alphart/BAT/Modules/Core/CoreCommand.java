@@ -46,7 +46,7 @@ public class CoreCommand{
 	public static class CommandHandler extends BATCommand{
 		private final Map<String, BATCommand> subCmd;
 		public CommandHandler() {
-			super("bat", "", "");
+			super("bat", "", "", "");
 			subCmd = new HashMap<String, BATCommand>();
 
 			final LookupCmd lookup = new LookupCmd();
@@ -90,7 +90,7 @@ public class CoreCommand{
 	}
 
 	public static class HelpCmd extends BATCommand{
-		public HelpCmd() {super("bat help", "- Show the help", "bat.help");}
+		public HelpCmd() {super("bat help", "", "Show the help", "bat.help");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			final List<BATCommand> cmdsList = new ArrayList<BATCommand>();
@@ -105,7 +105,7 @@ public class CoreCommand{
 
 	public static class ModulesCmd extends BATCommand{
 		private final StringBuilder sb = new StringBuilder();
-		public ModulesCmd() {super("bat modules", "- Show the loaded modules and their commands", "bat.modules");}
+		public ModulesCmd() {super("bat modules", "", "Show the loaded modules and their commands", "bat.modules");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			sender.sendMessage(__("The loaded modules are :&a"));
@@ -134,10 +134,9 @@ public class CoreCommand{
 	public static class LookupCmd extends BATCommand{
 		private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy à HH'h'mm");
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
-		public LookupCmd() {super("bat lookup", "<player/ip> - Display a player or an ip related informations", "bat.lookup");}
+		public LookupCmd() {super("bat lookup", "<player/ip>", "Display a player or an ip related informations", "bat.lookup");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length >= 1);
 
 			if(Utils.validIP(args[0]))
 			{
@@ -347,10 +346,9 @@ public class CoreCommand{
 
 	@RunAsync
 	public static class InsertCmd extends BATCommand{
-		public InsertCmd() {super("bat insert", "Insère des informations aléatoires dans la DB", "bat.lookup");}
+		public InsertCmd() {super("bat insert", "", "Insère des informations aléatoires dans la DB", "bat.lookup");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			checkArgument(args.length == 0);
 
 			sender.sendMessage(__("Insertion des infos en cours ..."));
 
