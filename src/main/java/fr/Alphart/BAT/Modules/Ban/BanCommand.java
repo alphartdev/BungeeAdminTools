@@ -1,13 +1,11 @@
 package fr.Alphart.BAT.Modules.Ban;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
-import java.math.BigInteger;
-
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -20,14 +18,10 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 public class BanCommand extends CommandHandler {
 	private static final String BAN_PERM = Ban.BAN_PERM;
 
-	private static final String ALREADY_BAN = "&cCe joueur est déjà banni de ce serveur!";
-	private static final String NOT_BAN = "&c%entity% n'est pas banni de ce serveur.";
-	private static final String NOT_BANIP = "&c%entity% n'est pas banni IP de ce serveur.";
-	private static final String NOT_BAN_ANY = "&c%entity% n'est banni d'aucun serveur !";
-
-	private static final String SPECIFY_SERVER = "&cVous devez spécifier un serveur !";
-	private static final String INVALID_SERVER = "&cLe serveur spécifié est invalide!";
-	private static final String IP_OFFLINE_PLAYER = "&cLe joueur doit être connecté pour bannir son IP!";
+	private static final String ALREADY_BAN = "&cThis player is already banned from this server!";
+	private static final String NOT_BAN = "&c%entity% isn't banned from this server.";
+	private static final String NOT_BANIP = "&c%entity% isn't banned IP from this server.";
+	private static final String NOT_BAN_ANY = "&c%entity% isn't banned from any server !";
 
 	public BanCommand(final Ban banModule){
 		super(banModule);
@@ -35,7 +29,7 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class BanCmd extends BATCommand{
-		public BanCmd() {super("ban", "<nom> [serveur(serveur actuel par defaut)] [raison] - Bannit definitivement le joueur du serveur specifié", BAN_PERM);}
+		public BanCmd() {super("ban", "<player> [server] [reason] - Ban definitively the player from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -54,7 +48,7 @@ public class BanCommand extends CommandHandler {
 			// Command pattern : /ban <name>
 			if(args.length == 1){
 				// If the sender isn't a player, he has to specify a server
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				// If the player is already ban of this server, the command is gonna be cancelled
@@ -65,7 +59,7 @@ public class BanCommand extends CommandHandler {
 			else{
 				final String server = args[1];
 				// Check if the server is an valid server
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				// Check if the player isn't already banned from this server
 				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
 
@@ -84,7 +78,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class BanIPCmd extends BATCommand{
-		public BanIPCmd() {super("banip", "<nom/ip> [serveur(serveur actuel par defaut)] [raison] - Bannit définitivement l'IP du joueur du serveur specifié", BAN_PERM);}
+		public BanIPCmd() {super("banip", "<player/ip> [server] [reason] - Ban definitively player's IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -94,13 +88,13 @@ public class BanCommand extends CommandHandler {
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
 			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
 			}
 			String returnedMsg = null;
 
 			// Command pattern : /ban <name>
 			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
@@ -113,7 +107,7 @@ public class BanCommand extends CommandHandler {
 			}
 			else{
 				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
 
 				// Command pattern : /ban <name> <server>
@@ -143,7 +137,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanCmd extends BATCommand{
-		public GBanCmd() {super("gban", "<nom> [raison] - Bannit definitivement le joueur de tous les serveurs", BAN_PERM);}
+		public GBanCmd() {super("gban", "<player> [reason] - Ban definitively the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -167,7 +161,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanIPCmd extends BATCommand{
-		public GBanIPCmd() {super("gbanip", "<nom/ip> [raison] - Bannit définitivement l'IP du joueur de tous les serveurs", BAN_PERM);}
+		public GBanIPCmd() {super("gbanip", "<player/ip> [reason] - Ban définitivement player's IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -177,7 +171,7 @@ public class BanCommand extends CommandHandler {
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
 			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
 			}
 			String returnedMsg;
 
@@ -205,7 +199,7 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class TempBanCmd extends BATCommand{
-		public TempBanCmd() {super("tempban", "<nom> <durée> [serveur(serveur actuel par defaut)] [raison] - Bannit temporairement le joueur du serveur specifié", BAN_PERM);}
+		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason] - Ban temporarily the player from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -216,7 +210,7 @@ public class BanCommand extends CommandHandler {
 
 			// Command pattern : /ban <name> <durate>
 			if(args.length == 2){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
 
@@ -224,7 +218,7 @@ public class BanCommand extends CommandHandler {
 			}
 			else{
 				final String server = args[2];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
 
 				// Command pattern: /ban <name> <durate> <server>
@@ -241,7 +235,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class TempBanIPCmd extends BATCommand{
-		public TempBanIPCmd() {super("tempbanip", "<nom/ip> <durée> [serveur(serveur actuel par defaut)] [raison] - Bannit temporairement l'IP du joueur du serveur specifié", BAN_PERM);}
+		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason] - Ban temporarily player's IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -251,14 +245,14 @@ public class BanCommand extends CommandHandler {
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
 			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
 			}
 			String returnedMsg;
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 
 			// Command pattern : /ban <name> <durate>
 			if(args.length == 2){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
 
@@ -270,7 +264,7 @@ public class BanCommand extends CommandHandler {
 			}
 			else{
 				final String server = args[2];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
 
 				// Command pattern: /ban <name> <durate> <server>
@@ -299,7 +293,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanCmd extends BATCommand{
-		public GTempBanCmd() {super("gtempban", "<nom> <durée> [raison] - Bannit temporairement le joueur de tous les serveurs", BAN_PERM);}
+		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason] - Ban temporarily the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -324,7 +318,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanIPCmd extends BATCommand{
-		public GTempBanIPCmd() {super("gtempbanip", "<nom/ip> <durée> [raison] - Bannit temporairement l'IP du joueur de tous les serveurs", BAN_PERM);}
+		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason] - Ban temporarily player's IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -334,7 +328,7 @@ public class BanCommand extends CommandHandler {
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
 			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
 			}
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
@@ -363,7 +357,7 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
-		public PardonCmd() {super("pardon", "<nom> [serveur(serveur actuel par defaut)] [raison] - Debannit le joueur", BAN_PERM);}
+		public PardonCmd() {super("pardon", "<player> [server] [reason] - Unban the player from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -373,7 +367,7 @@ public class BanCommand extends CommandHandler {
 
 			// Command pattern : /ban <name>
 			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				checkArgument(Ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
 
@@ -381,7 +375,7 @@ public class BanCommand extends CommandHandler {
 			}
 			else{
 				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				checkArgument(Ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
 
 				// Command pattern : /ban <name> <server>
@@ -399,7 +393,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class PardonIPCmd extends BATCommand{
-		public PardonIPCmd() {super("pardonip", "<nom/ip> [serveur(serveur actuel par defaut)] [raison] - Debannit l'IP", BAN_PERM);}
+		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason] - Unban IP from the specified server", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -409,7 +403,7 @@ public class BanCommand extends CommandHandler {
 
 			// Command pattern : /ban <name>
 			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
+				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				checkArgument(Ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
 
@@ -417,7 +411,7 @@ public class BanCommand extends CommandHandler {
 			}
 			else{
 				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
+				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				checkArgument(Ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
 
 				// Command pattern : /ban <name> <server>
@@ -435,7 +429,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonCmd extends BATCommand{
-		public GPardonCmd() {super("gpardon", "<nom> [raison] - Debannit le joueur de tous les serveurs", BAN_PERM);}
+		public GPardonCmd() {super("gpardon", "<player> [reason] - Unban the player from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -457,7 +451,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonIPCmd extends BATCommand{
-		public GPardonIPCmd() {super("gpardonip", "<nom/ip> [raison] - Debannit ip l'ip ou le joueur specifié de tous les serveurs", BAN_PERM);}
+		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason] - Unban IP from the whole network", BAN_PERM);}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
@@ -478,71 +472,4 @@ public class BanCommand extends CommandHandler {
 			BAT.broadcast(returnedMsg, BAN_PERM);
 		}	
 	}
-
-	public static class EuclideCmd extends BATCommand{
-		public EuclideCmd() {super("euclide", "<n>- Calcule le nombre d'entier a n de 0 a n", BAN_PERM);}
-
-		@Override
-		@SuppressWarnings("deprecation")
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			if(args.length < 1){
-				BATCommand.invalidArgs(sender, getUsage());
-				return;
-			}
-			final long n = Long.parseLong(args[0]);
-
-			final long nDivisePar100 = n / 100;
-
-			int nbPremier = 0;
-
-			sender.sendMessage("Demarrage de la boucle");
-			for(long i=1; i < n; i++){
-				final long pgcd = pgcd(n, i);
-				if(pgcd == 1){
-					sender.sendMessage(i + " est premier");
-					nbPremier++;
-				}
-				if(i % nDivisePar100 == 0){
-					sender.sendMessage("Progression " + i / n + "%");
-				}
-			}
-			sender.sendMessage("Il y a " + nbPremier + " nbs premiers entre 0 et n. ==> phi =" + nbPremier);
-		}
-
-		public static long pgcd(long a, long b) {
-			while (a != b) {
-				if (a < b) {
-					b = b - a;
-				} else {
-					a = a - b;
-				}
-			}
-			return a;
-		}
-	}
-
-	public static class ModuloCmd extends BATCommand{
-		public ModuloCmd() {super("modulo", "<a> <puissance> <n> - Calcule a^puissance (mod n)", BAN_PERM);}
-
-		@Override
-		@SuppressWarnings("deprecation")
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			if(args.length < 3){
-				BATCommand.invalidArgs(sender, getUsage());
-				return;
-			}
-			final Integer a = Integer.parseInt(args[0]);
-			final Integer puissance = Integer.parseInt(args[1]);
-			final Integer n = Integer.parseInt(args[2]);
-
-			BigInteger result = BigInteger.valueOf(a);
-
-			sender.sendMessage(a+ "^" + puissance + "(mod " + n  + ") est egal à ");
-			result = (result.pow(puissance));
-			result = result.mod(BigInteger.valueOf(n));
-			sender.sendMessage(result.toString());
-		}
-	}
-
-
 }

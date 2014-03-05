@@ -38,10 +38,10 @@ public class Ban implements IModule, Listener{
 	private BanConfig config;
 	// Message
 	private static final String BAN_MSG = "&a%entity%&e was &6banned definitively&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
-	private static final String BANTEMP_MSG = "&a%entity%&e was &6banned &e &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private static final String BANTEMP_MSG = "&a%entity%&e was &6banned&e &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private static final String UNBAN_MSG = "&a%entity%&e was &6unbanned&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	
-	private static final String WAS_BANNED_MSG = "Vous avez ete banni. Raison : %reason%";
+	private static final String WAS_BANNED_MSG = "You was banned. Reason : %reason%";
 	private static final String IS_BANNED = "You are banned from this server.";
 
 	@Override
@@ -389,7 +389,7 @@ public class Ban implements IModule, Listener{
 
 		if(Ban.isBan(player, e.getTarget().getName())){
 			if(e.getTarget().getName().equals(player.getPendingConnection().getListener().getDefaultServer())){
-				// We need to kick the player during the ServerConnectedEvent
+				// We need to kick the player during the ServerConnectedEvent, in order to send him a message
 				playerToKick.add(player.getName());
 				return;
 			}
