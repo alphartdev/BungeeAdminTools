@@ -28,8 +28,8 @@ public class Kick implements IModule{
 	private KickConfig config;
 
 	// Message
-	private final static String KICK_MSG = "&a%entity%&e a ete &6kicke&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-	private final static String GKICK_MSG = "&a%entity%&e a ete &6kicke&e par &a%staff%&e du proxy. Raison : %reason%";
+	private final static String KICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private final static String GKICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the network. Reason : %reason%";
 	
 	private final static String WAS_KICKED_MSG = "You was kicked from this server ! Reason : %reason%";
 
@@ -84,12 +84,13 @@ public class Kick implements IModule{
 
 		return false;
 	}
+	
+
 	public class KickConfig extends ModuleConfiguration{
 		public KickConfig(final IModule module) {
 			super(module);
 		}
 	}
-
 
 	/**
 	 * Kick a player and tp him to the default server
