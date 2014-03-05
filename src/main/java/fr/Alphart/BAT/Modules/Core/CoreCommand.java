@@ -40,7 +40,7 @@ public class CoreCommand{
 	private final static BaseComponent[] CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
 			"&f||&9Bungee&fAdmin&cTools&f||&e - Developped by &aAlphart"));
 	private final static BaseComponent[] HELP_MSG = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-			"Ecrivez /bat help pour obtenir de l'aide"));
+			"Type /bat help to get help"));
 
 	// The command handler receive all /bat command and dispatch them to the appropriate class
 	public static class CommandHandler extends BATCommand{
@@ -90,7 +90,7 @@ public class CoreCommand{
 	}
 
 	public static class HelpCmd extends BATCommand{
-		public HelpCmd() {super("bat help", "- Affiche l'aide", "bat.help");}
+		public HelpCmd() {super("bat help", "- Show the help", "bat.help");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			final List<BATCommand> cmdsList = new ArrayList<BATCommand>();
@@ -105,10 +105,10 @@ public class CoreCommand{
 
 	public static class ModulesCmd extends BATCommand{
 		private final StringBuilder sb = new StringBuilder();
-		public ModulesCmd() {super("bat modules", "- Affiche les modules actifs", "bat.modules");}
+		public ModulesCmd() {super("bat modules", "- Show the loaded modules and their commands", "bat.modules");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			sender.sendMessage(__("Les modules chargés sont :&a"));
+			sender.sendMessage(__("The loaded modules are :&a"));
 			for(final IModule module : BAT.getInstance().getModules().getLoadedModules()){
 				if(module instanceof Core) {
 					continue;
@@ -116,13 +116,13 @@ public class CoreCommand{
 				sb.setLength(0);
 				sb.append("&f - &9");
 				sb.append(module.getName());
-				sb.append(" &f| &eCommande principale : &a/");
+				sb.append(" &f| &eMain command : &a/");
 				sb.append(module.getMainCommand());
 				sender.sendMessage( TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())) );
 			}
 			// It means that no module were loaded otherwise there would be something remaining in the StringBuilder
 			if(sb.length() == 0) {
-				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&cIl n'y a aucun module chargé !")) );
+				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&cThere aren't any loaded modules!")) );
 			}
 			else {
 				sb.setLength(0); // Clean the sb
@@ -132,10 +132,9 @@ public class CoreCommand{
 
 	@RunAsync
 	public static class LookupCmd extends BATCommand{
-		//TODO: The lookup cannot format correctly the timestamp provided by sqlite
 		private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy à HH'h'mm");
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
-		public LookupCmd() {super("bat lookup", "<nom/ip> - Affiche les informations relatives à un joueur ou une ip", "bat.lookup");}
+		public LookupCmd() {super("bat lookup", "<player/ip> - Display a player or an ip related informations", "bat.lookup");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			checkArgument(args.length >= 1);
@@ -163,7 +162,7 @@ public class CoreCommand{
 
 			if(!ipDetails.exist()){
 				final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-				returnedMsg.add(__("&eL'adresse ip &a" + ip + "&e n'a pas d'enregistrement associé."));
+				returnedMsg.add(__("&eThe IP &a" + ip + "&e doesn't have any recording."));
 				return returnedMsg;
 			}
 
@@ -195,28 +194,28 @@ public class CoreCommand{
 				mutesNumber = ipDetails.getMutes().size();
 			}
 
-			finalMsg.append("&eCette adresse ip est utilisée par les joueurs suivants : \n&3 ");
+			finalMsg.append("&eThis IP is used by the following players : \n&3 ");
 			finalMsg.append(Joiner.on("&f, &3").join(ipDetails.getUsers()));
 
 			if(isBan || isMute)
 			{
-				finalMsg.append("\n&eEtat : ");
+				finalMsg.append("\n&eState : ");
 				if(isBan){
-					finalMsg.append("&c&lBanni &esur &3");
+					finalMsg.append("&c&lBanned &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banServers));
 				}
 				if(isMute){
 					if(isBan){
 						finalMsg.append("\n       ");
 					}
-					finalMsg.append("&c&lMute &esur &3");
+					finalMsg.append("&c&lMuted &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(muteServers));
 				}
 			}
 
 			if(bansNumber > 0 || mutesNumber > 0)
 			{
-				finalMsg.append("\n&eHistorique : ");
+				finalMsg.append("\n&eHistory : ");
 				if(bansNumber > 0){
 					finalMsg.append("&B&l");
 					finalMsg.append(bansNumber);
@@ -228,7 +227,7 @@ public class CoreCommand{
 					finalMsg.append( (mutesNumber > 1) ? "&e mutes" : "&e mute" );
 				}
 			}else{
-				finalMsg.append("\n&eAucune sanction repertoriée");
+				finalMsg.append("\n&eNone sanction indexed");
 			}
 
 			finalMsg.append("\n&f-- &BLookup &f- &a");
