@@ -45,9 +45,9 @@ public class Mute implements IModule, Listener{
 	private ScheduledTask task;
 	private MuteConfig config;
 	// Message
-	private static final String MUTE_MSG = "&a%entity%&e a ete &6mute definitivement&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-	private static final String MUTETEMP_MSG = "&a%entity%&e a ete &6mute &ependant &a%duration%&e par &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
-	private static final String UNMUTE_MSG = "&a%entity%&e a ete &6demute &epar &a%staff%&e du serveur &a%serv%&e. Raison : %reason%";
+	private static final String MUTE_MSG = "&a%entity%&e was &6muted definitively&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private static final String MUTETEMP_MSG = "&a%entity%&e was &6muted &eduring &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
+	private static final String UNMUTE_MSG = "&a%entity%&e was &6demuted &eby &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 
 	private static final String WAS_MUTED_MSG = "You was muted. Reason : %reason%";
 	private static final String WAS_UNMUTED_MSG = "You was unmuted. Reason : %reason%";
