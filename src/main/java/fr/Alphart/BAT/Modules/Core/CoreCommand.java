@@ -54,6 +54,8 @@ public class CoreCommand{
 			subCmd.put(help.getName().split(" ")[1], help);
 			final ModulesCmd module = new ModulesCmd();
 			subCmd.put(module.getName().split(" ")[1], module);
+			final ConfirmCmd confirm = new ConfirmCmd();
+			subCmd.put(confirm.getName().split(" ")[1], confirm);
 			//			InsertCmd insert = new InsertCmd();
 			//			subCmd.put(insert.getName().split(" ")[1], insert);
 		}
@@ -79,10 +81,10 @@ public class CoreCommand{
 					if(sender.hasPermission(cmd.getPermission())) {
 						cmd.execute(sender, cleanArgs);
 					} else {
-						sender.sendMessage(__("&cVous n'avez pas la permission !"));
+						sender.sendMessage(__("&cYou don't have the permission !"));
 					}
 				}else{
-					sender.sendMessage(__("Commande invalide !"));
+					sender.sendMessage(__("Invalid command !"));
 				}
 			}
 		}
@@ -342,6 +344,20 @@ public class CoreCommand{
 		}
 	}
 
+	public static class ConfirmCmd extends BATCommand{
+		public ConfirmCmd() {
+			super("bat confirm", "", "Confirm your queued command", "");
+		}
+
+		@Override
+		public void onCommand(CommandSender sender, String[] args) throws IllegalArgumentException {
+			if(!CommandQueue.executeQueueCommand(sender)){
+				sender.sendMessage(__("You have no queued command ..."));
+			}
+		}
+		
+	}
+	
 	@RunAsync
 	public static class InsertCmd extends BATCommand{
 		public InsertCmd() {super("bat insert", "", "Insère des informations aléatoires dans la DB", "bat.lookup");}

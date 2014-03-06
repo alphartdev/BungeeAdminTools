@@ -10,6 +10,7 @@ import java.util.List;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -153,14 +154,20 @@ public class Core implements IModule, Listener{
 		}
 		return "0.0.0.0";
 	}
-
+	
+	// Event listener
 	@EventHandler
-	public void onPlayerJoin(final PostLoginEvent e){
+	public void onPlayerJoin(final PostLoginEvent ev){
 		BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
 			@Override
 			public void run() {
-				updatePlayerIPandUUID(e.getPlayer());
+				updatePlayerIPandUUID(ev.getPlayer());
 			}
 		});
+	}
+	
+	@EventHandler
+	public void onPlayerLeft(final PlayerDisconnectEvent ev){
+		CommandQueue.clearQueuedCommand(ev.getPlayer());
 	}
 }

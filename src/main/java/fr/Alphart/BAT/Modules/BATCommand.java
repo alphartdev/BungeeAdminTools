@@ -108,7 +108,6 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		}	
 	}
 
-	// TODO: Need to make an autocomplete db related
 	@Override
 	public Iterable<String> onTabComplete(final CommandSender sender, final String[] args) {
 		final List<String> result = new ArrayList<String>();
@@ -119,14 +118,16 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		final String playerToCheck = args[args.length - 1];
 		if ( playerToCheck.length() > 0 ){
 			for ( final ProxiedPlayer player : ProxyServer.getInstance().getPlayers() ) {
-				if ( player.getName().substring( 0, (playerToCheck.length() < player.getName().length() ) ? playerToCheck.length() : player.getName().length() ).equalsIgnoreCase( playerToCheck ) ){
-					result.add( player.getName() );
+				if(player.getName().substring(0, (playerToCheck.length()<player.getName().length())
+				? playerToCheck.length() 
+				: player.getName().length()).equalsIgnoreCase(playerToCheck)){
+					result.add(player.getName());
 				}
 			}
 		}
 		return result;
 	}
-
+	
 	public abstract void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException;
 
 	/**
