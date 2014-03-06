@@ -19,6 +19,12 @@ import fr.Alphart.BAT.database.SQLQueries;
  * <b>This task must be runned asynchronously </b>
  */
 public class MuteTask implements Runnable{
+	private Mute mute;
+	
+	public MuteTask(Mute muteModule){
+		mute = muteModule;
+	}
+	
 	@Override
 	public void run() {
 		Statement statement = null;
@@ -36,7 +42,7 @@ public class MuteTask implements Runnable{
 		}
 		// Update player mute data
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
-			Mute.updateMuteData(player.getName());
+			mute.updateMuteData(player.getName());
 		}
 	}
 }

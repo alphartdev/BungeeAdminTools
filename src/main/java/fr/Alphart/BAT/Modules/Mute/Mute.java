@@ -104,7 +104,7 @@ public class Mute implements IModule, Listener{
 
 		mutedPlayers = new ConcurrentHashMap<String, PlayerMuteData>();
 
-		final MuteTask muteTask = new MuteTask();
+		final MuteTask muteTask = new MuteTask(this);
 		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), muteTask, 10, 10, TimeUnit.SECONDS);
 		return true;
 	}
@@ -494,7 +494,7 @@ public class Mute implements IModule, Listener{
 		}
 	}
 	
-	public static void updateMuteData(final String pName) {
+	public void updateMuteData(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player == null) {
 			return;
@@ -543,7 +543,7 @@ public class Mute implements IModule, Listener{
 		mutedPlayers.put(pName, pMuteData);
 	}
 
-	public static void unloadMuteData(final ProxiedPlayer player) {
+	public void unloadMuteData(final ProxiedPlayer player) {
 		mutedPlayers.remove(player.getName());
 	}
 	
@@ -557,10 +557,9 @@ public class Mute implements IModule, Listener{
 		if(muteState == -1){
 			// Load mute data
 			BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
-
 				@Override
 				public void run() {
-					Mute.updateMuteData(pName);
+					updateMuteData(pName);
 				}
 			});
 		}else if(muteState == 1){
