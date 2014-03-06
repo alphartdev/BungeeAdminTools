@@ -11,14 +11,14 @@ public class SQLQueries {
 	public static class Kick{
 		public final static String table = "BAT_kick";
 		public final static String createTable = 
-		"CREATE TABLE IF NOT EXISTS `" + table +"` ("
-		+"`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
-		+"`UUID` varchar(100) NOT NULL,"
-		+"`kick_ip` varchar(50) NOT NULL,"
-		+"`kick_staff` varchar(30) NOT NULL,"
-		+"`kick_reason` varchar(100) NULL,"
-		+"`kick_server` varchar(30) NOT NULL,"
-		+"`kick_date` timestamp NOT NULL,"
+				"CREATE TABLE IF NOT EXISTS `" + table +"` ("
+						+"`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
+						+"`UUID` varchar(100) NOT NULL,"
+						+"`kick_ip` varchar(50) NOT NULL,"
+						+"`kick_staff` varchar(30) NOT NULL,"
+						+"`kick_reason` varchar(100) NULL,"
+						+"`kick_server` varchar(30) NOT NULL,"
+						+"`kick_date` timestamp NOT NULL,"
 
 		+"INDEX(UUID)"
 		+") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
@@ -29,16 +29,16 @@ public class SQLQueries {
 
 		public static class SQLite{
 			public final static String[] createTable = {
-			"CREATE TABLE IF NOT EXISTS `" + table +"` ("
-			+"`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+"`UUID` varchar(100) NOT NULL,"
-			+"`kick_ip` varchar(50) NOT NULL,"
-			+"`kick_staff` varchar(30) NOT NULL,"
-			+"`kick_reason` varchar(100) NULL,"
-			+"`kick_server` varchar(30) NOT NULL,"
-			+"`kick_date` timestamp NOT NULL"
-			+");",
-			"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);"
+				"CREATE TABLE IF NOT EXISTS `" + table +"` ("
+						+"`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+"`UUID` varchar(100) NOT NULL,"
+						+"`kick_ip` varchar(50) NOT NULL,"
+						+"`kick_staff` varchar(30) NOT NULL,"
+						+"`kick_reason` varchar(100) NULL,"
+						+"`kick_server` varchar(30) NOT NULL,"
+						+"`kick_date` timestamp NOT NULL"
+						+");",
+						"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);"
 			};
 			public final static String kickPlayer = "INSERT INTO `" + table
 					+ "`(UUID, kick_ip, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, ?, date());";
@@ -48,10 +48,10 @@ public class SQLQueries {
 	public static class Ban{
 		public final static String table = "BAT_ban";
 		public final static String createTable = 
-			"CREATE TABLE IF NOT EXISTS `" + table + "` (" 
-			+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
-			+ "`UUID` varchar(100) NULL," 
-			+ "`ban_ip` varchar(50) NULL,"
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" 
+						+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
+						+ "`UUID` varchar(100) NULL," 
+						+ "`ban_ip` varchar(50) NULL,"
 
 			+ "`ban_staff` varchar(30) NOT NULL,"
 			+ "`ban_reason` varchar(100) NULL,"
@@ -107,9 +107,9 @@ public class SQLQueries {
 			// Ban related
 			public final static String[] createTable = {
 				"CREATE TABLE IF NOT EXISTS `" + table + "` (" 
-				+ "`ban_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ "`UUID` varchar(100) NULL," 
-				+ "`ban_ip` varchar(50) NULL,"
+						+ "`ban_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "`UUID` varchar(100) NULL," 
+						+ "`ban_ip` varchar(50) NULL,"
 
 				+ "`ban_staff` varchar(30) NOT NULL,"
 				+ "`ban_reason` varchar(100) NULL,"
@@ -142,9 +142,9 @@ public class SQLQueries {
 		public final static String table = "BAT_mute";
 		public final static String createTable = 
 				"CREATE TABLE IF NOT EXISTS `" + table +"` ("
-				+"`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
-				+"`UUID` varchar(100) NULL,"
-				+"`mute_ip` varchar(50) NULL,"
+						+"`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
+						+"`UUID` varchar(100) NULL,"
+						+"`mute_ip` varchar(50) NULL,"
 
 				+ "`mute_staff` varchar(30) NOT NULL,"
 				+ "`mute_reason` varchar(100) NULL,"
@@ -197,9 +197,9 @@ public class SQLQueries {
 		public static class SQLite{
 			public final static String[] createTable = {
 				"CREATE TABLE IF NOT EXISTS `" + table +"` ("
-				+"`mute_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+"`UUID` varchar(100) NULL,"
-				+"`mute_ip` varchar(50) NULL,"
+						+"`mute_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+"`UUID` varchar(100) NULL,"
+						+"`mute_ip` varchar(50) NULL,"
 
 				+ "`mute_staff` varchar(30) NOT NULL,"
 				+ "`mute_reason` varchar(100) NULL,"
@@ -247,7 +247,7 @@ public class SQLQueries {
 		public static final String getIP = "SELECT lastip FROM `" + table +"` WHERE UUID = ?;";
 
 		public static final String getUUID = "SELECT UUID FROM `" + table +"` WHERE BAT_player = ?;";
-		
+
 		public static final String getPlayerData = "SELECT lastip, firstlogin, lastlogin FROM `" + table +"` WHERE UUID = ?;";
 
 		public static final String getIpUsers = "SELECT BAT_player FROM `" + table +"` WHERE lastip = ?";
@@ -255,13 +255,13 @@ public class SQLQueries {
 		public static class SQLite{
 			public static final String createTable[] = {
 				"CREATE TABLE IF NOT EXISTS `" + table +"` ("
-				+"`BAT_player` varchar(30) NOT NULL,"
-				+"`UUID` varchar(100) UNIQUE NOT NULL,"
-				+"`lastip` varchar(50) NOT NULL,"
-				+"`firstlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
-				+"`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL"
-				+");",
-				"CREATE INDEX IF NOT EXISTS `core.player_index` ON " + table + " (`BAT_player`);"};
+						+"`BAT_player` varchar(30) NOT NULL,"
+						+"`UUID` varchar(100) UNIQUE NOT NULL,"
+						+"`lastip` varchar(50) NOT NULL,"
+						+"`firstlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+						+"`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL"
+						+");",
+						"CREATE INDEX IF NOT EXISTS `core.player_index` ON " + table + " (`BAT_player`);"};
 			public static final String updateIPUUID = "INSERT OR REPLACE INTO `" + table +"` (BAT_player, lastip, firstlogin, lastlogin, UUID)"
 					+ " VALUES (?, ?, (SELECT firstlogin FROM `" + table +"` WHERE UUID = ?), DATETIME(), ?);";
 			public static final String getPlayerData = "SELECT strftime('%s',firstlogin), strftime('%s',lastlogin), lastip FROM `" + table +"` WHERE UUID = ?;";

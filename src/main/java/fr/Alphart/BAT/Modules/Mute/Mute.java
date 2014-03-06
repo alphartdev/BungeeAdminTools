@@ -115,7 +115,7 @@ public class Mute implements IModule, Listener{
 		mutedPlayers = null;
 		return true;
 	}
-	
+
 	public class MuteConfig extends ModuleConfiguration{
 		private final List<String> forbiddenCmds;
 
@@ -165,13 +165,13 @@ public class Mute implements IModule, Listener{
 		// Check if the entity is an online player, in this case we're going to use the cached method
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(mutedEntity);
 		if(player != null){
-			int result = isMute(player, server);
+			final int result = isMute(player, server);
 			// If the data aren't loading
 			if(result != -1){
 				return (result == 1);
 			}
 		}
-		
+
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try  (Connection conn  = BAT.getConnection()) {
@@ -493,7 +493,7 @@ public class Mute implements IModule, Listener{
 			return false;
 		}
 	}
-	
+
 	public void updateMuteData(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player == null) {
@@ -546,7 +546,7 @@ public class Mute implements IModule, Listener{
 	public void unloadMuteData(final ProxiedPlayer player) {
 		mutedPlayers.remove(player.getName());
 	}
-	
+
 	// Event Listener
 	@EventHandler
 	public void onServerConnect(final ServerConnectedEvent e) {

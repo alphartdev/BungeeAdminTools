@@ -117,7 +117,7 @@ public class FormatUtils {
 	 * Shortcut to the chatcolor and the textcomponent converter
 	 * @return BaseComponent[] message
 	 */
-	public static BaseComponent[] _(String message){
+	public static BaseComponent[] _(final String message){
 		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
 	}
 }

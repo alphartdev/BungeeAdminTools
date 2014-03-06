@@ -12,7 +12,7 @@ public interface IModule {
 	// Used for text formatting 
 	public static final String STR_GLOBAL = "global";
 	public static final String STR_NO_REASON = "not specified";
-	
+
 	// Module part
 	public final static Integer ON_STATE = 1;
 	public final static Integer OFF_STATE = 0;

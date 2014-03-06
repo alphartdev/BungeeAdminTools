@@ -83,7 +83,7 @@ public class Core implements IModule, Listener{
 		if(player != null){
 			return player.getUUID();
 		}
-		
+
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		String UUID = "";
@@ -101,7 +101,7 @@ public class Core implements IModule, Listener{
 		}
 		return UUID;
 	}
-	
+
 	/**
 	 * Update the IP and UUID of a player in the database
 	 * @param player
@@ -114,7 +114,7 @@ public class Core implements IModule, Listener{
 			System.out.println("UUID : " + UUID);
 			statement = (DataSourceHandler.isSQLite())
 					? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
-					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
+							: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 					statement.setString(1, player.getName());
 					statement.setString(2, ip);
 					statement.setString(3, UUID);
@@ -130,7 +130,7 @@ public class Core implements IModule, Listener{
 		}
 
 	}
-	
+
 	public static String getPlayerIP(final String pName){
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if(player != null) {

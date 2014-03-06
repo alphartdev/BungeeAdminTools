@@ -140,8 +140,7 @@ public class Utils {
 	 * @return
 	 */
 	public static boolean isServer(final String serverName){
-		for (final ServerInfo si : ProxyServer.getInstance().getServers()
-				.values()) {
+		for (final ServerInfo si : ProxyServer.getInstance().getServers().values()) {
 			if (si.getName().equalsIgnoreCase(serverName)) {
 				return true;
 			}

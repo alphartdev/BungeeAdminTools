@@ -40,12 +40,12 @@ public class Ban implements IModule, Listener{
 	private static final String BAN_MSG = "&a%entity%&e was &6banned definitively&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private static final String BANTEMP_MSG = "&a%entity%&e was &6banned&e &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private static final String UNBAN_MSG = "&a%entity%&e was &6unbanned&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
-	
+
 	private static final String WAS_BANNED_MSG = "You were banned. Reason : %reason%";
 	private static final String IS_BANNED = "You are banned from this server.";
 
 	@Override
- 	public List<BATCommand> getCommands() {
+	public List<BATCommand> getCommands() {
 		return commandHandler.getCmds();
 	}
 
@@ -101,13 +101,13 @@ public class Ban implements IModule, Listener{
 		task.cancel();
 		return false;
 	}
-	
+
 	public class BanConfig extends ModuleConfiguration{
 		public BanConfig(final IModule module) {
 			super(module);
 		}
 	}
-	
+
 	/**
 	 * Check if both ip and name of this player are banned
 	 * @param player

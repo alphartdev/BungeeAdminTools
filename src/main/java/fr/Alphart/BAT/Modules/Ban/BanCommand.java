@@ -346,7 +346,7 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
 		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", BAN_PERM);}
-		
+
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
 			final String pName = args[0];

@@ -12,8 +12,6 @@ import fr.Alphart.BAT.database.SQLQueries;
  * This task handle the tempban's state update.
  */
 public class BanTask implements Runnable{
-
-
 	@Override
 	public void run() {
 		Statement statement = null;
@@ -31,5 +29,4 @@ public class BanTask implements Runnable{
 			DataSourceHandler.close(statement);
 		}
 	}
-
 }

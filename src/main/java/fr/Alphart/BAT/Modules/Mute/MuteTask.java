@@ -19,12 +19,12 @@ import fr.Alphart.BAT.database.SQLQueries;
  * <b>This task must be runned asynchronously </b>
  */
 public class MuteTask implements Runnable{
-	private Mute mute;
-	
-	public MuteTask(Mute muteModule){
+	private final Mute mute;
+
+	public MuteTask(final Mute muteModule){
 		mute = muteModule;
 	}
-	
+
 	@Override
 	public void run() {
 		Statement statement = null;

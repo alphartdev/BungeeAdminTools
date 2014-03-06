@@ -31,7 +31,7 @@ public class Kick implements IModule{
 	// Message
 	private final static String KICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private final static String GKICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the network. Reason : %reason%";
-	
+
 	private final static String WAS_KICKED_MSG = "You were kicked from this server ! Reason : %reason%";
 
 	@Override
@@ -85,7 +85,7 @@ public class Kick implements IModule{
 
 		return false;
 	}
-	
+
 	public class KickConfig extends ModuleConfiguration{
 		public KickConfig(final IModule module) {
 			super(module);

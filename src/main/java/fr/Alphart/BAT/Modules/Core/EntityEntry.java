@@ -80,7 +80,7 @@ public class EntityEntry {
 				DataSourceHandler.close(statement, resultSet);
 			}
 		}
-		
+
 		// This is an ip
 		else
 		{

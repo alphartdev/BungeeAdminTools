@@ -29,7 +29,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	private final String syntax;
 	private final String description;
 	private boolean runAsync = false;
-	
+
 	private int minArgs = 0;
 
 	/**
@@ -46,11 +46,11 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		this.description = description;
 
 		// Compute min args
-		Matcher matcher = pattern.matcher(syntax);
+		final Matcher matcher = pattern.matcher(syntax);
 		while(matcher.find()){
 			minArgs++;
 		}
-		
+
 		final RunAsync asyncAnnot = getClass().getAnnotation(RunAsync.class);
 		if(asyncAnnot != null){
 			runAsync = true;
@@ -126,7 +126,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		}
 		return result;
 	}
-	
+
 	public abstract void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException;
 
 	/**
