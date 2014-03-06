@@ -42,6 +42,7 @@ public class EntityEntry {
 	public EntityEntry(final String entity) {
 		this.entity = entity;
 
+		// This is a player
 		if(!Utils.validIP(entity))
 		{
 			// Get players basic information (first/last login, last ip)
@@ -50,7 +51,7 @@ public class EntityEntry {
 			ResultSet resultSet = null;
 			try(Connection conn = BAT.getConnection()){
 				statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.getPlayerData) : conn.prepareStatement(SQLQueries.Core.getPlayerData);
-				statement.setString(1, entity);
+				statement.setString(1, Core.getUUID(entity));
 
 				resultSet = statement.executeQuery();
 
@@ -79,6 +80,8 @@ public class EntityEntry {
 				DataSourceHandler.close(statement, resultSet);
 			}
 		}
+		
+		// This is an ip
 		else
 		{
 			// Get users from this ip

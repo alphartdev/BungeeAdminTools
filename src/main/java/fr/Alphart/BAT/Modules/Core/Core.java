@@ -117,10 +117,10 @@ public class Core implements IModule, Listener{
 					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 					statement.setString(1, player.getName());
 					statement.setString(2, ip);
-					statement.setString(3, (DataSourceHandler.isSQLite()) ? player.getName() : UUID);
+					statement.setString(3, UUID);
 					statement.setString(4, (DataSourceHandler.isSQLite()) ? UUID : ip);
 					if(!DataSourceHandler.isSQLite()){
-						statement.setString(5, UUID);
+						statement.setString(5, player.getName());
 					}
 					statement.executeUpdate();
 		} catch (final SQLException e) {
@@ -141,7 +141,7 @@ public class Core implements IModule, Listener{
 		ResultSet resultSet = null;
 		try  (Connection conn  = BAT.getConnection()) {
 			statement = conn.prepareStatement(SQLQueries.Core.getIP);
-			statement.setString(1, pName);
+			statement.setString(1, getUUID(pName));
 			resultSet = statement.executeQuery();
 			if(resultSet.next()) {
 				return resultSet.getString("lastip");
@@ -160,7 +160,6 @@ public class Core implements IModule, Listener{
 			@Override
 			public void run() {
 				updatePlayerIPandUUID(e.getPlayer());
-				e.getPlayer().getUUID();
 			}
 		});
 	}

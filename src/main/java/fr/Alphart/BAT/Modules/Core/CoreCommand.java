@@ -1,6 +1,5 @@
 package fr.Alphart.BAT.Modules.Core;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.BAT.__;
 
 import java.sql.Connection;
@@ -137,7 +136,6 @@ public class CoreCommand{
 		public LookupCmd() {super("bat lookup", "<player/ip>", "Display a player or an ip related informations", "bat.lookup");}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			if(Utils.validIP(args[0]))
 			{
 				for(final BaseComponent[] msg : getFormatLookupIP(args[0])){
