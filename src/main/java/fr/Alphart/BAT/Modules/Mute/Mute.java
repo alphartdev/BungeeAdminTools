@@ -49,8 +49,8 @@ public class Mute implements IModule, Listener{
 	private static final String MUTETEMP_MSG = "&a%entity%&e was &6muted &eduring &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private static final String UNMUTE_MSG = "&a%entity%&e was &6demuted &eby &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 
-	private static final String WAS_MUTED_MSG = "You was muted. Reason : %reason%";
-	private static final String WAS_UNMUTED_MSG = "You was unmuted. Reason : %reason%";
+	private static final String WAS_MUTED_MSG = "You were muted. Reason : %reason%";
+	private static final String WAS_UNMUTED_MSG = "You were unmuted. Reason : %reason%";
 	private final static String ISMUTE_MSG = "You're muted, you can't talk.";
 	private final static String LOADINGMUTE_MSG = "Loading of data in progress : you may speak in a little while.";
 
@@ -136,10 +136,11 @@ public class Mute implements IModule, Listener{
 	}
 
 	/**
-	 * Check if both ip and name of this player are muted
+	 * Check if both ip and name of this player are muted<br>
+	 * Use <b>cached data</b>
 	 * @param player
 	 * @param server
-	 * @return <ul><li>1 if the player is muted from this server</li> <li>0 if he's not banned from this server</li> <li>-1 if the data are loading</li></ul>
+	 * @return <ul><li>1 if the player is muted from this server</li> <li>0 if he's not muted from this server</li> <li>-1 if the data are loading</li></ul>
 	 */
 	public static int isMute(final ProxiedPlayer player, final String server){
 		final PlayerMuteData pMuteData = mutedPlayers.get(player.getName());
@@ -154,12 +155,23 @@ public class Mute implements IModule, Listener{
 	}
 
 	/**
-	 * Check if this entity (player or ip) is muted
+	 * Check if this entity (player or ip) is muted<br>
+	 * <b>Use uncached data. Use {@link #isMute(ProxiedPlayer, String)} instead of this method if the player is available</b>
 	 * @param mutedEntity | can be an ip or a player name
 	 * @param server | if server equals to (any) check if the player is mute on a server
 	 * @return
 	 */
 	public static boolean isMute(final String mutedEntity, final String server){
+		// Check if the entity is an online player, in this case we're going to use the cached method
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(mutedEntity);
+		if(player != null){
+			int result = isMute(player, server);
+			// If the data aren't loading
+			if(result != -1){
+				return (result == 1);
+			}
+		}
+		
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try  (Connection conn  = BAT.getConnection()) {
@@ -177,7 +189,7 @@ public class Mute implements IModule, Listener{
 				final String pName = mutedEntity;
 				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Mute.isMute : SQLQueries.Mute.isMuteServer);
-				statement.setString(1, pName);
+				statement.setString(1, Core.getUUID(pName));
 				statement.setString(2, ip);
 				if(!ANY_SERVER.equals(server)) {
 					statement.setString(3, server);
@@ -242,7 +254,7 @@ public class Mute implements IModule, Listener{
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement(SQLQueries.Mute.createMute);
-				statement.setString(1, pName);
+				statement.setString(1, Core.getUUID(pName));
 				statement.setString(2, ip);
 				statement.setString(3, staff);
 				statement.setString(4, server);
@@ -333,7 +345,7 @@ public class Mute implements IModule, Listener{
 									: conn.prepareStatement(SQLQueries.Mute.unMute);
 							statement.setString(1, reason);
 							statement.setString(2, staff);
-							statement.setString(3, pName);
+							statement.setString(3, Core.getUUID(pName));
 				}
 				else{
 					statement = (DataSourceHandler.isSQLite())
@@ -341,7 +353,7 @@ public class Mute implements IModule, Listener{
 									: conn.prepareStatement(SQLQueries.Mute.unMuteServer);
 							statement.setString(1, reason);
 							statement.setString(2, staff);
-							statement.setString(3, pName);
+							statement.setString(3, Core.getUUID(pName));
 							statement.setString(4, server);
 				}
 				statement.executeUpdate();
@@ -419,7 +431,7 @@ public class Mute implements IModule, Listener{
 			{
 				final String pName = entity;
 				statement = conn.prepareStatement(SQLQueries.Mute.getMute);
-				statement.setString(1, pName);
+				statement.setString(1, Core.getUUID(pName));
 				statement.setString(2, Core.getPlayerIP(pName));
 				resultSet = statement.executeQuery();
 
@@ -475,7 +487,7 @@ public class Mute implements IModule, Listener{
 		}
 
 		public boolean isMute(final String server){
-			if(globalMute || servers.contains(server)) {
+			if(globalMute || (ANY_SERVER.equals(server) && !servers.isEmpty()) || servers.contains(server)) {
 				return true;
 			}
 			return false;
@@ -498,8 +510,8 @@ public class Mute implements IModule, Listener{
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try  (Connection conn  = BAT.getConnection()) {
-			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND BAT_player = ?;");
-			statement.setString(1, pName);
+			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND UUID = ?;");
+			statement.setString(1, Core.getUUID(pName));
 			resultSet = statement.executeQuery();
 			while (resultSet.next()){
 				final String server = resultSet.getString("mute_server");

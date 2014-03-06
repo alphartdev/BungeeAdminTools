@@ -84,7 +84,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -142,7 +141,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String pName = args[0];
 			String returnedMsg;
 
@@ -165,7 +163,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -237,7 +234,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -293,7 +289,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String pName = args[0];
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
@@ -317,7 +312,6 @@ public class MuteCommand extends CommandHandler{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
