@@ -145,7 +145,7 @@ public class Ban implements IModule, Listener{
 				final String pName = bannedEntity;
 				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Ban.isBan : SQLQueries.Ban.isBanServer);
-				statement.setString(1, pName);
+				statement.setString(1, Core.getUUID(pName));
 				statement.setString(2, ip);
 				if(!ANY_SERVER.equals(server)) {
 					statement.setString(3, server);
@@ -202,10 +202,11 @@ public class Ban implements IModule, Listener{
 			// Otherwise it's a player
 			else{
 				final String pName = bannedEntity;
+				final String UUID = Core.getUUID(pName);
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				final String ip = Core.getPlayerIP(pName);
 				final PreparedStatement statement = conn.prepareStatement(SQLQueries.Ban.createBan);
-				statement.setString(1, pName);
+				statement.setString(1, UUID);
 				statement.setString(2, ip);
 				statement.setString(3, staff);
 				statement.setString(4, server);
@@ -279,13 +280,14 @@ public class Ban implements IModule, Listener{
 			// Otherwise it's a player
 			else{
 				final String pName = bannedEntity;
+				final String UUID = Core.getUUID(pName);
 				if(ANY_SERVER.equals(server)){
 					statement = (DataSourceHandler.isSQLite()) 
 							? conn.prepareStatement(SQLQueries.Ban.SQLite.unBan)
 									: conn.prepareStatement(SQLQueries.Ban.unBan);
 							statement.setString(1, reason);
 							statement.setString(2, staff);
-							statement.setString(3, pName);
+							statement.setString(3, UUID);
 				}
 				else{
 					statement = (DataSourceHandler.isSQLite()) 
@@ -293,7 +295,7 @@ public class Ban implements IModule, Listener{
 									: conn.prepareStatement(SQLQueries.Ban.unBanServer);
 							statement.setString(1, reason);
 							statement.setString(2, staff);
-							statement.setString(3, pName);
+							statement.setString(3, UUID);
 							statement.setString(4, server);
 				}
 				statement.executeUpdate();
@@ -356,7 +358,7 @@ public class Ban implements IModule, Listener{
 			{
 				final String pName = entity;
 				statement = conn.prepareStatement(SQLQueries.Ban.getBan);
-				statement.setString(1, pName);
+				statement.setString(1, Core.getUUID(pName));
 				statement.setString(2, Core.getPlayerIP(pName));
 				resultSet = statement.executeQuery();
 

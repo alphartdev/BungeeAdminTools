@@ -11,6 +11,7 @@ import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -42,6 +43,9 @@ public class BanCommand extends CommandHandler {
 				return;
 			}
 			final String pName = args[0];
+			
+			final String UUID = Core.getUUID(pName);
+			
 			String returnedMsg = null;
 
 			// Command pattern : /ban <name>
@@ -81,7 +85,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -139,7 +142,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String pName = args[0];
 			String returnedMsg;
 
@@ -162,7 +164,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -234,7 +235,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -291,7 +291,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String pName = args[0];
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
@@ -315,7 +314,6 @@ public class BanCommand extends CommandHandler {
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
