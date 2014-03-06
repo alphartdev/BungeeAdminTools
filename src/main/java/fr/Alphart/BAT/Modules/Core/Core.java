@@ -42,7 +42,9 @@ public class Core implements IModule, Listener{
 		try  (Connection conn  = BAT.getConnection()) {
 			statement = conn.createStatement();
 			if(DataSourceHandler.isSQLite()){
-				statement.executeUpdate(SQLQueries.Core.SQLite.createTable);
+				for(final String query : SQLQueries.Core.SQLite.createTable){
+					statement.executeUpdate(query);
+				}
 			}
 			else{
 				statement.executeUpdate(SQLQueries.Core.createTable);
@@ -76,20 +78,50 @@ public class Core implements IModule, Listener{
 		return "bat";
 	}
 
+	public static String getUUID(final String pName){
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
+		if(player != null){
+			return player.getUUID();
+		}
+		
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		String UUID = "";
+		try  (Connection conn  = BAT.getConnection()) {
+			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
+			statement.setString(1, pName);
+			resultSet = statement.executeQuery();
+			if(resultSet.next()){
+				UUID = resultSet.getString("UUID");
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally{
+			DataSourceHandler.close(statement);
+		}
+		return UUID;
+	}
+	
 	/**
 	 * Update the IP and UUID of a player in the database
 	 * @param player
 	 */
-	public void updatePlayerIP_UUID(final ProxiedPlayer player){
+	public void updatePlayerIPandUUID(final ProxiedPlayer player){
 		PreparedStatement statement = null; 
 		try  (Connection conn  = BAT.getConnection()) {
+			final String ip = Utils.getPlayerIP(player);
+			final String UUID = player.getUUID();
+			System.out.println("UUID : " + UUID);
 			statement = (DataSourceHandler.isSQLite())
-					? conn.prepareStatement(SQLQueries.Core.SQLite.updateIP)
-					: conn.prepareStatement(SQLQueries.Core.updateIP);
+					? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
+					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 					statement.setString(1, player.getName());
-					final String ip = Utils.getPlayerIP(player);
 					statement.setString(2, ip);
-					statement.setString(3, (DataSourceHandler.isSQLite()) ? player.getName() : ip);
+					statement.setString(3, (DataSourceHandler.isSQLite()) ? player.getName() : UUID);
+					statement.setString(4, (DataSourceHandler.isSQLite()) ? UUID : ip);
+					if(!DataSourceHandler.isSQLite()){
+						statement.setString(5, UUID);
+					}
 					statement.executeUpdate();
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
@@ -127,7 +159,7 @@ public class Core implements IModule, Listener{
 		BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
 			@Override
 			public void run() {
-				updatePlayerIP_UUID(e.getPlayer());
+				updatePlayerIPandUUID(e.getPlayer());
 				e.getPlayer().getUUID();
 			}
 		});
