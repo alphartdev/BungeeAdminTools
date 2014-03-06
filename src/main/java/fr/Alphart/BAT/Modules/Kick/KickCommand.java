@@ -13,9 +13,12 @@ import fr.Alphart.BAT.Utils.Utils;
 
 public class KickCommand extends CommandHandler {
 	private final static String KICK_PERM = Kick.KICK_PERM;
+	private static Kick kick;
+
 
 	public KickCommand(final Kick kickModule){
 		super(kickModule);
+		kick = kickModule;
 	}
 
 	public static class KickCmd extends BATCommand{
@@ -38,12 +41,12 @@ public class KickCommand extends CommandHandler {
 
 			// Command pattern : /kick <name>
 			if(args.length == 1){
-				returnedMsg = Kick.kick(player, sender.getName(), null);
+				returnedMsg = kick.kick(player, sender.getName(), null);
 			}
 			// Command pattern : /kick <name> <raison>
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Kick.kick(player, sender.getName(), reason);
+				returnedMsg = kick.kick(player, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, KICK_PERM);
@@ -62,12 +65,12 @@ public class KickCommand extends CommandHandler {
 
 			// Command pattern : /kick <name>
 			if(args.length == 1){
-				returnedMsg = Kick.gKick(player, sender.getName(), null);
+				returnedMsg = kick.gKick(player, sender.getName(), null);
 			}
 			// Command pattern : /kick <name> <raison>
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Kick.gKick(player, sender.getName(), reason);
+				returnedMsg = kick.gKick(player, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, KICK_PERM);

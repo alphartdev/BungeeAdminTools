@@ -11,13 +11,13 @@ import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
-import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
 public class BanCommand extends CommandHandler {
 	private static final String BAN_PERM = Ban.BAN_PERM;
+	private static Ban ban;
 
 	private static final String ALREADY_BAN = "&cThis player is already banned from this server!";
 	private static final String NOT_BAN = "&c%entity% isn't banned from this server.";
@@ -26,6 +26,7 @@ public class BanCommand extends CommandHandler {
 
 	public BanCommand(final Ban banModule){
 		super(banModule);
+		ban = banModule;
 	}
 
 	@RunAsync
@@ -43,9 +44,6 @@ public class BanCommand extends CommandHandler {
 				return;
 			}
 			final String pName = args[0];
-			
-			final String UUID = Core.getUUID(pName);
-			
 			String returnedMsg = null;
 
 			// Command pattern : /ban <name>
@@ -55,23 +53,23 @@ public class BanCommand extends CommandHandler {
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				// If the player is already ban of this server, the command is gonna be cancelled
-				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
 
-				returnedMsg = Ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
+				returnedMsg = ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				// Check if the server is an valid server
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
 				// Check if the player isn't already banned from this server
-				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
 
 				// Command pattern : /ban <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Ban.ban(pName, server, sender.getName(), 0, reason);
+					returnedMsg = ban.ban(pName, server, sender.getName(), 0, reason);
 				}
 			}
 
@@ -98,25 +96,25 @@ public class BanCommand extends CommandHandler {
 				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
 
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
 				} else {
-					returnedMsg = Ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
 
 				// Command pattern : /ban <name> <server>
 				if(args.length == 2){
 					if(isIP) {
-						returnedMsg = Ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
+						returnedMsg = ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
 					} else {
-						returnedMsg = Ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
+						returnedMsg = ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
 					}
 				}
 
@@ -125,9 +123,9 @@ public class BanCommand extends CommandHandler {
 					final String reason = Utils.getFinalArg(args, 2);
 
 					if(isIP) {
-						returnedMsg = Ban.ban(entity, server, sender.getName(), 0, reason);
+						returnedMsg = ban.ban(entity, server, sender.getName(), 0, reason);
 					} else {
-						returnedMsg = Ban.banIP(player, server, sender.getName(), 0, reason);
+						returnedMsg = ban.banIP(player, server, sender.getName(), 0, reason);
 					}
 				}
 			}
@@ -145,14 +143,14 @@ public class BanCommand extends CommandHandler {
 			final String pName = args[0];
 			String returnedMsg;
 
-			checkArgument(!Ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
+			checkArgument(!ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
 
 			if(args.length == 1){
-				returnedMsg = Ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 			}
 
 			BAT.broadcast(returnedMsg, BAN_PERM);
@@ -172,21 +170,21 @@ public class BanCommand extends CommandHandler {
 			}
 			String returnedMsg;
 
-			checkArgument(!Ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
+			checkArgument(!ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
 
 			if(args.length == 1){
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 				} else {
-					returnedMsg = Ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 				} else {
-					returnedMsg = Ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 				}
 			}
 
@@ -208,21 +206,21 @@ public class BanCommand extends CommandHandler {
 			if(args.length == 2){
 				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
 
-				returnedMsg = Ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
+				returnedMsg = ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
 			}
 			else{
 				final String server = args[2];
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!Ban.isBan(pName, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
 
 				// Command pattern: /ban <name> <durate> <server>
 				if(args.length == 3) {
-					returnedMsg = Ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 3);
-					returnedMsg = Ban.ban(pName, server, sender.getName(), durate, reason);
+					returnedMsg = ban.ban(pName, server, sender.getName(), durate, reason);
 				}
 			}
 
@@ -248,25 +246,25 @@ public class BanCommand extends CommandHandler {
 			if(args.length == 2){
 				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
 
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
 				} else {
-					returnedMsg = Ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String server = args[2];
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!Ban.isBan(entity, server), ALREADY_BAN);
+				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
 
 				// Command pattern: /ban <name> <durate> <server>
 				if(args.length == 3){
 					if(isIP) {
-						returnedMsg = Ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
+						returnedMsg = ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
 					} else {
-						returnedMsg = Ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
+						returnedMsg = ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
 					}
 				}
 
@@ -274,9 +272,9 @@ public class BanCommand extends CommandHandler {
 				else{
 					final String reason = Utils.getFinalArg(args, 3);
 					if(isIP) {
-						returnedMsg = Ban.ban(entity, server, sender.getName(), durate, reason);
+						returnedMsg = ban.ban(entity, server, sender.getName(), durate, reason);
 					} else {
-						returnedMsg = Ban.banIP(player, server, sender.getName(), durate, reason);
+						returnedMsg = ban.banIP(player, server, sender.getName(), durate, reason);
 					}
 				}
 			}
@@ -295,14 +293,14 @@ public class BanCommand extends CommandHandler {
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
 
-			checkArgument(!Ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
+			checkArgument(!ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
 
 			if(args.length == 2){
-				returnedMsg = Ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 2);
-				returnedMsg = Ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 			}
 
 			BAT.broadcast(returnedMsg, BAN_PERM);
@@ -323,21 +321,21 @@ public class BanCommand extends CommandHandler {
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
 
-			checkArgument(!Ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
+			checkArgument(!ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
 
 			if(args.length == 2){
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 				} else {
-					returnedMsg = Ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 2);
 				if(isIP) {
-					returnedMsg = Ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 				} else {
-					returnedMsg = Ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 				}
 			}
 
@@ -358,21 +356,21 @@ public class BanCommand extends CommandHandler {
 			if(args.length == 1){
 				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(Ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
+				checkArgument(ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
 
-				returnedMsg = Ban.unBan(pName, server, sender.getName(), IModule.NO_REASON);
+				returnedMsg = ban.unBan(pName, server, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(Ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
+				checkArgument(ban.isBan(pName, server), NOT_BAN.replaceAll("%entity%", pName));
 
 				// Command pattern : /ban <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Ban.unBan(pName, server, sender.getName(), IModule.NO_REASON);
+					returnedMsg = ban.unBan(pName, server, sender.getName(), IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Ban.unBan(pName, server, sender.getName(), reason);
+					returnedMsg = ban.unBan(pName, server, sender.getName(), reason);
 				}
 			}
 
@@ -393,21 +391,21 @@ public class BanCommand extends CommandHandler {
 			if(args.length == 1){
 				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(Ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
+				checkArgument(ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
 
-				returnedMsg = Ban.unBanIP(entity, server, sender.getName(), IModule.NO_REASON);
+				returnedMsg = ban.unBanIP(entity, server, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(Ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
+				checkArgument(ban.isBan(entity, server), NOT_BANIP.replaceAll("%entity%", entity));
 
 				// Command pattern : /ban <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Ban.unBanIP(entity, server, sender.getName(), IModule.NO_REASON);
+					returnedMsg = ban.unBanIP(entity, server, sender.getName(), IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Ban.unBanIP(entity, server, sender.getName(), reason);
+					returnedMsg = ban.unBanIP(entity, server, sender.getName(), reason);
 				}
 			}
 
@@ -424,13 +422,13 @@ public class BanCommand extends CommandHandler {
 			final String pName = args[0];
 			String returnedMsg = null;
 
-			checkArgument(Ban.isBan(pName, IModule.ANY_SERVER), NOT_BAN.replaceAll("%entity%", pName));
+			checkArgument(ban.isBan(pName, IModule.ANY_SERVER), NOT_BAN.replaceAll("%entity%", pName));
 
 			if(args.length == 1) {
-				returnedMsg = Ban.unBan(pName, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
+				returnedMsg = ban.unBan(pName, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
 			} else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Ban.unBan(pName, IModule.ANY_SERVER, sender.getName(), reason);
+				returnedMsg = ban.unBan(pName, IModule.ANY_SERVER, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, BAN_PERM);
@@ -445,14 +443,14 @@ public class BanCommand extends CommandHandler {
 			final String entity = args[0];
 			String returnedMsg = null;
 
-			checkArgument(Ban.isBan(entity, IModule.ANY_SERVER), NOT_BAN_ANY.replaceAll("%entity%", entity));
+			checkArgument(ban.isBan(entity, IModule.ANY_SERVER), NOT_BAN_ANY.replaceAll("%entity%", entity));
 
 			if(args.length == 1){
-				returnedMsg = Ban.unBanIP(entity, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
+				returnedMsg = ban.unBanIP(entity, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Ban.unBanIP(entity, IModule.ANY_SERVER, sender.getName(), reason);
+				returnedMsg = ban.unBanIP(entity, IModule.ANY_SERVER, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, BAN_PERM);

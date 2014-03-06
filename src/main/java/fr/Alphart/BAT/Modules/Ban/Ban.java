@@ -41,7 +41,7 @@ public class Ban implements IModule, Listener{
 	private static final String BANTEMP_MSG = "&a%entity%&e was &6banned&e &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private static final String UNBAN_MSG = "&a%entity%&e was &6unbanned&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	
-	private static final String WAS_BANNED_MSG = "You was banned. Reason : %reason%";
+	private static final String WAS_BANNED_MSG = "You were banned. Reason : %reason%";
 	private static final String IS_BANNED = "You are banned from this server.";
 
 	@Override
@@ -114,7 +114,7 @@ public class Ban implements IModule, Listener{
 	 * @param server
 	 * @return true if name or ip is banned
 	 */
-	public static boolean isBan(final ProxiedPlayer player, final String server){
+	public boolean isBan(final ProxiedPlayer player, final String server){
 		if(isBan(player.getName(), server)) {
 			return true;
 		}
@@ -127,7 +127,7 @@ public class Ban implements IModule, Listener{
 	 * @param server | if server equals to (any) check if the player is ban on a server
 	 * @return
 	 */
-	public static boolean isBan(final String bannedEntity, final String server){
+	public boolean isBan(final String bannedEntity, final String server){
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn  = BAT.getConnection()) {
@@ -175,7 +175,7 @@ public class Ban implements IModule, Listener{
 	 * @param reason | optional
 	 * @return 
 	 */
-	public static String ban(final String bannedEntity, final String server, final String staff, final Integer duration, final String reason){
+	public String ban(final String bannedEntity, final String server, final String staff, final Integer duration, final String reason){
 		try (Connection conn  = BAT.getConnection()) {
 			// If the bannedEntity is an ip
 			if(Utils.validIP(bannedEntity)){
@@ -235,7 +235,7 @@ public class Ban implements IModule, Listener{
 	 * @param reason | optional
 	 * @param ip
 	 */
-	public static String banIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
+	public String banIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		ban(Utils.getPlayerIP(player), server, staff, duration, reason);
 		BAT.kick(player, WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 		return FormatUtils.formatBroadcastMsg((duration > 0) ? BANTEMP_MSG : BAN_MSG, player.getName(), staff, server, reason, duration);
@@ -249,7 +249,7 @@ public class Ban implements IModule, Listener{
 	 * @param reason
 	 * @param unBanIP
 	 */
-	public static String unBan(final String bannedEntity, final String server,  final String staff, final String reason){
+	public String unBan(final String bannedEntity, final String server,  final String staff, final String reason){
 		PreparedStatement statement = null;
 		try (Connection conn  = BAT.getConnection()) {
 			// If the bannedEntity is an ip
@@ -318,8 +318,8 @@ public class Ban implements IModule, Listener{
 	 * @param reason | optional
 	 * @param duration ; set to 0 for ban def
 	 */
-	public static String unBanIP(final String entity, final String server, final String staff, final String reason){
-		Ban.unBan((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
+	public String unBanIP(final String entity, final String server, final String staff, final String reason){
+		unBan((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
 		return FormatUtils.formatBroadcastMsg(UNBAN_MSG, entity, staff, server, reason, 0);
 	}
 
@@ -389,7 +389,7 @@ public class Ban implements IModule, Listener{
 	public void onServerConnect(final ServerConnectEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
 
-		if(Ban.isBan(player, e.getTarget().getName())){
+		if(isBan(player, e.getTarget().getName())){
 			if(e.getTarget().getName().equals(player.getPendingConnection().getListener().getDefaultServer())){
 				// We need to kick the player during the ServerConnectedEvent, in order to send him a message
 				playerToKick.add(player.getName());
@@ -418,7 +418,7 @@ public class Ban implements IModule, Listener{
 			public void run() {
 				try {
 					final String pName = e.getConnection().getName();
-					if(Ban.isBan(pName, GLOBAL_SERVER)){
+					if(isBan(pName, GLOBAL_SERVER)){
 						e.setCancelled(true);
 						e.setCancelReason(IS_BANNED);
 					}

@@ -16,6 +16,7 @@ import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -31,7 +32,7 @@ public class Kick implements IModule{
 	private final static String KICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	private final static String GKICK_MSG = "&a%entity%&e was &6kicked&e by &a%staff%&e from the network. Reason : %reason%";
 	
-	private final static String WAS_KICKED_MSG = "You was kicked from this server ! Reason : %reason%";
+	private final static String WAS_KICKED_MSG = "You were kicked from this server ! Reason : %reason%";
 
 	@Override
 	public List<BATCommand> getCommands() {return commandHandler.getCmds();}
@@ -85,7 +86,6 @@ public class Kick implements IModule{
 		return false;
 	}
 	
-
 	public class KickConfig extends ModuleConfiguration{
 		public KickConfig(final IModule module) {
 			super(module);
@@ -97,7 +97,7 @@ public class Kick implements IModule{
 	 * @param player
 	 * @param reason
 	 */
-	public static String kick(final ProxiedPlayer player, final String staff, final String reason){
+	public String kick(final ProxiedPlayer player, final String staff, final String reason){
 		PreparedStatement statement = null;
 		try  (Connection conn = BAT.getConnection()) {			
 			final String server = player.getServer().getInfo().getName();
@@ -106,7 +106,7 @@ public class Kick implements IModule{
 			}else{
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
-			statement.setString(1, player.getName());
+			statement.setString(1, Core.getUUID(player.getName()));
 			statement.setString(2, Utils.getPlayerIP(player));
 			statement.setString(3, staff);
 			statement.setString(4, reason);
@@ -129,7 +129,7 @@ public class Kick implements IModule{
 	 * @param player
 	 * @param reason
 	 */
-	public static String gKick(final ProxiedPlayer player, final String staff, final String reason){
+	public String gKick(final ProxiedPlayer player, final String staff, final String reason){
 		PreparedStatement statement = null;
 		try  (Connection conn  = BAT.getConnection()) {	
 			if(DataSourceHandler.isSQLite()){
@@ -137,7 +137,7 @@ public class Kick implements IModule{
 			}else{
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
-			statement.setString(1, player.getName());
+			statement.setString(1, Core.getUUID(player.getName()));
 			statement.setString(2, Utils.getPlayerIP(player));
 			statement.setString(3, staff);
 			statement.setString(4, reason);
@@ -165,7 +165,7 @@ public class Kick implements IModule{
 		ResultSet resultSet = null;
 		try  (Connection conn  = BAT.getConnection()) {	
 			statement = conn.prepareStatement(SQLQueries.Kick.getKick);
-			statement.setString(1, pName);
+			statement.setString(1, Core.getUUID(pName));
 			resultSet = statement.executeQuery();
 
 			while(resultSet.next()){

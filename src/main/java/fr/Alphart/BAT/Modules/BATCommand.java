@@ -76,34 +76,34 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 
 	@Override
 	public void execute(final CommandSender sender, final String[] args) {
+		try{
 			Preconditions.checkArgument(args.length >= minArgs);
 			if(runAsync){
 				ProxyServer.getInstance().getScheduler().runAsync(BAT.getInstance(), new Runnable(){
 					@Override
 					public void run() {
-						executeCmd(sender, args);
+						try{
+							onCommand(sender, args);
+						}catch(final IllegalArgumentException exception){
+							if(exception.getMessage() == null){
+								sender.sendMessage(__("&cAInvalid args. &BUsage : "));
+								sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
+							} else {
+								sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
+							}
+						}
 					}			
 				});
 			}
 			else{
-				executeCmd(sender, args);
+				onCommand(sender, args);
 			}
-	}
-	
-	/**
-	 * Intermediate function to catch the error regardless of the command is executed sync or async
-	 * @param sender
-	 * @param args
-	 */
-	public void executeCmd(final CommandSender sender, final String[] args){
-		try{
-			onCommand(sender, args);
 		}catch(final IllegalArgumentException exception){
 			if(exception.getMessage() == null){
-				sender.sendMessage(__("&cArguments invalides. &BUsage : "));
+				sender.sendMessage(__("&cInvalid args. &BUsage : "));
 				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
 			} else {
-				sender.sendMessage(__("&cArguments invalides. &6" + exception.getMessage()));
+				sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 			}
 		}	
 	}

@@ -142,7 +142,7 @@ public class Mute implements IModule, Listener{
 	 * @param server
 	 * @return <ul><li>1 if the player is muted from this server</li> <li>0 if he's not muted from this server</li> <li>-1 if the data are loading</li></ul>
 	 */
-	public static int isMute(final ProxiedPlayer player, final String server){
+	public int isMute(final ProxiedPlayer player, final String server){
 		final PlayerMuteData pMuteData = mutedPlayers.get(player.getName());
 		if (pMuteData != null) {
 			if (pMuteData.isMute(server)) {
@@ -161,7 +161,7 @@ public class Mute implements IModule, Listener{
 	 * @param server | if server equals to (any) check if the player is mute on a server
 	 * @return
 	 */
-	public static boolean isMute(final String mutedEntity, final String server){
+	public boolean isMute(final String mutedEntity, final String server){
 		// Check if the entity is an online player, in this case we're going to use the cached method
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(mutedEntity);
 		if(player != null){
@@ -219,7 +219,7 @@ public class Mute implements IModule, Listener{
 	 * @param reason | optional
 	 * @return 
 	 */
-	public static String mute(final String mutedEntity, final String server, final String staff, final Integer duration, final String reason){
+	public String mute(final String mutedEntity, final String server, final String staff, final Integer duration, final String reason){
 		PreparedStatement statement = null;
 		try  (Connection conn  = BAT.getConnection()) {
 			if(Utils.validIP(mutedEntity)){
@@ -291,7 +291,7 @@ public class Mute implements IModule, Listener{
 	 * @param reason | optional
 	 * @param ip
 	 */
-	public static String muteIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
+	public String muteIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		mute(Utils.getPlayerIP(player), server, staff, duration, reason);
 		player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 		return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, player.getName(), staff, server, reason, duration);
@@ -305,7 +305,7 @@ public class Mute implements IModule, Listener{
 	 * @param reason
 	 * @param unMuteIP
 	 */
-	public static String unMute(final String mutedEntity, final String server,  final String staff, final String reason){
+	public String unMute(final String mutedEntity, final String server,  final String staff, final String reason){
 		PreparedStatement statement = null;
 		try  (Connection conn  = BAT.getConnection()) {
 			// If the mutedEntity is an ip
@@ -391,8 +391,8 @@ public class Mute implements IModule, Listener{
 	 * @param reason | optional
 	 * @param duration ; set to 0 for mute def
 	 */
-	public static String unMuteIP(final String entity, final String server, final String staff, final String reason){
-		Mute.unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
+	public String unMuteIP(final String entity, final String server, final String staff, final String reason){
+		unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
 		return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, entity, staff, server, reason, 0);
 	}
 
@@ -553,7 +553,7 @@ public class Mute implements IModule, Listener{
 		final ProxiedPlayer player = e.getPlayer();
 
 		final String pName = player.getName();
-		final int muteState = Mute.isMute(player, e.getServer().getInfo().getName());
+		final int muteState = isMute(player, e.getServer().getInfo().getName());
 		if(muteState == -1){
 			// Load mute data
 			BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
@@ -576,7 +576,7 @@ public class Mute implements IModule, Listener{
 	@EventHandler
 	public void onPlayerChat(final ChatEvent e){
 		final ProxiedPlayer player = (ProxiedPlayer)e.getSender();
-		final int muteState = Mute.isMute(player, player.getServer().getInfo().getName());
+		final int muteState = isMute(player, player.getServer().getInfo().getName());
 		if(muteState == 0){
 			return;
 		}

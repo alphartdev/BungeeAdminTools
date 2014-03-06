@@ -16,6 +16,7 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 
 public class MuteCommand extends CommandHandler{
 	private final static String MUTE_PERM = Mute.MUTE_PERM;
+	private static Mute mute;
 
 	private static final String ALREADY_MUTE = "&cThis player is already muted from this server!";
 	private static final String NOT_MUTE = "&c%entity% isn't muted from this server.";
@@ -28,6 +29,7 @@ public class MuteCommand extends CommandHandler{
 
 	public MuteCommand(final Mute muteModule){
 		super(muteModule);
+		mute = muteModule;
 	}
 
 	@RunAsync
@@ -54,23 +56,23 @@ public class MuteCommand extends CommandHandler{
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 				// If the player is already mute of this server, the command is gonna be cancelled
-				checkArgument(!Mute.isMute(pName, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
 
-				returnedMsg = Mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
+				returnedMsg = mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				// Check if the server is an valid server
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
 				// Check if the player isn't already mutened from this server
-				checkArgument(!Mute.isMute(pName, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
 
 				// Command pattern : /mute <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Mute.mute(pName, server, sender.getName(), 0, reason);
+					returnedMsg = mute.mute(pName, server, sender.getName(), 0, reason);
 				}
 			}
 
@@ -97,25 +99,25 @@ public class MuteCommand extends CommandHandler{
 				checkArgument(isPlayer(sender), SPECIFY_SERVER);
 
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Mute.isMute(entity, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
 
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
 				} else {
-					returnedMsg = Mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!Mute.isMute(entity, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
 
 				// Command pattern : /mute <name> <server>
 				if(args.length == 2){
 					if(isIP) {
-						returnedMsg = Mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
+						returnedMsg = mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
 					} else {
-						returnedMsg = Mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
+						returnedMsg = mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
 					}
 				}
 
@@ -124,9 +126,9 @@ public class MuteCommand extends CommandHandler{
 					final String reason = Utils.getFinalArg(args, 2);
 
 					if(isIP) {
-						returnedMsg = Mute.mute(entity, server, sender.getName(), 0, reason);
+						returnedMsg = mute.mute(entity, server, sender.getName(), 0, reason);
 					} else {
-						returnedMsg = Mute.muteIP(player, server, sender.getName(), 0, reason);
+						returnedMsg = mute.muteIP(player, server, sender.getName(), 0, reason);
 					}
 				}
 			}
@@ -144,14 +146,14 @@ public class MuteCommand extends CommandHandler{
 			final String pName = args[0];
 			String returnedMsg;
 
-			checkArgument(!Mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
+			checkArgument(!mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
 
 			if(args.length == 1){
-				returnedMsg = Mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 			}
 
 			BAT.broadcast(returnedMsg, MUTE_PERM);
@@ -171,21 +173,21 @@ public class MuteCommand extends CommandHandler{
 			}
 			String returnedMsg;
 
-			checkArgument(!Mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
+			checkArgument(!mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
 
 			if(args.length == 1){
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 				} else {
-					returnedMsg = Mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
+					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 				} else {
-					returnedMsg = Mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
+					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
 				}
 			}
 
@@ -207,21 +209,21 @@ public class MuteCommand extends CommandHandler{
 			if(args.length == 2){
 				checkArgument(isPlayer(sender), SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Mute.isMute(pName, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
 
-				returnedMsg = Mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
+				returnedMsg = mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
 			}
 			else{
 				final String server = args[2];
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!Mute.isMute(pName, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
 
 				// Command pattern: /mute <name> <durate> <server>
 				if(args.length == 3) {
-					returnedMsg = Mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 3);
-					returnedMsg = Mute.mute(pName, server, sender.getName(), durate, reason);
+					returnedMsg = mute.mute(pName, server, sender.getName(), durate, reason);
 				}
 			}
 
@@ -247,25 +249,25 @@ public class MuteCommand extends CommandHandler{
 			if(args.length == 2){
 				checkArgument(isPlayer(sender), SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!Mute.isMute(entity, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
 
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
 				} else {
-					returnedMsg = Mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String server = args[2];
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!Mute.isMute(entity, server), ALREADY_MUTE);
+				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
 
 				// Command pattern: /mute <name> <durate> <server>
 				if(args.length == 3){
 					if(isIP) {
-						returnedMsg = Mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
+						returnedMsg = mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
 					} else {
-						returnedMsg = Mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
+						returnedMsg = mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
 					}
 				}
 
@@ -273,9 +275,9 @@ public class MuteCommand extends CommandHandler{
 				else{
 					final String reason = Utils.getFinalArg(args, 3);
 					if(isIP) {
-						returnedMsg = Mute.mute(entity, server, sender.getName(), durate, reason);
+						returnedMsg = mute.mute(entity, server, sender.getName(), durate, reason);
 					} else {
-						returnedMsg = Mute.muteIP(player, server, sender.getName(), durate, reason);
+						returnedMsg = mute.muteIP(player, server, sender.getName(), durate, reason);
 					}
 				}
 			}
@@ -293,14 +295,14 @@ public class MuteCommand extends CommandHandler{
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
 
-			checkArgument(!Mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
+			checkArgument(!mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
 
 			if(args.length == 2){
-				returnedMsg = Mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 2);
-				returnedMsg = Mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 			}
 
 			BAT.broadcast(returnedMsg, MUTE_PERM);
@@ -321,21 +323,21 @@ public class MuteCommand extends CommandHandler{
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
 
-			checkArgument(!Mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
+			checkArgument(!mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
 
 			if(args.length == 2){
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 				} else {
-					returnedMsg = Mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
+					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
 				}
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 2);
 				if(isIP) {
-					returnedMsg = Mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 				} else {
-					returnedMsg = Mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
+					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
 				}
 			}
 
@@ -356,21 +358,21 @@ public class MuteCommand extends CommandHandler{
 			if(args.length == 1){
 				checkArgument(isPlayer(sender), SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(Mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
+				checkArgument(mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
 
-				returnedMsg = Mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
+				returnedMsg = mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(Mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
+				checkArgument(mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
 
 				// Command pattern : /mute <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
+					returnedMsg = mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Mute.unMute(pName, server, sender.getName(), reason);
+					returnedMsg = mute.unMute(pName, server, sender.getName(), reason);
 				}
 			}
 
@@ -391,21 +393,21 @@ public class MuteCommand extends CommandHandler{
 			if(args.length == 1){
 				checkArgument(isPlayer(sender), SPECIFY_SERVER);
 				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(Mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
+				checkArgument(mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
 
-				returnedMsg = Mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
+				returnedMsg = mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String server = args[1];
 				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(Mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
+				checkArgument(mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
 
 				// Command pattern : /mute <name> <server>
 				if(args.length == 2) {
-					returnedMsg = Mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
+					returnedMsg = mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
 				} else{
 					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = Mute.unMuteIP(entity, server, sender.getName(), reason);
+					returnedMsg = mute.unMuteIP(entity, server, sender.getName(), reason);
 				}
 			}
 
@@ -422,13 +424,13 @@ public class MuteCommand extends CommandHandler{
 			final String pName = args[0];
 			String returnedMsg = null;
 
-			checkArgument(Mute.isMute(pName, IModule.ANY_SERVER), NOT_MUTE.replaceAll("%entity%", pName));
+			checkArgument(mute.isMute(pName, IModule.ANY_SERVER), NOT_MUTE.replaceAll("%entity%", pName));
 
 			if(args.length == 1) {
-				returnedMsg = Mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
+				returnedMsg = mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
 			} else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), reason);
+				returnedMsg = mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, MUTE_PERM);
@@ -443,14 +445,14 @@ public class MuteCommand extends CommandHandler{
 			final String entity = args[0];
 			String returnedMsg = null;
 
-			checkArgument(Mute.isMute(entity, IModule.ANY_SERVER), NOT_MUTE_ANY.replaceAll("%entity%", entity));
+			checkArgument(mute.isMute(entity, IModule.ANY_SERVER), NOT_MUTE_ANY.replaceAll("%entity%", entity));
 
 			if(args.length == 1){
-				returnedMsg = Mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
+				returnedMsg = mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
 			}
 			else{
 				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = Mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), reason);
+				returnedMsg = mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), reason);
 			}
 
 			BAT.broadcast(returnedMsg, MUTE_PERM);
