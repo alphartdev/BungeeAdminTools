@@ -4,6 +4,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.google.common.base.Joiner;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -11,6 +14,7 @@ import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -34,7 +38,7 @@ public class BanCommand extends CommandHandler {
 		public BanCmd() {super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("ban").getCommands(), sender, "BAN");
@@ -43,38 +47,7 @@ public class BanCommand extends CommandHandler {
 				}
 				return;
 			}
-			final String pName = args[0];
-			String returnedMsg = null;
-
-			// Command pattern : /ban <name>
-			if(args.length == 1){
-				// If the sender isn't a player, he has to specify a server
-				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
-
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				// If the player is already ban of this server, the command is gonna be cancelled
-				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
-
-				returnedMsg = ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
-			}
-			else{
-				final String server = args[1];
-				// Check if the server is an valid server
-				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				// Check if the player isn't already banned from this server
-				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
-
-				// Command pattern : /ban <name> <server>
-				if(args.length == 2) {
-					returnedMsg = ban.ban(pName, server, sender.getName(), 0, IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = ban.ban(pName, server, sender.getName(), 0, reason);
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
+			handleBanCommand(this, false, false, sender, args, confirmed);
 		}
 	}
 	@RunAsync
@@ -82,56 +55,8 @@ public class BanCommand extends CommandHandler {
 		public BanIPCmd() {super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
-			}
-			String returnedMsg = null;
-
-			// Command pattern : /ban <name>
-			if(args.length == 1){
-				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
-
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
-
-				if(isIP) {
-					returnedMsg = ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
-				} else {
-					returnedMsg = ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
-				}
-			}
-			else{
-				final String server = args[1];
-				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
-
-				// Command pattern : /ban <name> <server>
-				if(args.length == 2){
-					if(isIP) {
-						returnedMsg = ban.ban(entity, server, sender.getName(), 0, IModule.NO_REASON);
-					} else {
-						returnedMsg = ban.banIP(player, server, sender.getName(), 0, IModule.NO_REASON);
-					}
-				}
-
-				// Command pattern : /ban <name> <server> <reason>
-				else{
-					final String reason = Utils.getFinalArg(args, 2);
-
-					if(isIP) {
-						returnedMsg = ban.ban(entity, server, sender.getName(), 0, reason);
-					} else {
-						returnedMsg = ban.banIP(player, server, sender.getName(), 0, reason);
-					}
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleBanCommand(this, false, true, sender, args, confirmed);
 		}
 	}
 	@RunAsync
@@ -139,21 +64,8 @@ public class BanCommand extends CommandHandler {
 		public GBanCmd() {super("gban", "<player> [reason]", "Ban definitively the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg;
-
-			checkArgument(!ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
-
-			if(args.length == 1){
-				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleBanCommand(this, true, false, sender, args, confirmed);
 		}
 	}
 	@RunAsync
@@ -161,35 +73,64 @@ public class BanCommand extends CommandHandler {
 		public GBanIPCmd() {super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleBanCommand(this, true, true, sender, args, confirmed);
+		}
+	}
+	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, boolean confirmedCmd){
+		String target = args[0];
+		String server;
+		final String staff = sender.getName();
+		String reason = IModule.NO_REASON;
+
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+
+		String returnedMsg;
+
+		if(global){
+			server = IModule.GLOBAL_SERVER;
+			if(args.length > 1){
+				reason = Utils.getFinalArg(args, 1);
 			}
-			String returnedMsg;
-
-			checkArgument(!ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
-
+		}
+		else
+		{
 			if(args.length == 1){
-				if(isIP) {
-					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-				} else {
-					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-				}
+				checkArgument(sender instanceof ProxiedPlayer, Message.SPECIFY_SERVER);
+				server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 			}
 			else{
-				final String reason = Utils.getFinalArg(args, 1);
-				if(isIP) {
-					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-				} else {
-					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-				}
+				server = args[1];
+				checkArgument(Utils.isServer(args[1]), Message.INVALID_SERVER);
+				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
 		}
+
+		// Check if the target isn't an ip and the player is offline
+		if(!Utils.validIP(target) && player == null)
+		{
+			final String ip = Core.getPlayerIP(target);
+			if(ipBan){
+				checkArgument(!"0.0.0.0".equals(ip), "You can't ban this user's ip because he never connected to the server.");
+				target = ip;
+			}			
+			// If ip = 0.0.0.0, it means the player never connects
+			else if("0.0.0.0".equals(ip) && !confirmedCmd)
+			{
+				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args), "you're performing operation on a player which never connects on the server.");
+				return;
+			}
+		}
+
+		checkArgument(!ban.isBan(target, server), ALREADY_BAN);
+
+		if(ipBan && player != null){
+			returnedMsg = ban.banIP(player, server, staff, 0, reason);
+		}else{
+			returnedMsg = ban.ban(target, server, staff, 0, reason);
+		}
+
+		BAT.broadcast(returnedMsg, BAN_PERM);
 	}
 
 	@RunAsync
@@ -197,34 +138,8 @@ public class BanCommand extends CommandHandler {
 		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason]", "Ban temporarily the player from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg;
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-
-			// Command pattern : /ban <name> <durate>
-			if(args.length == 2){
-				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
-
-				returnedMsg = ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
-			}
-			else{
-				final String server = args[2];
-				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!ban.isBan(pName, server), ALREADY_BAN);
-
-				// Command pattern: /ban <name> <durate> <server>
-				if(args.length == 3) {
-					returnedMsg = ban.ban(pName, server, sender.getName(), durate, IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 3);
-					returnedMsg = ban.ban(pName, server, sender.getName(), durate, reason);
-				}
-			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM); 
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleTempBanCommand(this, false, false, sender, args, confirmed); 
 		}
 	}
 	@RunAsync
@@ -232,55 +147,8 @@ public class BanCommand extends CommandHandler {
 		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason]", "Ban temporarily player's IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
-			}
-			String returnedMsg;
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-
-			// Command pattern : /ban <name> <durate>
-			if(args.length == 2){
-				checkArgument(isPlayer(sender), Message.SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
-
-				if(isIP) {
-					returnedMsg = ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
-				} else {
-					returnedMsg = ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
-				}
-			}
-			else{
-				final String server = args[2];
-				checkArgument(Utils.isServer(server), Message.INVALID_SERVER);
-				checkArgument(!ban.isBan(entity, server), ALREADY_BAN);
-
-				// Command pattern: /ban <name> <durate> <server>
-				if(args.length == 3){
-					if(isIP) {
-						returnedMsg = ban.ban(entity, server, sender.getName(), durate, IModule.NO_REASON);
-					} else {
-						returnedMsg = ban.banIP(player, server, sender.getName(), durate, IModule.NO_REASON);
-					}
-				}
-
-				// Command pattern: /ban <name> <durate> <server> <reason>
-				else{
-					final String reason = Utils.getFinalArg(args, 3);
-					if(isIP) {
-						returnedMsg = ban.ban(entity, server, sender.getName(), durate, reason);
-					} else {
-						returnedMsg = ban.banIP(player, server, sender.getName(), durate, reason);
-					}
-				}
-			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM); 
-
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleTempBanCommand(this, false, true, sender, args, confirmed);
 		}
 	}
 	@RunAsync
@@ -288,22 +156,8 @@ public class BanCommand extends CommandHandler {
 		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String pName = args[0];
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-			String returnedMsg;
-
-			checkArgument(!ban.isBan(pName, IModule.GLOBAL_SERVER), ALREADY_BAN);
-
-			if(args.length == 2){
-				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 2);
-				returnedMsg = ban.ban(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleTempBanCommand(this, true, false, sender, args, confirmed);
 		}
 	}
 	@RunAsync
@@ -311,44 +165,73 @@ public class BanCommand extends CommandHandler {
 		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason]", "Ban temporarily player's IP from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, Message.IP_OFFLINE_PLAYER);
-			}
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-			String returnedMsg;
-
-			checkArgument(!ban.isBan(entity, IModule.GLOBAL_SERVER), ALREADY_BAN);
-
-			if(args.length == 2){
-				if(isIP) {
-					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-				} else {
-					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-				}
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 2);
-				if(isIP) {
-					returnedMsg = ban.ban(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-				} else {
-					returnedMsg = ban.banIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-				}
-			}
-
-			BAT.broadcast(returnedMsg, BAN_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+			handleTempBanCommand(this, true, true, sender, args, confirmed);
 		}
 	}
+	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, boolean confirmedCmd){
+		String target = args[0];
+		int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
+		String server;
+		final String staff = sender.getName();
+		String reason = IModule.NO_REASON;
 
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+		
+		String returnedMsg;
+
+		if(global){
+			server = IModule.GLOBAL_SERVER;
+			if(args.length > 2){
+				reason = Utils.getFinalArg(args, 2);
+			}
+		}
+		else
+		{
+			if(args.length == 2){
+				checkArgument(sender instanceof ProxiedPlayer, Message.SPECIFY_SERVER);
+				server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
+			}
+			else{
+				checkArgument(Utils.isServer(args[2]), Message.INVALID_SERVER);
+				server = args[2];
+				reason = (args.length > 3) ? Utils.getFinalArg(args, 3) : IModule.NO_REASON;
+			}
+		}
+
+		// Check if the target isn't an ip and the player is offline
+		if(!Utils.validIP(target) && player == null)
+		{
+			final String ip = Core.getPlayerIP(target);
+			if(ipBan){
+				checkArgument(!"0.0.0.0".equals(ip), "You can't ban this user's ip because he never connected to the server.");
+				target = ip;
+			}
+			// If ip = 0.0.0.0, it means the player never connects
+			else if("0.0.0.0".equals(ip) && !confirmedCmd)
+			{
+				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args), "you're performing operation on a player which never connects on the server.");
+				return;
+			}
+		}
+
+		checkArgument(!ban.isBan(target, server), ALREADY_BAN);
+
+		if(ipBan && player != null){
+			returnedMsg = ban.banIP(player, server, staff, duration, reason);
+		}else{
+			returnedMsg = ban.ban(target, server, staff, duration, reason);
+		}
+
+		BAT.broadcast(returnedMsg, BAN_PERM);
+	}
+	
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
 		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -383,7 +266,7 @@ public class BanCommand extends CommandHandler {
 		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			String returnedMsg = null;
 
@@ -418,7 +301,7 @@ public class BanCommand extends CommandHandler {
 		public GPardonCmd() {super("gpardon", "<player> [reason]", "Unban the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -439,7 +322,7 @@ public class BanCommand extends CommandHandler {
 		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			String returnedMsg = null;
 
