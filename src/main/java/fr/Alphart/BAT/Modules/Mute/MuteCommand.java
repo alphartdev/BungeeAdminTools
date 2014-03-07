@@ -37,7 +37,7 @@ public class MuteCommand extends CommandHandler{
 		public MuteCmd() {super("mute", "<player> [server] [reason]", "Mute definitively the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("mute").getCommands(), sender, "MUTE");
@@ -85,7 +85,7 @@ public class MuteCommand extends CommandHandler{
 		public MuteIPCmd() {super("muteip", "<player/ip> [server] [reason]", "Mute definitively the player's IP", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -142,7 +142,7 @@ public class MuteCommand extends CommandHandler{
 		public GMuteCmd() {super("gmute", "<name> [reason]", "Mute definitively the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg;
 
@@ -164,7 +164,7 @@ public class MuteCommand extends CommandHandler{
 		public GMuteIPCmd() {super("gmuteip", "<player/ip> [reason]", "Mute definitively player's IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -200,7 +200,7 @@ public class MuteCommand extends CommandHandler{
 		public TempMuteCmd() {super("tempmute", "<player/ip> <duration> [server] [reason]", "Mute temporarily the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg;
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
@@ -235,7 +235,7 @@ public class MuteCommand extends CommandHandler{
 		public TempMuteIPCmd() {super("tempmuteip", "<player> <duration> [server] [reason]", "Mute temporarily player's IP from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -290,7 +290,7 @@ public class MuteCommand extends CommandHandler{
 		public GTempMuteCmd() {super("gtempmute", "<player> <duration> [reason]", "Mute temporarily the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 			String returnedMsg;
@@ -313,7 +313,7 @@ public class MuteCommand extends CommandHandler{
 		public GTempMuteIPCmd() {super("gtempmuteip", "<player/ip> <duration> [reason]", "Mute temporarily player's IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			final boolean isIP = Utils.validIP(entity);
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
@@ -350,7 +350,7 @@ public class MuteCommand extends CommandHandler{
 		public UnmuteCmd() {super("unmute", "<player> [server] [reason]", "Unmute the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -385,7 +385,7 @@ public class MuteCommand extends CommandHandler{
 		public UnmuteIPCmd() {super("unmuteip", "<player/ip> [server] [reason]", "Unmute IP from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			String returnedMsg = null;
 
@@ -420,7 +420,7 @@ public class MuteCommand extends CommandHandler{
 		public GUnmuteCmd() {super("gunmute", "<player> [reason]", "Unmute the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String pName = args[0];
 			String returnedMsg = null;
 
@@ -441,7 +441,7 @@ public class MuteCommand extends CommandHandler{
 		public GUnmuteIPCmd() {super("gunmuteip", "<player/ip> [reason]", "Unmute IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
 			final String entity = args[0];
 			String returnedMsg = null;
 

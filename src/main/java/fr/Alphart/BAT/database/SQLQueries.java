@@ -70,11 +70,9 @@ public class SQLQueries {
 
 		// Use to check if a player is ban on a ban_server
 		// Parameter : player, player's ban_ip, (ban_server)
-		public static final String isBan = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND (UUID = ? OR "
-				+ "? IN (SELECT ban_ip FROM `" + table + "` WHERE ban_state = 1 AND UUID IS NULL));";
-		public static final String isBanServer = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND (UUID = ? OR "
-				+ "? IN (SELECT ban_ip FROM `" + table + "` WHERE ban_state = 1 AND UUID IS NULL)) AND"
-				+ " ban_server = ?;";
+		public static final String isBan = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND UUID = ?;";
+		public static final String isBanServer = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND UUID = ? "
+				+ "AND ban_server = ?;";
 
 		public static final String isBanIP = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND ban_ip = ?;";
 		public static final String isBanServerIP = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND ban_ip = ? AND ban_server = ?;";

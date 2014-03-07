@@ -22,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Modules.Core.CommandQueue;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor{
 	private static final Pattern pattern = Pattern.compile("<.*?>");
@@ -76,6 +77,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 
 	@Override
 	public void execute(final CommandSender sender, final String[] args) {
+		final boolean confirmedCmd = CommandQueue.isExecutingQueueCommand(sender);
 		try{
 			Preconditions.checkArgument(args.length >= minArgs);
 			if(runAsync){
@@ -83,7 +85,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 					@Override
 					public void run() {
 						try{
-							onCommand(sender, args);
+							onCommand(sender, args, confirmedCmd);
 						}catch(final IllegalArgumentException exception){
 							if(exception.getMessage() == null){
 								sender.sendMessage(__("&cAInvalid args. &BUsage : "));
@@ -96,7 +98,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 				});
 			}
 			else{
-				onCommand(sender, args);
+				onCommand(sender, args, confirmedCmd);
 			}
 		}catch(final IllegalArgumentException exception){
 			if(exception.getMessage() == null){
@@ -105,7 +107,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			} else {
 				sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 			}
-		}	
+		}
+		if(confirmedCmd){
+			CommandQueue.removeFromExecutingQueueCommand(sender);
+		}
 	}
 
 	@Override
@@ -128,7 +133,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return result;
 	}
 	
-	public abstract void onCommand(final CommandSender sender, final String[] args) throws IllegalArgumentException;
+	public abstract void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException;
 
 	/**
 	 * Use this annotation onCommand if the command need to be runned async
@@ -149,5 +154,16 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			return true;
 		}
 		return false;
+	}
+
+	public void mustConfirmCommand(final CommandSender sender, final String command, final String message){
+		if(!CommandQueue.isExecutingQueueCommand(sender)){
+			if("".equals(message)){
+				sender.sendMessage(__("You must &6confirm&e your command using &6/bat confirm"));
+			}else{
+				sender.sendMessage(__("You must &6confirm&e your command using &6/bat confirm&e because " + message));
+			}
+			CommandQueue.queueCommand(sender, command);
+		}
 	}
 }
