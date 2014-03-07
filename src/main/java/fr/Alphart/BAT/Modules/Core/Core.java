@@ -154,7 +154,7 @@ public class Core implements IModule, Listener{
 		}
 		return "0.0.0.0";
 	}
-	
+
 	// Event listener
 	@EventHandler
 	public void onPlayerJoin(final PostLoginEvent ev){
@@ -165,7 +165,7 @@ public class Core implements IModule, Listener{
 			}
 		});
 	}
-	
+
 	@EventHandler
 	public void onPlayerLeft(final PlayerDisconnectEvent ev){
 		CommandQueue.clearQueuedCommand(ev.getPlayer());

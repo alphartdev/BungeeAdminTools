@@ -124,16 +124,16 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		if ( playerToCheck.length() > 0 ){
 			for ( final ProxiedPlayer player : ProxyServer.getInstance().getPlayers() ) {
 				if(player.getName().substring(0, (playerToCheck.length()<player.getName().length())
-				? playerToCheck.length() 
-				: player.getName().length()).equalsIgnoreCase(playerToCheck)){
+						? playerToCheck.length() 
+								: player.getName().length()).equalsIgnoreCase(playerToCheck)){
 					result.add(player.getName());
 				}
 			}
 		}
 		return result;
 	}
-	
-	public abstract void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException;
+
+	public abstract void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException;
 
 	/**
 	 * Use this annotation onCommand if the command need to be runned async

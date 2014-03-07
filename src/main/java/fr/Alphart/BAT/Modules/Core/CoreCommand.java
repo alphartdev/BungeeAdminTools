@@ -64,7 +64,7 @@ public class CoreCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(args.length == 0){
 				sender.sendMessage(CREDIT);
 				sender.sendMessage(HELP_MSG);
@@ -93,7 +93,7 @@ public class CoreCommand{
 	public static class HelpCmd extends BATCommand{
 		public HelpCmd() {super("bat help", "", "Show the help", "bat.help");}
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			final List<BATCommand> cmdsList = new ArrayList<BATCommand>();
 			for(final BATCommand cmd : BAT.getInstance().getModules().getCore().getCommands()){
 				if(cmd instanceof CommandHandler) {
@@ -108,7 +108,7 @@ public class CoreCommand{
 		private final StringBuilder sb = new StringBuilder();
 		public ModulesCmd() {super("bat modules", "", "Show the loaded modules and their commands", "bat.modules");}
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			sender.sendMessage(__("The loaded modules are :&a"));
 			for(final IModule module : BAT.getInstance().getModules().getLoadedModules()){
 				if(module instanceof Core) {
@@ -137,7 +137,7 @@ public class CoreCommand{
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
 		public LookupCmd() {super("bat lookup", "<player/ip>", "Display a player or an ip related informations", "bat.lookup");}
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(Utils.validIP(args[0]))
 			{
 				for(final BaseComponent[] msg : getFormatLookupIP(args[0])){
@@ -350,19 +350,19 @@ public class CoreCommand{
 		}
 
 		@Override
-		public void onCommand(CommandSender sender, String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(!CommandQueue.executeQueueCommand(sender)){
 				sender.sendMessage(__("You have no queued command ..."));
 			}
 		}
-		
+
 	}
-	
+
 	@RunAsync
 	public static class InsertCmd extends BATCommand{
 		public InsertCmd() {super("bat insert", "", "Insère des informations aléatoires dans la DB", "bat.lookup");}
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 
 			sender.sendMessage(__("Insertion des infos en cours ..."));
 

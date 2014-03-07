@@ -136,7 +136,7 @@ public class Ban implements IModule, Listener{
 			// If this is a player which may be banned
 			else{
 				final String pName = bannedEntity;
-				final String ip = Core.getPlayerIP(pName);
+				Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Ban.isBan : SQLQueries.Ban.isBanServer);
 				statement.setString(1, Core.getUUID(pName));
 				if(!ANY_SERVER.equals(server)) {
@@ -184,7 +184,7 @@ public class Ban implements IModule, Listener{
 
 				for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
 					if(Utils.getPlayerIP(player).equals(ip)){
-						BAT.kick(player, Message.WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+						BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 					}
 				}
 
@@ -209,7 +209,7 @@ public class Ban implements IModule, Listener{
 
 				// Kick player if he's online and on the server where he's banned
 				if(player != null && (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))){
-					BAT.kick(player, Message.WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+					BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 				}
 
 				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST, pName, staff, server, reason, duration);		
@@ -229,7 +229,7 @@ public class Ban implements IModule, Listener{
 	 */
 	public String banIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		ban(Utils.getPlayerIP(player), server, staff, duration, reason);
-		BAT.kick(player, Message.WAS_BANNED_MSG.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+		BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 		return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST, player.getName(), staff, server, reason, duration);
 	}
 

@@ -1,7 +1,6 @@
 package fr.Alphart.BAT.Modules.Ban;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static fr.Alphart.BAT.Message.IP_UNKNOWN_PLAYER;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -34,7 +33,7 @@ public class BanCommand extends CommandHandler {
 		public BanCmd() {super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("ban").getCommands(), sender, "BAN");
@@ -43,7 +42,7 @@ public class BanCommand extends CommandHandler {
 				}
 				return;
 			}
-			handleBanCommand(this, false, false, sender, args, confirmed);
+			handleBanCommand(this, false, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -51,8 +50,8 @@ public class BanCommand extends CommandHandler {
 		public BanIPCmd() {super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleBanCommand(this, false, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleBanCommand(this, false, true, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -60,8 +59,8 @@ public class BanCommand extends CommandHandler {
 		public GBanCmd() {super("gban", "<player> [reason]", "Ban definitively the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleBanCommand(this, true, false, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleBanCommand(this, true, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -69,11 +68,11 @@ public class BanCommand extends CommandHandler {
 		public GBanIPCmd() {super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleBanCommand(this, true, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleBanCommand(this, true, true, sender, args, confirmedCmd);
 		}
 	}
-	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, boolean confirmedCmd){
+	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, final boolean confirmedCmd){
 		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -106,7 +105,7 @@ public class BanCommand extends CommandHandler {
 		{
 			final String ip = Core.getPlayerIP(target);
 			if(ipBan){
-				checkArgument(!"0.0.0.0".equals(ip), IP_UNKNOWN_PLAYER);
+				checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
 				target = ip;
 			}			
 			// If ip = 0.0.0.0, it means the player never connects
@@ -133,8 +132,8 @@ public class BanCommand extends CommandHandler {
 		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason]", "Ban temporarily the player from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleTempBanCommand(this, false, false, sender, args, confirmed); 
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempBanCommand(this, false, false, sender, args, confirmedCmd); 
 		}
 	}
 	@RunAsync
@@ -142,8 +141,8 @@ public class BanCommand extends CommandHandler {
 		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason]", "Ban temporarily player's IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleTempBanCommand(this, false, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempBanCommand(this, false, true, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -151,8 +150,8 @@ public class BanCommand extends CommandHandler {
 		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleTempBanCommand(this, true, false, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempBanCommand(this, true, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -160,19 +159,19 @@ public class BanCommand extends CommandHandler {
 		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason]", "Ban temporarily player's IP from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handleTempBanCommand(this, true, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempBanCommand(this, true, true, sender, args, confirmedCmd);
 		}
 	}
-	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, boolean confirmedCmd){
+	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, final boolean confirmedCmd){
 		String target = args[0];
-		int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
+		final int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
-		
+
 		String returnedMsg;
 
 		if(global){
@@ -198,7 +197,7 @@ public class BanCommand extends CommandHandler {
 		{
 			final String ip = Core.getPlayerIP(target);
 			if(ipBan){
-				checkArgument(!"0.0.0.0".equals(ip), IP_UNKNOWN_PLAYER);
+				checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
 				target = ip;
 			}
 			// If ip = 0.0.0.0, it means the player never connects
@@ -219,13 +218,13 @@ public class BanCommand extends CommandHandler {
 
 		BAT.broadcast(returnedMsg, BAN_PERM);
 	}
-	
+
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
 		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", BAN_PERM);}
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handlePardonCommand(this, false, false, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handlePardonCommand(this, false, false, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
@@ -233,8 +232,8 @@ public class BanCommand extends CommandHandler {
 		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handlePardonCommand(this, false, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handlePardonCommand(this, false, true, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
@@ -242,27 +241,27 @@ public class BanCommand extends CommandHandler {
 		public GPardonCmd() {super("gpardon", "<player> [reason]", "Unban the player from the whole network", BAN_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handlePardonCommand(this, true, false, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handlePardonCommand(this, true, false, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
 	public static class GPardonIPCmd extends BATCommand{
 		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", BAN_PERM);}
-		
+
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			handlePardonCommand(this, true, true, sender, args, confirmed);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handlePardonCommand(this, true, true, sender, args, confirmedCmd);
 		}	
 	}
-	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban, final CommandSender sender, final String[] args, boolean confirmedCmd){
+	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban, final CommandSender sender, final String[] args, final boolean confirmedCmd){
 		String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
-		
+
 		String returnedMsg;
-		
+
 		if(global){
 			if(args.length > 1){
 				reason = Utils.getFinalArg(args, 1);	
@@ -280,26 +279,26 @@ public class BanCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
-		
+
 		// Check if the target isn't an ip and the player is offline
 		if(!Utils.validIP(target) && ipUnban)
 		{
 			final String ip = Core.getPlayerIP(target);
-			checkArgument(!"0.0.0.0".equals(ip), IP_UNKNOWN_PLAYER);
+			checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
 			target = ip;
 		}
-		
+
 		checkArgument(ban.isBan(target, server), (IModule.ANY_SERVER.equals(server) 
 				? Message.NOT_BAN_ANY 
-				: ((ipUnban) ? Message.NOT_BANIP : Message.NOT_BAN)
+						: ((ipUnban) ? Message.NOT_BANIP : Message.NOT_BAN)
 				).replace("%entity%", args[0]));
-		
+
 		if(ipUnban){
 			returnedMsg = ban.unBanIP(target, server, staff, reason);
 		}else{
 			returnedMsg = ban.unBan(target, server, staff, reason);
 		}
-		
+
 		BAT.broadcast(returnedMsg, BAN_PERM);
 	}
 }

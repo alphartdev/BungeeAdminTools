@@ -4,12 +4,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.google.common.base.Joiner;
+
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -17,15 +22,6 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 public class MuteCommand extends CommandHandler{
 	private final static String MUTE_PERM = Mute.MUTE_PERM;
 	private static Mute mute;
-
-	private static final String ALREADY_MUTE = "&cThis player is already muted from this server!";
-	private static final String NOT_MUTE = "&c%entity% isn't muted from this server.";
-	private static final String NOT_MUTEIP = "&c%entity% isn't IP muted from this server..";
-	private static final String NOT_MUTE_ANY = "&c%entity% isn't muted from any server !";
-
-	private static final String SPECIFY_SERVER = "&cYou must specify a server!";
-	private static final String INVALID_SERVER = "&cThe specified server is invalid!";
-	private static final String IP_OFFLINE_PLAYER = "&cThe player must be connected to mute his IP!";
 
 	public MuteCommand(final Mute muteModule){
 		super(muteModule);
@@ -37,7 +33,7 @@ public class MuteCommand extends CommandHandler{
 		public MuteCmd() {super("mute", "<player> [server] [reason]", "Mute definitively the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("mute").getCommands(), sender, "MUTE");
@@ -46,38 +42,7 @@ public class MuteCommand extends CommandHandler{
 				}
 				return;
 			}
-			final String pName = args[0];
-			String returnedMsg = null;
-
-			// Command pattern : /mute <name>
-			if(args.length == 1){
-				// If the sender isn't a player, he has to specify a server
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				// If the player is already mute of this server, the command is gonna be cancelled
-				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
-
-				returnedMsg = mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
-			}
-			else{
-				final String server = args[1];
-				// Check if the server is an valid server
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				// Check if the player isn't already mutened from this server
-				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
-
-				// Command pattern : /mute <name> <server>
-				if(args.length == 2) {
-					returnedMsg = mute.mute(pName, server, sender.getName(), 0, IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = mute.mute(pName, server, sender.getName(), 0, reason);
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+			handleMuteCommand(this, false, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -85,56 +50,8 @@ public class MuteCommand extends CommandHandler{
 		public MuteIPCmd() {super("muteip", "<player/ip> [server] [reason]", "Mute definitively the player's IP", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
-			}
-			String returnedMsg = null;
-
-			// Command pattern : /mute <name>
-			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
-
-				if(isIP) {
-					returnedMsg = mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
-				} else {
-					returnedMsg = mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
-				}
-			}
-			else{
-				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
-
-				// Command pattern : /mute <name> <server>
-				if(args.length == 2){
-					if(isIP) {
-						returnedMsg = mute.mute(entity, server, sender.getName(), 0, IModule.NO_REASON);
-					} else {
-						returnedMsg = mute.muteIP(player, server, sender.getName(), 0, IModule.NO_REASON);
-					}
-				}
-
-				// Command pattern : /mute <name> <server> <reason>
-				else{
-					final String reason = Utils.getFinalArg(args, 2);
-
-					if(isIP) {
-						returnedMsg = mute.mute(entity, server, sender.getName(), 0, reason);
-					} else {
-						returnedMsg = mute.muteIP(player, server, sender.getName(), 0, reason);
-					}
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleMuteCommand(this, false, true, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -142,21 +59,8 @@ public class MuteCommand extends CommandHandler{
 		public GMuteCmd() {super("gmute", "<name> [reason]", "Mute definitively the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg;
-
-			checkArgument(!mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
-
-			if(args.length == 1){
-				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleMuteCommand(this, true, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -164,35 +68,63 @@ public class MuteCommand extends CommandHandler{
 		public GMuteIPCmd() {super("gmuteip", "<player/ip> [reason]", "Mute definitively player's IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleMuteCommand(this, true, true, sender, args, confirmedCmd);
+		}
+	}
+	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute, final CommandSender sender, final String[] args, final boolean confirmedCmd){
+		String target = args[0];
+		String server = IModule.GLOBAL_SERVER;
+		final String staff = sender.getName();
+		String reason = IModule.NO_REASON;
+
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+
+		String returnedMsg;
+
+		if(global){
+			if(args.length > 1){
+				reason = Utils.getFinalArg(args, 1);	
 			}
-			String returnedMsg;
-
-			checkArgument(!mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
-
+		}
+		else
+		{
 			if(args.length == 1){
-				if(isIP) {
-					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-				} else {
-					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, IModule.NO_REASON);
-				}
+				checkArgument(sender instanceof ProxiedPlayer, Message.SPECIFY_SERVER);
+				server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 			}
 			else{
-				final String reason = Utils.getFinalArg(args, 1);
-				if(isIP) {
-					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-				} else {
-					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), 0, reason);
-				}
+				checkArgument(Utils.isServer(args[1]), Message.INVALID_SERVER);
+				server = args[1];
+				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
 		}
+
+		// Check if the target isn't an ip and the player is offline
+		if(!Utils.validIP(target) && player == null)
+		{
+			final String ip = Core.getPlayerIP(target);
+			if(ipMute){
+				checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
+				target = ip;
+			}			
+			// If ip = 0.0.0.0, it means the player never connects
+			else if("0.0.0.0".equals(ip) && !confirmedCmd)
+			{
+				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args), Message.OPERATION_UNKNOWN_PLAYER.replace("%player%", target));
+				return;
+			}
+		}
+
+		checkArgument(!mute.isMute(target, server), Message.ALREADY_MUTE);	
+
+		if(ipMute && player != null){
+			returnedMsg = mute.muteIP(player, server, staff, 0, reason);
+		}else{
+			returnedMsg = mute.mute(target, server, staff, 0, reason);
+		}
+
+		BAT.broadcast(returnedMsg, MUTE_PERM);
 	}
 
 	@RunAsync
@@ -200,34 +132,8 @@ public class MuteCommand extends CommandHandler{
 		public TempMuteCmd() {super("tempmute", "<player/ip> <duration> [server] [reason]", "Mute temporarily the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg;
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-
-			// Command pattern : /mute <name> <durate>
-			if(args.length == 2){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
-
-				returnedMsg = mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
-			}
-			else{
-				final String server = args[2];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!mute.isMute(pName, server), ALREADY_MUTE);
-
-				// Command pattern: /mute <name> <durate> <server>
-				if(args.length == 3) {
-					returnedMsg = mute.mute(pName, server, sender.getName(), durate, IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 3);
-					returnedMsg = mute.mute(pName, server, sender.getName(), durate, reason);
-				}
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM); 
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempMuteCommand(this, false, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -235,54 +141,8 @@ public class MuteCommand extends CommandHandler{
 		public TempMuteIPCmd() {super("tempmuteip", "<player> <duration> [server] [reason]", "Mute temporarily player's IP from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
-			}
-			String returnedMsg;
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-
-			// Command pattern : /mute <name> <durate>
-			if(args.length == 2){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
-
-				if(isIP) {
-					returnedMsg = mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
-				} else {
-					returnedMsg = mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
-				}
-			}
-			else{
-				final String server = args[2];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(!mute.isMute(entity, server), ALREADY_MUTE);
-
-				// Command pattern: /mute <name> <durate> <server>
-				if(args.length == 3){
-					if(isIP) {
-						returnedMsg = mute.mute(entity, server, sender.getName(), durate, IModule.NO_REASON);
-					} else {
-						returnedMsg = mute.muteIP(player, server, sender.getName(), durate, IModule.NO_REASON);
-					}
-				}
-
-				// Command pattern: /mute <name> <durate> <server> <reason>
-				else{
-					final String reason = Utils.getFinalArg(args, 3);
-					if(isIP) {
-						returnedMsg = mute.mute(entity, server, sender.getName(), durate, reason);
-					} else {
-						returnedMsg = mute.muteIP(player, server, sender.getName(), durate, reason);
-					}
-				}
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM); 
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempMuteCommand(this, false, true, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -290,22 +150,8 @@ public class MuteCommand extends CommandHandler{
 		public GTempMuteCmd() {super("gtempmute", "<player> <duration> [reason]", "Mute temporarily the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String pName = args[0];
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-			String returnedMsg;
-
-			checkArgument(!mute.isMute(pName, IModule.GLOBAL_SERVER), ALREADY_MUTE);
-
-			if(args.length == 2){
-				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 2);
-				returnedMsg = mute.mute(pName, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempMuteCommand(this, true, false, sender, args, confirmedCmd);
 		}
 	}
 	@RunAsync
@@ -313,36 +159,64 @@ public class MuteCommand extends CommandHandler{
 		public GTempMuteIPCmd() {super("gtempmuteip", "<player/ip> <duration> [reason]", "Mute temporarily player's IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			final boolean isIP = Utils.validIP(entity);
-			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-			if(!isIP) {
-				checkArgument(player != null, IP_OFFLINE_PLAYER);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleTempMuteCommand(this, true, true, sender, args, confirmedCmd);
+		}
+	}
+	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute, final CommandSender sender, final String[] args, final boolean confirmedCmd){
+		String target = args[0];
+		String server = IModule.GLOBAL_SERVER;
+		final String staff = sender.getName();
+		String reason = IModule.NO_REASON;
+		final int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
+
+		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+
+		String returnedMsg;
+
+		if(global){
+			if(args.length > 2){
+				reason = Utils.getFinalArg(args, 2);	
 			}
-			final int durate = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
-			String returnedMsg;
-
-			checkArgument(!mute.isMute(entity, IModule.GLOBAL_SERVER), ALREADY_MUTE);
-
+		}
+		else
+		{
 			if(args.length == 2){
-				if(isIP) {
-					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-				} else {
-					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, IModule.NO_REASON);
-				}
+				checkArgument(sender instanceof ProxiedPlayer, Message.SPECIFY_SERVER);
+				server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
 			}
 			else{
-				final String reason = Utils.getFinalArg(args, 2);
-				if(isIP) {
-					returnedMsg = mute.mute(entity, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-				} else {
-					returnedMsg = mute.muteIP(player, IModule.GLOBAL_SERVER, sender.getName(), durate, reason);
-				}
+				checkArgument(Utils.isServer(args[2]), Message.INVALID_SERVER);
+				server = args[2];
+				reason = (args.length > 3) ? Utils.getFinalArg(args, 3) : IModule.NO_REASON;
 			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
 		}
+
+		// Check if the target isn't an ip and the player is offline
+		if(!Utils.validIP(target) && player == null)
+		{
+			final String ip = Core.getPlayerIP(target);
+			if(ipMute){
+				checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
+				target = ip;
+			}			
+			// If ip = 0.0.0.0, it means the player never connects
+			else if("0.0.0.0".equals(ip) && !confirmedCmd)
+			{
+				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args), Message.OPERATION_UNKNOWN_PLAYER.replace("%player%", target));
+				return;
+			}
+		}
+
+		checkArgument(!mute.isMute(target, server), Message.ALREADY_MUTE);	
+
+		if(ipMute && player != null){
+			returnedMsg = mute.muteIP(player, server, staff, duration, reason);
+		}else{
+			returnedMsg = mute.mute(target, server, staff, duration, reason);
+		}
+
+		BAT.broadcast(returnedMsg, MUTE_PERM);
 	}
 
 	@RunAsync
@@ -350,34 +224,8 @@ public class MuteCommand extends CommandHandler{
 		public UnmuteCmd() {super("unmute", "<player> [server] [reason]", "Unmute the player from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg = null;
-
-			// Command pattern : /mute <name>
-			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
-
-				returnedMsg = mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
-			}
-			else{
-				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(mute.isMute(pName, server), NOT_MUTE.replaceAll("%entity%", pName));
-
-				// Command pattern : /mute <name> <server>
-				if(args.length == 2) {
-					returnedMsg = mute.unMute(pName, server, sender.getName(), IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = mute.unMute(pName, server, sender.getName(), reason);
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleUnmuteCommand(this, false, false, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
@@ -385,34 +233,8 @@ public class MuteCommand extends CommandHandler{
 		public UnmuteIPCmd() {super("unmuteip", "<player/ip> [server] [reason]", "Unmute IP from the specified server", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			String returnedMsg = null;
-
-			// Command pattern : /mute <name>
-			if(args.length == 1){
-				checkArgument(isPlayer(sender), SPECIFY_SERVER);
-				final String server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
-				checkArgument(mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
-
-				returnedMsg = mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
-			}
-			else{
-				final String server = args[1];
-				checkArgument(Utils.isServer(server), INVALID_SERVER);
-				checkArgument(mute.isMute(entity, server), NOT_MUTEIP.replaceAll("%entity%", entity));
-
-				// Command pattern : /mute <name> <server>
-				if(args.length == 2) {
-					returnedMsg = mute.unMuteIP(entity, server, sender.getName(), IModule.NO_REASON);
-				} else{
-					final String reason = Utils.getFinalArg(args, 2);
-					returnedMsg = mute.unMuteIP(entity, server, sender.getName(), reason);
-				}
-			}
-
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleUnmuteCommand(this, false, true, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
@@ -420,20 +242,8 @@ public class MuteCommand extends CommandHandler{
 		public GUnmuteCmd() {super("gunmute", "<player> [reason]", "Unmute the player from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String pName = args[0];
-			String returnedMsg = null;
-
-			checkArgument(mute.isMute(pName, IModule.ANY_SERVER), NOT_MUTE.replaceAll("%entity%", pName));
-
-			if(args.length == 1) {
-				returnedMsg = mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
-			} else{
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = mute.unMute(pName, IModule.ANY_SERVER, sender.getName(), reason);
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleUnmuteCommand(this, true, false, sender, args, confirmedCmd);
 		}	
 	}
 	@RunAsync
@@ -441,22 +251,55 @@ public class MuteCommand extends CommandHandler{
 		public GUnmuteIPCmd() {super("gunmuteip", "<player/ip> [reason]", "Unmute IP from the whole network", MUTE_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
-			final String entity = args[0];
-			String returnedMsg = null;
-
-			checkArgument(mute.isMute(entity, IModule.ANY_SERVER), NOT_MUTE_ANY.replaceAll("%entity%", entity));
-
-			if(args.length == 1){
-				returnedMsg = mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), IModule.NO_REASON);
-			}
-			else{
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = mute.unMuteIP(entity, IModule.ANY_SERVER, sender.getName(), reason);
-			}
-
-			BAT.broadcast(returnedMsg, MUTE_PERM);
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			handleUnmuteCommand(this, true, true, sender, args, confirmedCmd);
 		}	
 	}
+	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute, final CommandSender sender, final String[] args, final boolean confirmedCmd){
+		String target = args[0];
+		String server = IModule.ANY_SERVER;
+		final String staff = sender.getName();
+		String reason = IModule.NO_REASON;
 
+		String returnedMsg;
+
+		if(global){
+			if(args.length > 1){
+				reason = Utils.getFinalArg(args, 1);	
+			}
+		}
+		else
+		{
+			if(args.length == 1){
+				checkArgument(sender instanceof ProxiedPlayer, Message.SPECIFY_SERVER);
+				server = ((ProxiedPlayer)sender).getServer().getInfo().getName();
+			}
+			else{
+				checkArgument(Utils.isServer(args[1]), Message.INVALID_SERVER);
+				server = args[1];
+				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
+			}
+		}
+
+		// Check if the target isn't an ip and the player is offline
+		if(!Utils.validIP(target) && ipUnmute)
+		{
+			final String ip = Core.getPlayerIP(target);
+			checkArgument(!"0.0.0.0".equals(ip), Message.IP_UNKNOWN_PLAYER);
+			target = ip;
+		}
+
+		checkArgument(mute.isMute(target, server), (IModule.ANY_SERVER.equals(server) 
+				? Message.NOT_MUTE_ANY 
+						: ((ipUnmute) ? Message.NOT_MUTEIP : Message.NOT_MUTE)
+				).replace("%entity%", args[0]));
+
+		if(ipUnmute){
+			returnedMsg = mute.unMuteIP(target, server, staff, reason);
+		}else{
+			returnedMsg = mute.unMute(target, server, staff, reason);
+		}
+
+		BAT.broadcast(returnedMsg, MUTE_PERM);
+	}
 }

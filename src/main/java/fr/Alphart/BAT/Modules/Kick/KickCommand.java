@@ -25,7 +25,7 @@ public class KickCommand extends CommandHandler {
 		public KickCmd() {super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", KICK_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			if(args[0].equals("help")){
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("kick").getCommands(), sender, "KICK");
@@ -57,7 +57,7 @@ public class KickCommand extends CommandHandler {
 		public GKickCmd() {super("gkick", "<player> [reason]", "Kick the player from the proxy", KICK_PERM);}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, boolean confirmed) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 			checkArgument(player != null, "&cLe joueur est introuvable.");

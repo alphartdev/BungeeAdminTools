@@ -23,6 +23,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
@@ -44,16 +45,6 @@ public class Mute implements IModule, Listener{
 	private CommandHandler commandHandler;
 	private ScheduledTask task;
 	private MuteConfig config;
-	// Message
-	private static final String MUTE_MSG = "&a%entity%&e was &6muted definitively&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
-	private static final String MUTETEMP_MSG = "&a%entity%&e was &6muted &eduring &a%duration%&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
-	private static final String UNMUTE_MSG = "&a%entity%&e was &6demuted &eby &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
-
-	private static final String WAS_MUTED_MSG = "You were muted. Reason : %reason%";
-	private static final String WAS_UNMUTED_MSG = "You were unmuted. Reason : %reason%";
-	private final static String ISMUTE_MSG = "You're muted, you can't talk.";
-	private final static String LOADINGMUTE_MSG = "Loading of data in progress : you may speak in a little while.";
-
 	@Override
 	public List<BATCommand> getCommands() {
 		return commandHandler.getCmds();
@@ -241,11 +232,11 @@ public class Mute implements IModule, Listener{
 						else{
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
-						player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+						player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, ip, staff, server, reason, duration);
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, ip, staff, server, reason, duration);
 			}
 
 			// Otherwise it's a player
@@ -271,10 +262,10 @@ public class Mute implements IModule, Listener{
 					else{
 						mutedPlayers.get(player.getName()).addServer(server);
 					}
-					player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+					player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, pName, staff, server, reason, duration);		
+				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, pName, staff, server, reason, duration);		
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -293,8 +284,8 @@ public class Mute implements IModule, Listener{
 	 */
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
 		mute(Utils.getPlayerIP(player), server, staff, duration, reason);
-		player.sendMessage(__(WAS_MUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
-		return FormatUtils.formatBroadcastMsg((duration > 0) ? MUTETEMP_MSG : MUTE_MSG, player.getName(), staff, server, reason, duration);
+		player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+		return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, player.getName(), staff, server, reason, duration);
 	}
 
 	/**
@@ -332,7 +323,7 @@ public class Mute implements IModule, Listener{
 				statement.executeUpdate();
 				statement.close();
 
-				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, ip, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, ip, staff, server, reason, 0);
 			}
 
 			// Otherwise it's a player
@@ -371,10 +362,10 @@ public class Mute implements IModule, Listener{
 							pma.removeServer(server);
 						}
 					}
-					player.sendMessage(__(WAS_UNMUTED_MSG.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
+					player.sendMessage(__(Message.WAS_UNMUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 				}
 
-				return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, pName, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, pName, staff, server, reason, 0);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -393,7 +384,7 @@ public class Mute implements IModule, Listener{
 	 */
 	public String unMuteIP(final String entity, final String server, final String staff, final String reason){
 		unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
-		return FormatUtils.formatBroadcastMsg(UNMUTE_MSG, entity, staff, server, reason, 0);
+		return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, entity, staff, server, reason, 0);
 	}
 
 	/**
@@ -563,7 +554,7 @@ public class Mute implements IModule, Listener{
 				}
 			});
 		}else if(muteState == 1){
-			player.sendMessage(__(ISMUTE_MSG));
+			player.sendMessage(__(Message.ISMUTE));
 		}
 	}
 
@@ -586,10 +577,10 @@ public class Mute implements IModule, Listener{
 			}
 		}
 		if(muteState == 1){
-			player.sendMessage(__(ISMUTE_MSG));
+			player.sendMessage(__(Message.ISMUTE));
 			e.setCancelled(true);
 		}else if(muteState == -1){
-			player.sendMessage(__(LOADINGMUTE_MSG));
+			player.sendMessage(__(Message.LOADING_MUTEDATA));
 			e.setCancelled(true);
 		}
 	}
