@@ -8,11 +8,11 @@ public class PermissionManager {
 	static String permPrefix = "bat.";
 
 	public static enum Action {
-		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), BAN_BROADCAST(
-				"ban.broadcast"),
+		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), 
+		BAN_BROADCAST("ban.broadcast"),
 
-		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
-				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
+		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), 
+		UNMUTEIP("unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
 		KICK("kick"), KICK_BROADCAST("kick.broadcast");
 
@@ -41,8 +41,8 @@ public class PermissionManager {
 	 */
 	public static boolean canExecuteAction(Action action, CommandSender executor, String server) {
 		return (executor.hasPermission(permPrefix + ".grantall." + server)
-				|| executor.hasPermission(action.getPermission() + '.' + server) || executor.hasPermission(action
-				.getPermission() + ".global"));
+				|| executor.hasPermission(action.getPermission() + '.' + server) || executor.hasPermission(
+				action.getPermission() + ".global"));
 	}
 
 	/**

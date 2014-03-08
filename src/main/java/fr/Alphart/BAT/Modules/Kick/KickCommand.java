@@ -9,11 +9,11 @@ import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
+import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 
 public class KickCommand extends CommandHandler {
-	private final static String KICK_PERM = Kick.KICK_PERM;
 	private static Kick kick;
 
 	public KickCommand(final Kick kickModule) {
@@ -23,7 +23,7 @@ public class KickCommand extends CommandHandler {
 
 	public static class KickCmd extends BATCommand {
 		public KickCmd() {
-			super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", KICK_PERM);
+			super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", Action.KICK.getPermission());
 		}
 
 		@Override
@@ -53,13 +53,13 @@ public class KickCommand extends CommandHandler {
 				returnedMsg = kick.kick(player, sender.getName(), reason);
 			}
 
-			BAT.broadcast(returnedMsg, KICK_PERM);
+			BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 		}
 	}
 
 	public static class GKickCmd extends BATCommand {
 		public GKickCmd() {
-			super("gkick", "<player> [reason]", "Kick the player from the proxy", KICK_PERM);
+			super("gkick", "<player> [reason]", "Kick the player from the proxy", Action.KICK.getPermission() + ".global");
 		}
 
 		@Override
@@ -80,7 +80,7 @@ public class KickCommand extends CommandHandler {
 				returnedMsg = kick.gKick(player, sender.getName(), reason);
 			}
 
-			BAT.broadcast(returnedMsg, KICK_PERM);
+			BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 		}
 	}
 

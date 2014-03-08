@@ -40,7 +40,6 @@ import fr.Alphart.BAT.database.SQLQueries;
  */
 public class Mute implements IModule, Listener {
 	private final String name = "mute";
-	public static final String MUTE_PERM = "BAT.mute";
 	private static ConcurrentHashMap<String, PlayerMuteData> mutedPlayers;
 	private CommandHandler commandHandler;
 	private ScheduledTask task;
@@ -194,7 +193,6 @@ public class Mute implements IModule, Listener {
 			// If this is a player which may be muted
 			else {
 				final String pName = mutedEntity;
-				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Mute.isMute
 						: SQLQueries.Mute.isMuteServer);
 				statement.setString(1, Core.getUUID(pName));

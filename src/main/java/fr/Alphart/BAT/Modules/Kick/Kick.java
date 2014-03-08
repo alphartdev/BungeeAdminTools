@@ -25,7 +25,6 @@ import fr.Alphart.BAT.database.SQLQueries;
 
 public class Kick implements IModule {
 	private final String name = "kick";
-	public static final String KICK_PERM = "BAT.kick";
 	private KickCommand commandHandler;
 	private KickConfig config;
 
