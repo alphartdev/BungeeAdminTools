@@ -1,6 +1,5 @@
 package fr.Alphart.BAT.Modules.Ban;
 
-
 public class BanEntry {
 	private final String entity;
 	private final String server;
@@ -10,7 +9,8 @@ public class BanEntry {
 	private final int end_date;
 	private final boolean active;
 
-	public BanEntry(final String entity, final String server, final String reason, final String staff, final int begin_date, final int end_date, final boolean isActive) {
+	public BanEntry(final String entity, final String server, final String reason, final String staff,
+			final int begin_date, final int end_date, final boolean isActive) {
 		this.entity = entity;
 		this.server = server;
 		this.reason = reason;
@@ -44,7 +44,7 @@ public class BanEntry {
 		return end_date;
 	}
 
-	public boolean isActive(){
+	public boolean isActive() {
 		return active;
 	}
 

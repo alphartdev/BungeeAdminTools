@@ -23,21 +23,26 @@ import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
-public class Kick implements IModule{
+public class Kick implements IModule {
 	private final String name = "kick";
 	public static final String KICK_PERM = "BAT.kick";
 	private KickCommand commandHandler;
 	private KickConfig config;
 
 	@Override
-	public List<BATCommand> getCommands() {return commandHandler.getCmds();}
+	public List<BATCommand> getCommands() {
+		return commandHandler.getCmds();
+	}
 
 	@Override
 	public String getMainCommand() {
 		return "kick";
 	}
+
 	@Override
-	public String getName() {return name;}
+	public String getName() {
+		return name;
+	}
 
 	@Override
 	public ModuleConfiguration getConfig() {
@@ -48,20 +53,19 @@ public class Kick implements IModule{
 	public boolean load() {
 		// Init table
 		Statement statement = null;
-		try  (Connection conn  = BAT.getConnection()) {
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.createStatement();
-			if(DataSourceHandler.isSQLite()){
-				for(final String query : SQLQueries.Kick.SQLite.createTable){
+			if (DataSourceHandler.isSQLite()) {
+				for (final String query : SQLQueries.Kick.SQLite.createTable) {
 					statement.executeUpdate(query);
 				}
-			}
-			else{
+			} else {
 				statement.executeUpdate(SQLQueries.Kick.createTable);
 			}
 			statement.close();
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 
@@ -81,7 +85,7 @@ public class Kick implements IModule{
 		return false;
 	}
 
-	public class KickConfig extends ModuleConfiguration{
+	public class KickConfig extends ModuleConfiguration {
 		public KickConfig(final IModule module) {
 			super(module);
 		}
@@ -89,16 +93,17 @@ public class Kick implements IModule{
 
 	/**
 	 * Kick a player and tp him to the default server
+	 * 
 	 * @param player
 	 * @param reason
 	 */
-	public String kick(final ProxiedPlayer player, final String staff, final String reason){
+	public String kick(final ProxiedPlayer player, final String staff, final String reason) {
 		PreparedStatement statement = null;
-		try  (Connection conn = BAT.getConnection()) {			
+		try (Connection conn = BAT.getConnection()) {
 			final String server = player.getServer().getInfo().getName();
-			if(DataSourceHandler.isSQLite()){
+			if (DataSourceHandler.isSQLite()) {
 				statement = conn.prepareStatement(SQLQueries.Kick.SQLite.kickPlayer);
-			}else{
+			} else {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
 			statement.setString(1, Core.getUUID(player.getName()));
@@ -108,28 +113,31 @@ public class Kick implements IModule{
 			statement.setString(5, server);
 			statement.executeUpdate();
 			statement.close();
-			player.connect( ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()) );
-			player.sendMessage(__(Message.WAS_KICKED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+			player.connect(ProxyServer.getInstance().getServerInfo(
+					player.getPendingConnection().getListener().getDefaultServer()));
+			player.sendMessage(__(Message.WAS_KICKED_NOTIF.replaceAll("%reason%",
+					((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
 
 			return FormatUtils.formatBroadcastMsg(Message.KICK_BROADCAST, player.getName(), staff, server, reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 	}
 
 	/**
 	 * Kick a player from the network
+	 * 
 	 * @param player
 	 * @param reason
 	 */
-	public String gKick(final ProxiedPlayer player, final String staff, final String reason){
+	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
 		PreparedStatement statement = null;
-		try  (Connection conn  = BAT.getConnection()) {	
-			if(DataSourceHandler.isSQLite()){
+		try (Connection conn = BAT.getConnection()) {
+			if (DataSourceHandler.isSQLite()) {
 				statement = conn.prepareStatement(fr.Alphart.BAT.database.SQLQueries.Kick.SQLite.kickPlayer);
-			}else{
+			} else {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
 			statement.setString(1, Core.getUUID(player.getName()));
@@ -139,11 +147,13 @@ public class Kick implements IModule{
 			statement.setString(5, "(global)");
 			statement.executeUpdate();
 			statement.close();
-			player.disconnect( FormatUtils._(Message.WAS_KICKED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
-			return FormatUtils.formatBroadcastMsg(Message.GKICK_BROADCAST, player.getName(), staff, GLOBAL_SERVER, reason, 0);
+			player.disconnect(FormatUtils._(Message.WAS_KICKED_NOTIF.replace("%reason%",
+					((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+			return FormatUtils.formatBroadcastMsg(Message.GKICK_BROADCAST, player.getName(), staff, GLOBAL_SERVER,
+					reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 	}
@@ -151,28 +161,30 @@ public class Kick implements IModule{
 	/**
 	 * Get all kick data of a player <br>
 	 * <b>Should be runned async to optimize performance</b>
-	 * @param player's name
+	 * 
+	 * @param player
+	 *            's name
 	 * @return List of KickEntry of the player
 	 */
-	public List<KickEntry> getKickData(final String pName){
+	public List<KickEntry> getKickData(final String pName) {
 		final List<KickEntry> kickList = new ArrayList<KickEntry>();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		try  (Connection conn  = BAT.getConnection()) {	
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.prepareStatement(SQLQueries.Kick.getKick);
 			statement.setString(1, Core.getUUID(pName));
 			resultSet = statement.executeQuery();
 
-			while(resultSet.next()){
+			while (resultSet.next()) {
 				final String server = resultSet.getString("kick_server");
 				final String reason = resultSet.getString("kick_reason");
 				final String staff = resultSet.getString("kick_staff");
 				final int date = resultSet.getInt("kick_date");
-				kickList.add( new KickEntry(pName, server, reason, staff, date) );
+				kickList.add(new KickEntry(pName, server, reason, staff, date));
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement, resultSet);
 		}
 		return kickList;

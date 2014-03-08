@@ -8,25 +8,26 @@ import java.util.Set;
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.ConfigurationSection;
 import fr.Alphart.BAT.BAT;
 
-public abstract class ModuleConfiguration{
+public abstract class ModuleConfiguration {
 	protected ConfigurationSection config;
 
-	public ModuleConfiguration(final IModule module){
+	public ModuleConfiguration(final IModule module) {
 		config = BAT.getInstance().getConfiguration().getRootConfig().getConfigurationSection(module.getName());
-		if(config.getConfigurationSection("commands") == null) {
+		if (config.getConfigurationSection("commands") == null) {
 			config.createSection("commands");
 		}
 	}
 
 	/**
 	 * Get the names of the enabled commands for this module
+	 * 
 	 * @return list of the enabled commands
 	 */
 	public List<String> getEnabledCmds() {
 		final List<String> enabledCmds = new ArrayList<String>();
 		final Set<String> commandsSet = config.getConfigurationSection("commands").getKeys(false);
-		for(final String command : commandsSet){
-			if(config.getConfigurationSection("commands").getBoolean(command)) {
+		for (final String command : commandsSet) {
+			if (config.getConfigurationSection("commands").getBoolean(command)) {
 				enabledCmds.add(command);
 			}
 		}
@@ -35,12 +36,14 @@ public abstract class ModuleConfiguration{
 
 	/**
 	 * Add commands provided by this module into the configuration file
-	 * @param commands list
+	 * 
+	 * @param commands
+	 *            list
 	 */
 	public void addDefaultCmds(final List<String> cmds) {
 		Collections.sort(cmds);
-		for(final String command : cmds){
+		for (final String command : cmds) {
 			config.getConfigurationSection("commands").addDefault(command, true);
 		}
-	}	
+	}
 }

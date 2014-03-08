@@ -5,6 +5,7 @@ package fr.Alphart.BAT;
  */
 public class Message {
 	public static final String NO_PERM = "&cYou don't have the permission to execute this command!";
+	public static final String IS_EXEMPT = "&cThis command cannot be executed on this player!";
 	public static final String SPECIFY_SERVER = "You must specify a server!";
 	public static final String INVALID_SERVER = "The specified server is invalid!";
 	public static final String IP_UNKNOWN_PLAYER = "You can't perfom operation on this user's ip because he never connected.";
@@ -32,7 +33,7 @@ public class Message {
 	public static final String NOT_MUTE = "&c%entity% isn't muted from this server.";
 	public static final String NOT_MUTEIP = "&c%entity% isn't IP muted from this server.";
 	public static final String NOT_MUTE_ANY = "&c%entity% isn't muted from any server !";
-	
+
 	public final static String KICK_BROADCAST = "&a%entity%&e was &6kicked&e by &a%staff%&e from the server &a%serv%&e. Reason : %reason%";
 	public final static String GKICK_BROADCAST = "&a%entity%&e was &6kicked&e by &a%staff%&e from the network. Reason : %reason%";
 	public final static String WAS_KICKED_NOTIF = "You were kicked from this server ! Reason : %reason%";

@@ -7,7 +7,7 @@ public class Configuration {
 	private FileConfiguration config;
 	private final static String HEADER = "Bungee Admin Tools - Configuration file";
 
-	public void load(){
+	public void load() {
 		config = BAT.getInstance().getConfig();
 		config.options().copyDefaults(true);
 
@@ -33,7 +33,11 @@ public class Configuration {
 		config.options().copyDefaults(true);
 	}
 
-	public ConfigurationSection getRootConfig(){ return config;}
+	public ConfigurationSection getRootConfig() {
+		return config;
+	}
 
-	public ConfigurationSection getStorageConfig(){ return config.getConfigurationSection("storage");}
+	public ConfigurationSection getStorageConfig() {
+		return config.getConfigurationSection("storage");
+	}
 }

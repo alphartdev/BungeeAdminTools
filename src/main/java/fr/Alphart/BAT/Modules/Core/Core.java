@@ -22,7 +22,7 @@ import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
-public class Core implements IModule, Listener{
+public class Core implements IModule, Listener {
 	private final String name = "core";
 	private List<BATCommand> cmds;
 
@@ -40,20 +40,19 @@ public class Core implements IModule, Listener{
 	public boolean load() {
 		// Init players table
 		Statement statement = null;
-		try  (Connection conn  = BAT.getConnection()) {
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.createStatement();
-			if(DataSourceHandler.isSQLite()){
-				for(final String query : SQLQueries.Core.SQLite.createTable){
+			if (DataSourceHandler.isSQLite()) {
+				for (final String query : SQLQueries.Core.SQLite.createTable) {
 					statement.executeUpdate(query);
 				}
-			}
-			else{
+			} else {
 				statement.executeUpdate(SQLQueries.Core.createTable);
 			}
 			statement.close();
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 
@@ -79,25 +78,25 @@ public class Core implements IModule, Listener{
 		return "bat";
 	}
 
-	public static String getUUID(final String pName){
+	public static String getUUID(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-		if(player != null){
+		if (player != null) {
 			return player.getUUID();
 		}
 
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		String UUID = "";
-		try  (Connection conn  = BAT.getConnection()) {
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
 			statement.setString(1, pName);
 			resultSet = statement.executeQuery();
-			if(resultSet.next()){
+			if (resultSet.next()) {
 				UUID = resultSet.getString("UUID");
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 		return UUID;
@@ -105,51 +104,51 @@ public class Core implements IModule, Listener{
 
 	/**
 	 * Update the IP and UUID of a player in the database
+	 * 
 	 * @param player
 	 */
-	public void updatePlayerIPandUUID(final ProxiedPlayer player){
-		PreparedStatement statement = null; 
-		try  (Connection conn  = BAT.getConnection()) {
+	public void updatePlayerIPandUUID(final ProxiedPlayer player) {
+		PreparedStatement statement = null;
+		try (Connection conn = BAT.getConnection()) {
 			final String ip = Utils.getPlayerIP(player);
 			final String UUID = player.getUUID();
 			System.out.println("UUID : " + UUID);
-			statement = (DataSourceHandler.isSQLite())
-					? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
-							: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
-					statement.setString(1, player.getName());
-					statement.setString(2, ip);
-					statement.setString(3, UUID);
-					statement.setString(4, (DataSourceHandler.isSQLite()) ? UUID : ip);
-					if(!DataSourceHandler.isSQLite()){
-						statement.setString(5, player.getName());
-					}
-					statement.executeUpdate();
+			statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
+					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
+			statement.setString(1, player.getName());
+			statement.setString(2, ip);
+			statement.setString(3, UUID);
+			statement.setString(4, (DataSourceHandler.isSQLite()) ? UUID : ip);
+			if (!DataSourceHandler.isSQLite()) {
+				statement.setString(5, player.getName());
+			}
+			statement.executeUpdate();
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 
 	}
 
-	public static String getPlayerIP(final String pName){
+	public static String getPlayerIP(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-		if(player != null) {
+		if (player != null) {
 			return Utils.getPlayerIP(player);
 		}
 
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		try  (Connection conn  = BAT.getConnection()) {
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.prepareStatement(SQLQueries.Core.getIP);
 			statement.setString(1, getUUID(pName));
 			resultSet = statement.executeQuery();
-			if(resultSet.next()) {
+			if (resultSet.next()) {
 				return resultSet.getString("lastip");
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement, resultSet);
 		}
 		return "0.0.0.0";
@@ -157,7 +156,7 @@ public class Core implements IModule, Listener{
 
 	// Event listener
 	@EventHandler
-	public void onPlayerJoin(final PostLoginEvent ev){
+	public void onPlayerJoin(final PostLoginEvent ev) {
 		BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
 			@Override
 			public void run() {
@@ -167,7 +166,7 @@ public class Core implements IModule, Listener{
 	}
 
 	@EventHandler
-	public void onPlayerLeft(final PlayerDisconnectEvent ev){
+	public void onPlayerLeft(final PlayerDisconnectEvent ev) {
 		CommandQueue.clearQueuedCommand(ev.getPlayer());
 	}
 }

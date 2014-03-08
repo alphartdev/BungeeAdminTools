@@ -9,21 +9,21 @@ import com.jolbox.bonecp.BoneCPDataSource;
 
 import fr.Alphart.BAT.BAT;
 
-
-public class DataSourceHandler{
+public class DataSourceHandler {
 	// Connexion informations
 	private final BoneCPDataSource ds;
 	private static boolean sqlite = false; // If sqlite is used or not
 
 	/**
 	 * Constructor used for MySQL
+	 * 
 	 * @param host
 	 * @param port
 	 * @param database
 	 * @param username
 	 * @param password
 	 */
-	public DataSourceHandler(String host, String port, String database, String username, String password){
+	public DataSourceHandler(String host, String port, String database, String username, String password) {
 		// Check database's informations and init connection
 		host = Preconditions.checkNotNull(host);
 		port = Preconditions.checkNotNull(port);
@@ -50,10 +50,11 @@ public class DataSourceHandler{
 	/**
 	 * Constructor used for SQLite
 	 */
-	public DataSourceHandler(){
+	public DataSourceHandler() {
 		sqlite = true;
 		ds = new BoneCPDataSource();
-		ds.setJdbcUrl("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() + File.separator + "bat_database.db");
+		ds.setJdbcUrl("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() + File.separator
+				+ "bat_database.db");
 		ds.close();
 		ds.setPartitionCount(2);
 		ds.setMinConnectionsPerPartition(3);
@@ -66,36 +67,40 @@ public class DataSourceHandler{
 		}
 	}
 
-
-	public Connection getConnection(){
+	public Connection getConnection() {
 		try {
 			return ds.getConnection();
 		} catch (final SQLException e) {
-			BAT.getInstance().getLogger().severe("BAT can't etablish connection with the database. Please report this and include the following lines :");
+			BAT.getInstance()
+					.getLogger()
+					.severe("BAT can't etablish connection with the database. Please report this and include the following lines :");
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static boolean isSQLite(){
+	public static boolean isSQLite() {
 		return sqlite;
 	}
 
 	// Useful methods
 
-	public static String handleException(final SQLException e){
-		BAT.getInstance().getLogger().severe("BAT encounters a problem with the database. Please report this and include the following lines :");
+	public static String handleException(final SQLException e) {
+		BAT.getInstance()
+				.getLogger()
+				.severe("BAT encounters a problem with the database. Please report this and include the following lines :");
 		e.printStackTrace();
 		return "An error related to the database occured. Please check the log.";
 	}
 
 	public static void close(final AutoCloseable... closableList) {
-		for(final AutoCloseable closable : closableList){
+		for (final AutoCloseable closable : closableList) {
 			if (closable != null) {
 				try {
 					closable.close();
-				} catch (final Throwable ignored) {}
+				} catch (final Throwable ignored) {
+				}
 			}
 		}
 	}
-} 
+}

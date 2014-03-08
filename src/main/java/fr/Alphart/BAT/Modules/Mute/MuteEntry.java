@@ -9,7 +9,8 @@ public class MuteEntry {
 	private final int end_date;
 	private final boolean active;
 
-	public MuteEntry(final String entity, final String server, final String reason, final String staff, final int begin_date, final int end_date, final boolean isActive) {
+	public MuteEntry(final String entity, final String server, final String reason, final String staff,
+			final int begin_date, final int end_date, final boolean isActive) {
 		this.entity = entity;
 		this.server = server;
 		this.reason = reason;
@@ -43,7 +44,7 @@ public class MuteEntry {
 		return end_date;
 	}
 
-	public boolean isActive(){
+	public boolean isActive() {
 		return active;
 	}
 

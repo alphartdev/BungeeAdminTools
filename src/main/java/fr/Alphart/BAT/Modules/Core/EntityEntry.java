@@ -21,12 +21,13 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
 /**
- * Summit all type of informations available with the plugin about an specific entity.
+ * Summit all type of informations available with the plugin about an specific
+ * entity.
  */
 public class EntityEntry {
 	private final String entity;
 
-	private final List<BanEntry> bans  = new ArrayList<BanEntry>();
+	private final List<BanEntry> bans = new ArrayList<BanEntry>();
 	private final List<MuteEntry> mutes = new ArrayList<MuteEntry>();
 	private final List<KickEntry> kicks = new ArrayList<KickEntry>();
 
@@ -43,85 +44,83 @@ public class EntityEntry {
 		this.entity = entity;
 
 		// This is a player
-		if(!Utils.validIP(entity))
-		{
+		if (!Utils.validIP(entity)) {
 			// Get players basic information (first/last login, last ip)
 			player = true;
 			PreparedStatement statement = null;
 			ResultSet resultSet = null;
-			try(Connection conn = BAT.getConnection()){
-				statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.getPlayerData) : conn.prepareStatement(SQLQueries.Core.getPlayerData);
+			try (Connection conn = BAT.getConnection()) {
+				statement = (DataSourceHandler.isSQLite()) ? conn
+						.prepareStatement(SQLQueries.Core.SQLite.getPlayerData) : conn
+						.prepareStatement(SQLQueries.Core.getPlayerData);
 				statement.setString(1, Core.getUUID(entity));
 
 				resultSet = statement.executeQuery();
 
-				if(resultSet.next()){
-					if(DataSourceHandler.isSQLite()){
+				if (resultSet.next()) {
+					if (DataSourceHandler.isSQLite()) {
 						firstLogin = new Timestamp(resultSet.getLong("strftime('%s',firstlogin)") * 1000);
 						lastLogin = new Timestamp(resultSet.getLong("strftime('%s',lastlogin)") * 1000);
-					}else{
+					} else {
 						firstLogin = resultSet.getTimestamp("firstlogin");
 						lastLogin = resultSet.getTimestamp("lastlogin");
 					}
 					final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(entity);
-					if(player != null){
+					if (player != null) {
 						lastIP = Utils.getPlayerIP(player);
-					}else{
+					} else {
 						lastIP = resultSet.getString("lastip");
 					}
-				}
-				else{
+				} else {
 					exist = false;
 					return;
 				}
 			} catch (final SQLException e) {
 				DataSourceHandler.handleException(e);
-			} finally{
+			} finally {
 				DataSourceHandler.close(statement, resultSet);
 			}
 		}
 
 		// This is an ip
-		else
-		{
+		else {
 			// Get users from this ip
 			PreparedStatement statement = null;
 			ResultSet resultSet = null;
-			try(Connection conn = BAT.getConnection()){
+			try (Connection conn = BAT.getConnection()) {
 				statement = conn.prepareStatement(SQLQueries.Core.getIpUsers);
 				statement.setString(1, entity);
 
 				resultSet = statement.executeQuery();
 
-				while(resultSet.next()){
+				while (resultSet.next()) {
 					ipUsers.add(resultSet.getString("BAT_player"));
 				}
 			} catch (final SQLException e) {
 				DataSourceHandler.handleException(e);
-			} finally{
+			} finally {
 				DataSourceHandler.close(statement, resultSet);
 			}
-			if(ipUsers.isEmpty()){
+			if (ipUsers.isEmpty()) {
 				exist = false;
 				return;
 			}
 		}
 
-
 		// Load the data related to this entity of each modules
 		final ModulesManager modules = BAT.getInstance().getModules();
 		try {
-			if(modules.isLoaded("ban")){
+			if (modules.isLoaded("ban")) {
 				bans.addAll(modules.getBanModule().getBanData(entity));
 			}
-			if(modules.isLoaded("mute")){
+			if (modules.isLoaded("mute")) {
 				mutes.addAll(modules.getMuteModule().getMuteData(entity));
 			}
-			if(modules.isLoaded("kick")){
+			if (modules.isLoaded("kick")) {
 				kicks.addAll(modules.getKickModule().getKickData(entity));
 			}
-		} catch (final InvalidModuleException e) {}
-
+		} catch (final InvalidModuleException e) {
+		}
 
 	}
 
@@ -141,11 +140,11 @@ public class EntityEntry {
 		return kicks;
 	}
 
-	public boolean exist(){
+	public boolean exist() {
 		return exist;
 	}
 
-	public boolean isPlayer(){
+	public boolean isPlayer() {
 		return player;
 	}
 
@@ -164,6 +163,7 @@ public class EntityEntry {
 	/**
 	 * Get the players who have this ip as last ip used <br>
 	 * Only works if the <b>entity is an adress ip</b>
+	 * 
 	 * @return list of players name
 	 */
 	public List<String> getUsers() {

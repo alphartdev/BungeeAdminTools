@@ -12,36 +12,35 @@ import fr.Alphart.BAT.database.SQLQueries;
 
 /**
  * This task handles the mute related update :<br>
- * - check in the db for every active mute if it is finished
- * if this is the case : set mute_(ip)state to 0<br>
- * - update the PlayerMuteData of every player on the server
- * <br>
+ * - check in the db for every active mute if it is finished if this is the case
+ * : set mute_(ip)state to 0<br>
+ * - update the PlayerMuteData of every player on the server <br>
  * <b>This task must be runned asynchronously </b>
  */
-public class MuteTask implements Runnable{
+public class MuteTask implements Runnable {
 	private final Mute mute;
 
-	public MuteTask(final Mute muteModule){
+	public MuteTask(final Mute muteModule) {
 		mute = muteModule;
 	}
 
 	@Override
 	public void run() {
 		Statement statement = null;
-		try  (Connection conn  = BAT.getConnection()) {
+		try (Connection conn = BAT.getConnection()) {
 			statement = conn.createStatement();
-			if(DataSourceHandler.isSQLite()){
+			if (DataSourceHandler.isSQLite()) {
 				statement.executeUpdate(SQLQueries.Mute.SQLite.updateExpiredMute);
-			}else{
+			} else {
 				statement.executeUpdate(SQLQueries.Mute.updateExpiredMute);
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
-		} finally{
+		} finally {
 			DataSourceHandler.close(statement);
 		}
 		// Update player mute data
-		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
+		for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 			mute.updateMuteData(player.getName());
 		}
 	}
