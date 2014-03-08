@@ -13,7 +13,7 @@ import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message;
+import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
@@ -114,10 +114,10 @@ public class Kick implements IModule {
 			statement.close();
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(__(Message.WAS_KICKED_NOTIF.replaceAll("%reason%",
-					((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+			player.sendMessage(__(Message_temp.WAS_KICKED_NOTIF.replaceAll("%reason%",
+					((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
 
-			return FormatUtils.formatBroadcastMsg(Message.KICK_BROADCAST, player.getName(), staff, server, reason, 0);
+			return FormatUtils.formatBroadcastMsg(Message_temp.KICK_BROADCAST, player.getName(), staff, server, reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -146,9 +146,9 @@ public class Kick implements IModule {
 			statement.setString(5, "(global)");
 			statement.executeUpdate();
 			statement.close();
-			player.disconnect(FormatUtils._(Message.WAS_KICKED_NOTIF.replace("%reason%",
-					((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
-			return FormatUtils.formatBroadcastMsg(Message.GKICK_BROADCAST, player.getName(), staff, GLOBAL_SERVER,
+			player.disconnect(FormatUtils._(Message_temp.WAS_KICKED_NOTIF.replace("%reason%",
+					((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
+			return FormatUtils.formatBroadcastMsg(Message_temp.GKICK_BROADCAST, player.getName(), staff, GLOBAL_SERVER,
 					reason, 0);
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);

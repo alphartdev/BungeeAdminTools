@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
+import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 
@@ -31,12 +32,12 @@ public class FormatUtils {
 			final String server, final String reason, final long expirationTimestamp) {
 		String formattedMsg = message.replaceAll("%entity%", pName).replaceAll("%staff%", staff);
 		if (server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER)) {
-			formattedMsg = formattedMsg.replaceAll("%serv%", IModule.STR_GLOBAL);
+			formattedMsg = formattedMsg.replaceAll("%serv%", Message_temp.GLOBAL);
 		} else {
 			formattedMsg = formattedMsg.replaceAll("%serv%", server);
 		}
 		formattedMsg = (reason != null) ? formattedMsg.replaceAll("%reason%", reason) : formattedMsg.replaceAll(
-				"%reason%", IModule.STR_NO_REASON);
+				"%reason%", Message_temp.NO_REASON);
 		if (expirationTimestamp > 0) {
 			formattedMsg = formattedMsg.replaceAll("%duration%", getDuration(expirationTimestamp));
 		}

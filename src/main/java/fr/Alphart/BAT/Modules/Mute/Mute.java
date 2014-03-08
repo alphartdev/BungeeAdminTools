@@ -23,7 +23,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message;
+import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
@@ -251,13 +251,13 @@ public class Mute implements IModule, Listener {
 						} else {
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
-						player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%",
-								((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+						player.sendMessage(__(Message_temp.WAS_MUTED_NOTIF.replace("%reason%",
+								((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST
-						: Message.MUTE_BROADCAST, ip, staff, server, reason, expirationTimestamp);
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message_temp.MUTETEMP_BROADCAST
+						: Message_temp.MUTE_BROADCAST, ip, staff, server, reason, expirationTimestamp);
 			}
 
 			// Otherwise it's a player
@@ -283,12 +283,12 @@ public class Mute implements IModule, Listener {
 					} else {
 						mutedPlayers.get(player.getName()).addServer(server);
 					}
-					player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%",
-							((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+					player.sendMessage(__(Message_temp.WAS_MUTED_NOTIF.replace("%reason%",
+							((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
 				}
 
-				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST
-						: Message.MUTE_BROADCAST, pName, staff, server, reason, expirationTimestamp);
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message_temp.MUTETEMP_BROADCAST
+						: Message_temp.MUTE_BROADCAST, pName, staff, server, reason, expirationTimestamp);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -312,10 +312,10 @@ public class Mute implements IModule, Listener {
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON
+		player.sendMessage(__(Message_temp.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? Message_temp.NO_REASON
 				: reason))));
-		return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST
-				: Message.MUTE_BROADCAST, player.getName(), staff, server, reason, expirationTimestamp);
+		return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message_temp.MUTETEMP_BROADCAST
+				: Message_temp.MUTE_BROADCAST, player.getName(), staff, server, reason, expirationTimestamp);
 	}
 
 	/**
@@ -354,7 +354,7 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, ip, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message_temp.UNMUTE_BROADCAST, ip, staff, server, reason, 0);
 			}
 
 			// Otherwise it's a player
@@ -389,11 +389,11 @@ public class Mute implements IModule, Listener {
 							pma.removeServer(server);
 						}
 					}
-					player.sendMessage(__(Message.WAS_UNMUTED_NOTIF.replace("%reason%",
-							((NO_REASON.equals(reason)) ? STR_NO_REASON : reason))));
+					player.sendMessage(__(Message_temp.WAS_UNMUTED_NOTIF.replace("%reason%",
+							((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
 				}
 
-				return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, pName, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message_temp.UNMUTE_BROADCAST, pName, staff, server, reason, 0);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -417,7 +417,7 @@ public class Mute implements IModule, Listener {
 	 */
 	public String unMuteIP(final String entity, final String server, final String staff, final String reason) {
 		unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
-		return FormatUtils.formatBroadcastMsg(Message.UNMUTE_BROADCAST, entity, staff, server, reason, 0);
+		return FormatUtils.formatBroadcastMsg(Message_temp.UNMUTE_BROADCAST, entity, staff, server, reason, 0);
 	}
 
 	/**
@@ -588,7 +588,7 @@ public class Mute implements IModule, Listener {
 				}
 			});
 		} else if (muteState == 1) {
-			player.sendMessage(__(Message.ISMUTE));
+			player.sendMessage(__(Message_temp.ISMUTE));
 		}
 	}
 
@@ -611,10 +611,10 @@ public class Mute implements IModule, Listener {
 			}
 		}
 		if (muteState == 1) {
-			player.sendMessage(__(Message.ISMUTE));
+			player.sendMessage(__(Message_temp.ISMUTE));
 			e.setCancelled(true);
 		} else if (muteState == -1) {
-			player.sendMessage(__(Message.LOADING_MUTEDATA));
+			player.sendMessage(__(Message_temp.LOADING_MUTEDATA));
 			e.setCancelled(true);
 		}
 	}

@@ -1,6 +1,6 @@
 package fr.Alphart.BAT.Modules;
 
-import static fr.Alphart.BAT.BAT.__;
+import static fr.Alphart.BAT.I18n.I18n.__;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,8 +22,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message;
+import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
+import fr.Alphart.BAT.Utils.FormatUtils;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
 	private static final Pattern pattern = Pattern.compile("<.*?>");
@@ -99,8 +100,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 								sender.sendMessage(__("&cAInvalid args. &BUsage : "));
 								sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
 										'&', "&e/") + getFormatUsage()));
-							} else if (Message.NO_PERM.equals(exception.getMessage())) {
-								sender.sendMessage(__(Message.NO_PERM));
+							} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
+								sender.sendMessage(__(Message_temp.NO_PERM));
 							} else {
 								sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 							}
@@ -113,10 +114,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		} catch (final IllegalArgumentException exception) {
 			if (exception.getMessage() == null) {
 				sender.sendMessage(__("&cInvalid args. &BUsage : "));
-				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/")
-						+ getFormatUsage()));
-			} else if (Message.NO_PERM.equals(exception.getMessage())) {
-				sender.sendMessage(__(Message.NO_PERM));
+				sender.sendMessage(FormatUtils._("&e/" + getFormatUsage()));
+			} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
+				sender.sendMessage(__("NO_PERM"));
 			} else {
 				sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 			}

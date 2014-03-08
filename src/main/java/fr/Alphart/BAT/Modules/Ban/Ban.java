@@ -1,6 +1,7 @@
 package fr.Alphart.BAT.Modules.Ban;
 
 import static fr.Alphart.BAT.BAT.__;
+import static fr.Alphart.BAT.I18n.I18n._;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +22,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message;
+import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
@@ -196,13 +197,12 @@ public class Ban implements IModule, Listener {
 
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 					if (Utils.getPlayerIP(player).equals(ip)) {
-						BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%",
-								((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+						BAT.kick(player, Message_temp.WAS_BANNED_NOTIF.replaceAll("%reason%",
+								((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason)));
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST
-						: Message.BAN_BROADCAST, ip, staff, server, reason, expirationTimestamp);
+				return _((expirationTimestamp > 0) ? "BANTEMP_BROADCAST" : "BAN_BROADCAST", new Object[]{ip, staff, server, reason, expirationTimestamp});
 			}
 
 			// Otherwise it's a player
@@ -225,12 +225,11 @@ public class Ban implements IModule, Listener {
 				// banned
 				if (player != null
 						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
-					BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%",
-							((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+					BAT.kick(player, Message_temp.WAS_BANNED_NOTIF.replaceAll("%reason%",
+							((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason)));
 				}
 
-				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST
-						: Message.BAN_BROADCAST, pName, staff, server, reason, expirationTimestamp);
+				return _((expirationTimestamp > 0) ? "BANTEMP_BROADCAST" : "BAN_BROADCAST", new Object[]{pName, staff, server, reason, expirationTimestamp});
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -253,7 +252,7 @@ public class Ban implements IModule, Listener {
 			final long expirationTimestamp, final String reason) {
 		String returnedMsg = ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
 		BAT.kick(player,
-				Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
+				Message_temp.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason)));
 		return returnedMsg;
 	}
 
@@ -292,7 +291,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return FormatUtils.formatBroadcastMsg(Message.UNBAN_BROADCAST, ip, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message_temp.UNBAN_BROADCAST, ip, staff, server, reason, 0);
 			}
 
 			// Otherwise it's a player
@@ -316,7 +315,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return FormatUtils.formatBroadcastMsg(Message.UNBAN_BROADCAST, pName, staff, server, reason, 0);
+				return FormatUtils.formatBroadcastMsg(Message_temp.UNBAN_BROADCAST, pName, staff, server, reason, 0);
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -341,7 +340,7 @@ public class Ban implements IModule, Listener {
 	 */
 	public String unBanIP(final String entity, final String server, final String staff, final String reason) {
 		unBan((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
-		return FormatUtils.formatBroadcastMsg(Message.UNBAN_BROADCAST, entity, staff, server, reason, 0);
+		return FormatUtils.formatBroadcastMsg(Message_temp.UNBAN_BROADCAST, entity, staff, server, reason, 0);
 	}
 
 	/**
@@ -417,7 +416,7 @@ public class Ban implements IModule, Listener {
 				playerToKick.add(player.getName());
 				return;
 			}
-			player.sendMessage(__(Message.IS_BANNED));
+			player.sendMessage(__(Message_temp.IS_BANNED));
 			if (player.getServer() == null) {
 				player.connect(ProxyServer.getInstance().getServerInfo(
 						player.getPendingConnection().getListener().getDefaultServer()));
@@ -430,7 +429,7 @@ public class Ban implements IModule, Listener {
 	@EventHandler
 	public void onServerConnected(final ServerConnectedEvent e) {
 		if (playerToKick.remove(e.getPlayer().getName())) {
-			e.getPlayer().disconnect(__(Message.IS_BANNED));
+			e.getPlayer().disconnect(__(Message_temp.IS_BANNED));
 		}
 	}
 
@@ -444,7 +443,7 @@ public class Ban implements IModule, Listener {
 					final String pName = e.getConnection().getName();
 					if (isBan(pName, GLOBAL_SERVER)) {
 						e.setCancelled(true);
-						e.setCancelReason(Message.IS_BANNED);
+						e.setCancelReason(Message_temp.IS_BANNED);
 					}
 
 				} finally {
