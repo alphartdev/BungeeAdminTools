@@ -5,6 +5,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
@@ -36,7 +37,7 @@ public class KickCommand extends CommandHandler {
 			}
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, "&cLe joueur est introuvable.");
+			checkArgument(player != null, Message.OFFLINE_PLAYER);
 			String returnedMsg;
 
 			// Command pattern : /kick <name>
@@ -60,7 +61,7 @@ public class KickCommand extends CommandHandler {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, "&cLe joueur est introuvable.");
+			checkArgument(player != null, Message.OFFLINE_PLAYER);
 			String returnedMsg;
 
 			// Command pattern : /kick <name>

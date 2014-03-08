@@ -7,7 +7,6 @@ package fr.Alphart.BAT.database;
  */
 public class SQLQueries {
 
-	// TODO: Convert Kick module to UUID
 	public static class Kick{
 		public final static String table = "BAT_kick";
 		public final static String createTable = 
@@ -159,11 +158,9 @@ public class SQLQueries {
 				+"INDEX(mute_ip)"
 				+") ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
 
-		public static final String isMute = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND (UUID = ? OR "
-				+ "? IN (SELECT mute_ip FROM `" + table + "` WHERE mute_state = 1 AND UUID IS NULL));";
-		public static final String isMuteServer = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND (UUID = ? OR "
-				+ "? IN (SELECT mute_ip FROM `" + table + "` WHERE mute_state = 1 AND UUID IS NULL)) AND"
-				+ " mute_server = ?;";
+		public static final String isMute = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND UUID = ? ;";
+		public static final String isMuteServer = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND UUID = ? "
+				+ "AND mute_server = ?;";
 
 		public static final String isMuteIP = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND mute_ip = ?;";
 		public static final String isMuteServerIP = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND mute_ip = ? AND mute_server = ?;";

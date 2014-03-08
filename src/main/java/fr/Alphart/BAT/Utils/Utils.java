@@ -13,11 +13,17 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public class Utils {
 	private static StringBuilder sb = new StringBuilder();
 	private static Pattern ipPattern = Pattern.compile("(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
+	private final static Pattern timePattern = Pattern.compile("(?:([0-9]+)\\s*y[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*mo[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*w[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*d[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*h[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*m[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*(?:s[a-z]*)?)?", Pattern.CASE_INSENSITIVE);
 
-	public static int parseDateDiff(final String time, final boolean future) throws IllegalArgumentException
+	/**
+	 * Get the timestamp corresponding to the current date + this duration
+	 * @param durationStr
+	 * @return timestamp in millis
+	 * @throws IllegalArgumentException
+	 */
+	public static long parseDuration(final String durationStr) throws IllegalArgumentException
 	{
-		final Pattern timePattern = Pattern.compile("(?:([0-9]+)\\s*y[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*mo[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*w[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*d[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*h[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*m[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*(?:s[a-z]*)?)?", Pattern.CASE_INSENSITIVE);
-		final Matcher m = timePattern.matcher(time);
+		final Matcher m = timePattern.matcher(durationStr);
 		int years = 0;
 		int months = 0;
 		int weeks = 0;
@@ -75,44 +81,38 @@ public class Utils {
 		}
 		if (!found)
 		{
-			throw new IllegalArgumentException(ChatColor.RED + "Durée specifiée incorrecte !");
+			throw new IllegalArgumentException(ChatColor.RED + "Invalid duration !");
 		}
 		final Calendar c = new GregorianCalendar();
 		if (years > 0)
 		{
-			c.add(Calendar.YEAR, years * (future ? 1 : -1));
+			c.add(Calendar.YEAR, years);
 		}
 		if (months > 0)
 		{
-			c.add(Calendar.MONTH, months * (future ? 1 : -1));
+			c.add(Calendar.MONTH, months);
 		}
 		if (weeks > 0)
 		{
-			c.add(Calendar.WEEK_OF_YEAR, weeks * (future ? 1 : -1));
+			c.add(Calendar.WEEK_OF_YEAR, weeks);
 		}
 		if (days > 0)
 		{
-			c.add(Calendar.DAY_OF_MONTH, days * (future ? 1 : -1));
+			c.add(Calendar.DAY_OF_MONTH, days);
 		}
 		if (hours > 0)
 		{
-			c.add(Calendar.HOUR_OF_DAY, hours * (future ? 1 : -1));
+			c.add(Calendar.HOUR_OF_DAY, hours);
 		}
 		if (minutes > 0)
 		{
-			c.add(Calendar.MINUTE, minutes * (future ? 1 : -1));
+			c.add(Calendar.MINUTE, minutes);
 		}
 		if (seconds > 0)
 		{
-			c.add(Calendar.SECOND, seconds * (future ? 1 : -1));
+			c.add(Calendar.SECOND, seconds);
 		}
-		final Calendar max = new GregorianCalendar();
-		max.add(Calendar.YEAR, 10);
-		if (c.after(max))
-		{
-			return (int) (max.getTimeInMillis() / 1000);
-		}
-		return (int) (c.getTimeInMillis() / 1000);
+		return c.getTimeInMillis();
 	}
 
 	/**

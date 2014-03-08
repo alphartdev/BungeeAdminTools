@@ -150,12 +150,13 @@ public class Mute implements IModule, Listener{
 	 * <b>Use uncached data. Use {@link #isMute(ProxiedPlayer, String)} instead of this method if the player is available</b>
 	 * @param mutedEntity | can be an ip or a player name
 	 * @param server | if server equals to (any) check if the player is mute on a server
+	 * @param forceUseUncachedData | use uncached data, for example to handle player or player's ip related mute
 	 * @return
 	 */
-	public boolean isMute(final String mutedEntity, final String server){
+	public boolean isMute(final String mutedEntity, final String server, boolean forceUseUncachedData){
 		// Check if the entity is an online player, in this case we're going to use the cached method
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(mutedEntity);
-		if(player != null){
+		if(!forceUseUncachedData && player != null){
 			final int result = isMute(player, server);
 			// If the data aren't loading
 			if(result != -1){
@@ -181,9 +182,8 @@ public class Mute implements IModule, Listener{
 				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Mute.isMute : SQLQueries.Mute.isMuteServer);
 				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, ip);
 				if(!ANY_SERVER.equals(server)) {
-					statement.setString(3, server);
+					statement.setString(2, server);
 				}
 			}
 			resultSet = statement.executeQuery();
@@ -206,11 +206,11 @@ public class Mute implements IModule, Listener{
 	 * @param mutedEntity | can be an ip or a player name
 	 * @param server ; set to "(global)", to global mute
 	 * @param staff
-	 * @param duration ; set to 0 for mute def
+	 * @param expirationTimestamp ; set to 0 for mute def
 	 * @param reason | optional
 	 * @return 
 	 */
-	public String mute(final String mutedEntity, final String server, final String staff, final Integer duration, final String reason){
+	public String mute(final String mutedEntity, final String server, final String staff, final long expirationTimestamp, final String reason){
 		PreparedStatement statement = null;
 		try  (Connection conn  = BAT.getConnection()) {
 			if(Utils.validIP(mutedEntity)){
@@ -219,7 +219,7 @@ public class Mute implements IModule, Listener{
 				statement.setString(1, ip);
 				statement.setString(2, staff);
 				statement.setString(3, server);
-				statement.setTimestamp(4, (duration > 0) ? new Timestamp(System.currentTimeMillis() + duration * 1000) : null);
+				statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
 				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
@@ -236,7 +236,8 @@ public class Mute implements IModule, Listener{
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, ip, staff, server, reason, duration);
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, 
+						ip, staff, server, reason, expirationTimestamp);
 			}
 
 			// Otherwise it's a player
@@ -249,7 +250,7 @@ public class Mute implements IModule, Listener{
 				statement.setString(2, ip);
 				statement.setString(3, staff);
 				statement.setString(4, server);
-				statement.setTimestamp(5, (duration > 0) ? new Timestamp(System.currentTimeMillis() + duration * 1000) : null);
+				statement.setTimestamp(5, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
 				statement.setString(6, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
@@ -265,7 +266,8 @@ public class Mute implements IModule, Listener{
 					player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, pName, staff, server, reason, duration);		
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST,
+						pName, staff, server, reason, expirationTimestamp);		
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -282,10 +284,11 @@ public class Mute implements IModule, Listener{
 	 * @param reason | optional
 	 * @param ip
 	 */
-	public String muteIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
-		mute(Utils.getPlayerIP(player), server, staff, duration, reason);
+	public String muteIP(final ProxiedPlayer player, final String server, final String staff, final long expirationTimestamp, final String reason){
+		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
 		player.sendMessage(__(Message.WAS_MUTED_NOTIF.replace("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason) )));
-		return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, player.getName(), staff, server, reason, duration);
+		return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.MUTETEMP_BROADCAST : Message.MUTE_BROADCAST, 
+				player.getName(), staff, server, reason, expirationTimestamp);
 	}
 
 	/**

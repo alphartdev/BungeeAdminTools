@@ -98,8 +98,4 @@ public class DataSourceHandler{
 			}
 		}
 	}
-
-	public static int getTimestamp(){
-		return (int)(System.currentTimeMillis() / 1000);
-	}
 } 

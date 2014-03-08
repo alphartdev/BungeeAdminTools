@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
@@ -25,7 +26,7 @@ public class FormatUtils {
 	 * @param reason
 	 * @return message filled with data
 	 */
-	public static String formatBroadcastMsg(final String message, final String pName, final String staff, final String server, final String reason, final int duration){
+	public static String formatBroadcastMsg(final String message, final String pName, final String staff, final String server, final String reason, final long expirationTimestamp){
 		String formattedMsg = message.replaceAll("%entity%", pName).replaceAll("%staff%", staff);
 		if(server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER)){
 			formattedMsg = formattedMsg.replaceAll("%serv%", IModule.STR_GLOBAL);
@@ -33,20 +34,33 @@ public class FormatUtils {
 			formattedMsg = formattedMsg.replaceAll("%serv%", server);
 		}
 		formattedMsg = (reason != null) ? formattedMsg.replaceAll("%reason%", reason) : formattedMsg.replaceAll("%reason%", IModule.STR_NO_REASON);
-		if(duration > 0){
-			formattedMsg = formattedMsg.replaceAll("%duration%", secToDate(duration));
+		if(expirationTimestamp > 0){
+			formattedMsg = formattedMsg.replaceAll("%duration%", getDuration(expirationTimestamp));
 		}
 		return formattedMsg;
 	}
 
 	/**
-	 * Convert seconds into readable duration (day, hours, minutes)
-	 * @param seconds
+	 * Get the duration between the given timestamp and the current one
+	 * @param timestamp in milliseconds which must be superior to the current timestamp
 	 * @return readable duration
 	 */
-	public static String secToDate(int seconds)
+	public static String getDuration(long futureTimestamp)
 	{
+		int seconds = (int) ((futureTimestamp - System.currentTimeMillis()) / 1000) + 1;
+		Preconditions.checkArgument(seconds > 0, "The timestamp passed in parameter must be superior to the current timestamp !");
+		
 		final List<String> item = new ArrayList<String>();
+		
+		int months = 0;
+		while(seconds >= 2678400){
+			months++;
+			seconds -= 2678400;
+		}
+		if(months > 0){
+			item.add(months + " months");
+		}
+		
 		int days = 0;
 		while(seconds >= 86400){
 			days++;

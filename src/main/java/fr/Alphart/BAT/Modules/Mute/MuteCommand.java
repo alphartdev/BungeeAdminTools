@@ -17,7 +17,6 @@ import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
-import fr.Alphart.BAT.database.DataSourceHandler;
 
 public class MuteCommand extends CommandHandler{
 	private final static String MUTE_PERM = Mute.MUTE_PERM;
@@ -116,7 +115,7 @@ public class MuteCommand extends CommandHandler{
 			}
 		}
 
-		checkArgument(!mute.isMute(target, server), Message.ALREADY_MUTE);	
+		checkArgument(!mute.isMute(target, server, false), Message.ALREADY_MUTE);	
 
 		if(ipMute && player != null){
 			returnedMsg = mute.muteIP(player, server, staff, 0, reason);
@@ -168,7 +167,7 @@ public class MuteCommand extends CommandHandler{
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
-		final int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
+		final long expirationTimestamp = Utils.parseDuration(args[1]);
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
 
@@ -208,12 +207,12 @@ public class MuteCommand extends CommandHandler{
 			}
 		}
 
-		checkArgument(!mute.isMute(target, server), Message.ALREADY_MUTE);	
+		checkArgument(!mute.isMute(target, server, false), Message.ALREADY_MUTE);	
 
 		if(ipMute && player != null){
-			returnedMsg = mute.muteIP(player, server, staff, duration, reason);
+			returnedMsg = mute.muteIP(player, server, staff, expirationTimestamp, reason);
 		}else{
-			returnedMsg = mute.mute(target, server, staff, duration, reason);
+			returnedMsg = mute.mute(target, server, staff, expirationTimestamp, reason);
 		}
 
 		BAT.broadcast(returnedMsg, MUTE_PERM);
@@ -289,7 +288,7 @@ public class MuteCommand extends CommandHandler{
 			target = ip;
 		}
 
-		checkArgument(mute.isMute(target, server), (IModule.ANY_SERVER.equals(server) 
+		checkArgument(mute.isMute(target, server, true), (IModule.ANY_SERVER.equals(server) 
 				? Message.NOT_MUTE_ANY 
 						: ((ipUnmute) ? Message.NOT_MUTEIP : Message.NOT_MUTE)
 				).replace("%entity%", args[0]));

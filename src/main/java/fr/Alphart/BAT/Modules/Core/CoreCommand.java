@@ -41,7 +41,6 @@ public class CoreCommand{
 	private final static BaseComponent[] HELP_MSG = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
 			"Type /bat help to get help"));
 
-	// The command handler receive all /bat command and dispatch them to the appropriate class
 	public static class CommandHandler extends BATCommand{
 		private final Map<String, BATCommand> subCmd;
 		public CommandHandler() {
@@ -246,7 +245,7 @@ public class CoreCommand{
 
 			if(!pDetails.exist()){
 				final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-				returnedMsg.add(__("&eLe joueur &a" + pName + "&e est introuvable."));
+				returnedMsg.add(__("&eThe player &a" + pName + "&e was not found."));
 				return returnedMsg;
 			}
 
@@ -284,39 +283,39 @@ public class CoreCommand{
 
 			// Construction of the message
 			finalMsg.append( (ProxyServer.getInstance().getPlayer(pName) != null) 
-					? "&a&lConnecté &r&esur le serveur &3" + ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() 
+					? "&a&lConnected &r&eon the &3" + ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() 
 							: "&8&lDéconnecté" );
 
 			if(isBan || isMute)
 			{
-				finalMsg.append("\n&eEtat : ");
+				finalMsg.append("\n&eState : ");
 				if(isBan){
-					finalMsg.append("&c&lBanni &esur &3");
+					finalMsg.append("&c&lBanned &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banServers));
 				}
 				if(isMute){
 					if(isBan){
 						finalMsg.append("\n       ");
 					}
-					finalMsg.append("&c&lMute &esur &3");
+					finalMsg.append("&c&lMuted &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(muteServers));
 				}
 			}
 
 			localTime.setTimeInMillis(pDetails.getFirstLogin().getTime());
-			finalMsg.append("\n&ePremière connexion : &a");
+			finalMsg.append("\n&eFirst login : &a");
 			finalMsg.append(format.format(localTime.getTime()));
 
 			localTime.setTimeInMillis(pDetails.getLastLogin().getTime());
-			finalMsg.append("\n&eDernière connexion : &a");
+			finalMsg.append("\n&eLast login : &a");
 			finalMsg.append(format.format(localTime.getTime()));
 
-			finalMsg.append("\n&eDernière adresse ip : &a");
+			finalMsg.append("\n&eLast IP : &a");
 			finalMsg.append(pDetails.getLastIP());
 
 			if(bansNumber > 0 || mutesNumber > 0 || kicksNumber > 0)
 			{
-				finalMsg.append("\n&eHistorique : ");
+				finalMsg.append("\n&eHistory : ");
 				if(bansNumber > 0){
 					finalMsg.append("&B&l");
 					finalMsg.append(bansNumber);
@@ -333,7 +332,7 @@ public class CoreCommand{
 					finalMsg.append( (kicksNumber > 1) ? "&e kicks" : "&e kick" );
 				}
 			}else{
-				finalMsg.append("\n&eAucune sanction repertoriée");
+				finalMsg.append("\n&eNone sanction indexed");
 			}
 
 			finalMsg.append("\n&f-- &BLookup &f- &a");

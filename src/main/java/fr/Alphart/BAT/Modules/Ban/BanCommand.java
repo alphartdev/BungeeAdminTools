@@ -17,7 +17,6 @@ import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
-import fr.Alphart.BAT.database.DataSourceHandler;
 
 public class BanCommand extends CommandHandler {
 	private static final String BAN_PERM = Ban.BAN_PERM;
@@ -165,7 +164,7 @@ public class BanCommand extends CommandHandler {
 	}
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan, final CommandSender sender, final String[] args, final boolean confirmedCmd){
 		String target = args[0];
-		final int duration = Utils.parseDateDiff(args[1], true) - DataSourceHandler.getTimestamp();
+		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -211,9 +210,9 @@ public class BanCommand extends CommandHandler {
 		checkArgument(!ban.isBan(target, server), Message.ALREADY_BAN);	
 
 		if(ipBan && player != null){
-			returnedMsg = ban.banIP(player, server, staff, duration, reason);
+			returnedMsg = ban.banIP(player, server, staff, expirationTimestamp, reason);
 		}else{
-			returnedMsg = ban.ban(target, server, staff, duration, reason);
+			returnedMsg = ban.ban(target, server, staff, expirationTimestamp, reason);
 		}
 
 		BAT.broadcast(returnedMsg, BAN_PERM);

@@ -167,7 +167,7 @@ public class Ban implements IModule, Listener{
 	 * @param reason | optional
 	 * @return 
 	 */
-	public String ban(final String bannedEntity, final String server, final String staff, final Integer duration, final String reason){
+	public String ban(final String bannedEntity, final String server, final String staff, final long expirationTimestamp, final String reason){
 		try (Connection conn  = BAT.getConnection()) {
 			// If the bannedEntity is an ip
 			if(Utils.validIP(bannedEntity)){
@@ -177,7 +177,7 @@ public class Ban implements IModule, Listener{
 				statement.setString(1, ip);
 				statement.setString(2, staff);
 				statement.setString(3, server);
-				statement.setTimestamp(4, (duration > 0) ? new Timestamp(System.currentTimeMillis() + duration * 1000) : null);
+				statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
 				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
@@ -188,7 +188,8 @@ public class Ban implements IModule, Listener{
 					}
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST, ip, staff, server, reason, duration);
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST,
+						ip, staff, server, reason, expirationTimestamp);
 			}
 
 			// Otherwise it's a player
@@ -202,7 +203,7 @@ public class Ban implements IModule, Listener{
 				statement.setString(2, ip);
 				statement.setString(3, staff);
 				statement.setString(4, server);
-				statement.setTimestamp(5, (duration > 0) ? new Timestamp(System.currentTimeMillis() + duration * 1000) : null);
+				statement.setTimestamp(5, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
 				statement.setString(6, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
@@ -212,7 +213,8 @@ public class Ban implements IModule, Listener{
 					BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
 				}
 
-				return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST, pName, staff, server, reason, duration);		
+				return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST,
+						pName, staff, server, reason, expirationTimestamp);		
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -227,10 +229,11 @@ public class Ban implements IModule, Listener{
 	 * @param reason | optional
 	 * @param ip
 	 */
-	public String banIP(final ProxiedPlayer player, final String server, final String staff, final Integer duration, final String reason){
-		ban(Utils.getPlayerIP(player), server, staff, duration, reason);
+	public String banIP(final ProxiedPlayer player, final String server, final String staff, final long expirationTimestamp, final String reason){
+		ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
 		BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
-		return FormatUtils.formatBroadcastMsg((duration > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST, player.getName(), staff, server, reason, duration);
+		return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST,
+				player.getName(), staff, server, reason, expirationTimestamp);
 	}
 
 	/**
