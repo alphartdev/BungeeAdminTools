@@ -33,7 +33,6 @@ import fr.Alphart.BAT.database.SQLQueries;
 
 public class Ban implements IModule, Listener{
 	private final String name = "ban";
-	public static final String BAN_PERM = "BAT.ban";
 	private ScheduledTask task;
 	private BanCommand commandHandler;
 	private BanConfig config;

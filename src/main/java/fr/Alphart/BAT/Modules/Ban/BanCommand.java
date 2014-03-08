@@ -15,11 +15,11 @@ import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.Core;
+import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 
 public class BanCommand extends CommandHandler {
-	private static final String BAN_PERM = Ban.BAN_PERM;
 	private static Ban ban;
 
 	public BanCommand(final Ban banModule){
@@ -29,7 +29,7 @@ public class BanCommand extends CommandHandler {
 
 	@RunAsync
 	public static class BanCmd extends BATCommand{
-		public BanCmd() {super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server", BAN_PERM);}
+		public BanCmd() {super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server", Action.BAN.getPermission());}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -46,7 +46,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class BanIPCmd extends BATCommand{
-		public BanIPCmd() {super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server", BAN_PERM);}
+		public BanIPCmd() {super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server", Action.BANIP.getPermission());}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -55,7 +55,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanCmd extends BATCommand{
-		public GBanCmd() {super("gban", "<player> [reason]", "Ban definitively the player from the whole network", BAN_PERM);}
+		public GBanCmd() {super("gban", "<player> [reason]", "Ban definitively the player from the whole network", Action.BAN.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -64,7 +64,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GBanIPCmd extends BATCommand{
-		public GBanIPCmd() {super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", BAN_PERM);}
+		public GBanIPCmd() {super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", Action.BANIP.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -123,12 +123,12 @@ public class BanCommand extends CommandHandler {
 			returnedMsg = ban.ban(target, server, staff, 0, reason);
 		}
 
-		BAT.broadcast(returnedMsg, BAN_PERM);
+		BAT.broadcast(returnedMsg, Action.BAN_BROADCAST.getPermission());
 	}
 
 	@RunAsync
 	public static class TempBanCmd extends BATCommand{
-		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason]", "Ban temporarily the player from the specified server", BAN_PERM);}
+		public TempBanCmd() {super("tempban", "<player> <duration> [server] [reason]", "Ban temporarily the player from the specified server", Action.TEMPBAN.getPermission());}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -137,7 +137,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class TempBanIPCmd extends BATCommand{
-		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason]", "Ban temporarily player's IP from the specified server", BAN_PERM);}
+		public TempBanIPCmd() {super("tempbanip", "<player/ip> <duration> [server] [reason]", "Ban temporarily player's IP from the specified server", Action.TEMPBANIP.getPermission());}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -146,7 +146,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanCmd extends BATCommand{
-		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network", BAN_PERM);}
+		public GTempBanCmd() {super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network", Action.TEMPBAN.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -155,7 +155,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GTempBanIPCmd extends BATCommand{
-		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason]", "Ban temporarily player's IP from the whole network", BAN_PERM);}
+		public GTempBanIPCmd() {super("gtempbanip", "<player/ip> <duration> [reason]", "Ban temporarily player's IP from the whole network", Action.TEMPBANIP.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -215,12 +215,12 @@ public class BanCommand extends CommandHandler {
 			returnedMsg = ban.ban(target, server, staff, expirationTimestamp, reason);
 		}
 
-		BAT.broadcast(returnedMsg, BAN_PERM);
+		BAT.broadcast(returnedMsg, Action.BAN_BROADCAST.getPermission());
 	}
 
 	@RunAsync
 	public static class PardonCmd extends BATCommand{
-		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", BAN_PERM);}
+		public PardonCmd() {super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", Action.UNBAN.getPermission());}
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
 			handlePardonCommand(this, false, false, sender, args, confirmedCmd);
@@ -228,7 +228,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class PardonIPCmd extends BATCommand{
-		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", BAN_PERM);}
+		public PardonIPCmd() {super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", Action.UNBANIP.getPermission());}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -237,7 +237,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonCmd extends BATCommand{
-		public GPardonCmd() {super("gpardon", "<player> [reason]", "Unban the player from the whole network", BAN_PERM);}
+		public GPardonCmd() {super("gpardon", "<player> [reason]", "Unban the player from the whole network", Action.UNBAN.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -246,7 +246,7 @@ public class BanCommand extends CommandHandler {
 	}
 	@RunAsync
 	public static class GPardonIPCmd extends BATCommand{
-		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", BAN_PERM);}
+		public GPardonIPCmd() {super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", Action.UNBANIP.getPermission() + ".global");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -298,6 +298,6 @@ public class BanCommand extends CommandHandler {
 			returnedMsg = ban.unBan(target, server, staff, reason);
 		}
 
-		BAT.broadcast(returnedMsg, BAN_PERM);
+		BAT.broadcast(returnedMsg, Action.BAN_BROADCAST.getPermission());
 	}
 }
