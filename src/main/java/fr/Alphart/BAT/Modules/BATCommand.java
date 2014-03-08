@@ -22,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Message;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor{
@@ -90,6 +91,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 							if(exception.getMessage() == null){
 								sender.sendMessage(__("&cAInvalid args. &BUsage : "));
 								sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
+							} else if(Message.NO_PERM.equals(exception.getMessage())){
+								sender.sendMessage(__(Message.NO_PERM));
 							} else {
 								sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 							}
@@ -104,6 +107,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			if(exception.getMessage() == null){
 				sender.sendMessage(__("&cInvalid args. &BUsage : "));
 				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', "&e/") + getFormatUsage() ));
+			} else if(Message.NO_PERM.equals(exception.getMessage())){
+				sender.sendMessage(__(Message.NO_PERM));
 			} else {
 				sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
 			}

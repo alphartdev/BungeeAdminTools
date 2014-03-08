@@ -229,10 +229,9 @@ public class Ban implements IModule, Listener{
 	 * @param ip
 	 */
 	public String banIP(final ProxiedPlayer player, final String server, final String staff, final long expirationTimestamp, final String reason){
-		ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
+		String returnedMsg = ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
 		BAT.kick(player, Message.WAS_BANNED_NOTIF.replaceAll("%reason%", ((NO_REASON.equals(reason)) ? STR_NO_REASON : reason)));
-		return FormatUtils.formatBroadcastMsg((expirationTimestamp > 0) ? Message.BANTEMP_BROADCAST : Message.BAN_BROADCAST,
-				player.getName(), staff, server, reason, expirationTimestamp);
+		return returnedMsg;
 	}
 
 	/**

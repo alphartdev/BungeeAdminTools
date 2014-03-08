@@ -4,6 +4,7 @@ package fr.Alphart.BAT;
  * Group together all the messages used by several class at the time
  */
 public class Message {
+	public static final String NO_PERM = "&cYou don't have the permission to execute this command!";
 	public static final String SPECIFY_SERVER = "You must specify a server!";
 	public static final String INVALID_SERVER = "The specified server is invalid!";
 	public static final String IP_UNKNOWN_PLAYER = "You can't perfom operation on this user's ip because he never connected.";

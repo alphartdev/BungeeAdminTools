@@ -15,6 +15,7 @@ import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.Core;
+import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
@@ -115,8 +116,13 @@ public class BanCommand extends CommandHandler {
 			}
 		}
 
+		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server), Message.NO_PERM);
+		
+		// We just check if the target is exempt from the ban, which means he's exempt from the full module command
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target));
+		
 		checkArgument(!ban.isBan(target, server), Message.ALREADY_BAN);	
-
+		
 		if(ipBan && player != null){
 			returnedMsg = ban.banIP(player, server, staff, 0, reason);
 		}else{
@@ -207,8 +213,12 @@ public class BanCommand extends CommandHandler {
 			}
 		}
 
+		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server), Message.NO_PERM);
+		
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target));
+		
 		checkArgument(!ban.isBan(target, server), Message.ALREADY_BAN);	
-
+		
 		if(ipBan && player != null){
 			returnedMsg = ban.banIP(player, server, staff, expirationTimestamp, reason);
 		}else{
@@ -287,6 +297,8 @@ public class BanCommand extends CommandHandler {
 			target = ip;
 		}
 
+		checkArgument(PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server), Message.NO_PERM);
+		
 		checkArgument(ban.isBan(target, server), (IModule.ANY_SERVER.equals(server) 
 				? Message.NOT_BAN_ANY 
 						: ((ipUnban) ? Message.NOT_BANIP : Message.NOT_BAN)
