@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
+import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 
 public class FormatUtils {
@@ -78,7 +79,7 @@ public class FormatUtils {
 		final List<BaseComponent[]> msg = new ArrayList<BaseComponent[]>();
 		sb.append("&9 ---- &9Bungee&fAdmin&cTools&9 - &6");
 		sb.append(helpName);
-		sb.append("&9 - &fAIDE &9---- ");
+		sb.append("&9 - &fHELP &9---- ");
 		msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())));
 		sb.setLength(0);
 		for (final BATCommand cmd : cmds) {
@@ -93,8 +94,7 @@ public class FormatUtils {
 			sender.sendMessage(tx);
 		}
 		if (msg.size() == 1) {
-			sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-					"&c Aucune commande correspondant a vos permissions n'a ete trouvee")));
+			sender.sendMessage(BAT.__("&c No command corresponding to your permission has been found"));
 		}
 	}
 
@@ -105,14 +105,5 @@ public class FormatUtils {
 			bsList.add(TextComponent.fromLegacyText(strMessageArray[i]));
 		}
 		return bsList;
-	}
-
-	/**
-	 * Shortcut to the chatcolor and the textcomponent converter
-	 * 
-	 * @return BaseComponent[] message
-	 */
-	public static BaseComponent[] _(final String message) {
-		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
 	}
 }

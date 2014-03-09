@@ -91,7 +91,7 @@ public class Ban implements IModule, Listener {
 	@Override
 	public boolean unload() {
 		task.cancel();
-		return false;
+		return true;
 	}
 
 	public class BanConfig extends ModuleConfiguration {
@@ -108,7 +108,8 @@ public class Ban implements IModule, Listener {
 	 * @return true if name or ip is banned
 	 */
 	public boolean isBan(final ProxiedPlayer player, final String server) {
-		if (isBan(player.getName(), server)) {
+		final String ip = Core.getPlayerIP(player.getName());
+		if (isBan(player.getName(), server) || isBan(ip, server)) {
 			return true;
 		}
 		return false;
@@ -214,14 +215,12 @@ public class Ban implements IModule, Listener {
 				final String pName = bannedEntity;
 				final String UUID = Core.getUUID(pName);
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-				final String ip = Core.getPlayerIP(pName);
 				final PreparedStatement statement = conn.prepareStatement(SQLQueries.Ban.createBan);
 				statement.setString(1, UUID);
-				statement.setString(2, ip);
-				statement.setString(3, staff);
-				statement.setString(4, server);
-				statement.setTimestamp(5, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
-				statement.setString(6, (NO_REASON.equals(reason)) ? null : reason);
+				statement.setString(2, staff);
+				statement.setString(3, server);
+				statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
+				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
 
@@ -389,7 +388,6 @@ public class Ban implements IModule, Listener {
 				final String pName = entity;
 				statement = conn.prepareStatement(SQLQueries.Ban.getBan);
 				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, Core.getPlayerIP(pName));
 				resultSet = statement.executeQuery();
 
 				while (resultSet.next()) {
@@ -452,7 +450,7 @@ public class Ban implements IModule, Listener {
 			public void run() {
 				try {
 					final String pName = e.getConnection().getName();
-					if (isBan(pName, GLOBAL_SERVER)) {
+					if (isBan(pName, GLOBAL_SERVER) || isBan(Core.getPlayerIP(pName), GLOBAL_SERVER)) {
 						e.setCancelled(true);
 						e.setCancelReason(_("IS_BANNED"));
 					}

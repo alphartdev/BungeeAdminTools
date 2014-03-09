@@ -16,7 +16,6 @@ public class Configuration {
 		// Add defaults
 		config.options().header(HEADER);
 
-		config.addDefault("prefix", "&6[&4BAT&6]&e");
 		config.addDefault("language", "en");
 
 		config.addDefault("storage.mysql.enabled", true);

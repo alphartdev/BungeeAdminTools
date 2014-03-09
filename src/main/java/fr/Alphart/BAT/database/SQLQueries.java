@@ -10,7 +10,8 @@ public class SQLQueries {
 	public static class Kick {
 		public final static String table = "BAT_kick";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NOT NULL,"
+				+ "`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
+				+ "`UUID` varchar(100) NOT NULL,"
 				+ "`kick_ip` varchar(50) NOT NULL," + "`kick_staff` varchar(30) NOT NULL,"
 				+ "`kick_reason` varchar(100) NULL," + "`kick_server` varchar(30) NOT NULL,"
 				+ "`kick_date` timestamp NOT NULL,"
@@ -19,25 +20,26 @@ public class SQLQueries {
 		public static final String getKick = "SELECT kick_server, kick_reason, kick_staff, kick_date FROM `" + table
 				+ "`" + " WHERE UUID = ?;";
 		public final static String kickPlayer = "INSERT INTO `" + table
-				+ "`(UUID, kick_ip, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, ?, NOW());";
+				+ "`(UUID, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, NOW());";
 
 		public static class SQLite {
 			public final static String[] createTable = {
 					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "`UUID` varchar(100) NOT NULL," + "`kick_ip` varchar(50) NOT NULL,"
+							+ "`UUID` varchar(100) NOT NULL,"
 							+ "`kick_staff` varchar(30) NOT NULL," + "`kick_reason` varchar(100) NULL,"
 							+ "`kick_server` varchar(30) NOT NULL," + "`kick_date` timestamp NOT NULL" + ");",
 					"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);" };
 			public final static String kickPlayer = "INSERT INTO `"
 					+ table
-					+ "`(UUID, kick_ip, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, ?, date());";
+					+ "`(UUID, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, date());";
 		}
 	}
 
 	public static class Ban {
 		public final static String table = "BAT_ban";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
+				+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
+				+ "`UUID` varchar(100) NULL,"
 				+ "`ban_ip` varchar(50) NULL,"
 
 				+ "`ban_staff` varchar(30) NOT NULL," + "`ban_reason` varchar(100) NULL,"
@@ -55,12 +57,12 @@ public class SQLQueries {
 		public static final String isBanServer = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND UUID = ? "
 				+ "AND ban_server = ?;";
 
-		public static final String isBanIP = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND ban_ip = ?;";
+		public static final String isBanIP = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND ban_ip = ? AND UUID IS NULL;";
 		public static final String isBanServerIP = "SELECT ban_id FROM `" + table
-				+ "` WHERE ban_state = 1 AND ban_ip = ? AND ban_server = ?;";
+				+ "` WHERE ban_state = 1 AND ban_ip = ? AND ban_server = ? AND UUID IS NULL;";
 
 		public static final String createBan = "INSERT INTO `" + table
-				+ "`(UUID, ban_ip, ban_staff, ban_server, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?, ?);";
+				+ "`(UUID, ban_staff, ban_server, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?);";
 
 		public static final String createBanIP = "INSERT INTO `" + table
 				+ "`(ban_ip, ban_staff, ban_server, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?);";
@@ -80,9 +82,9 @@ public class SQLQueries {
 				+ "WHERE ban_ip = ? AND ban_server = ? AND UUID IS NULL;";
 
 		public static final String getBan = "SELECT ban_server, ban_reason, ban_staff, ban_begin, ban_end, ban_state FROM `"
-				+ table + "`" + " WHERE UUID = ? OR ban_ip = ?;";
+				+ table + "`" + " WHERE UUID = ?;";
 		public static final String getBanIP = "SELECT ban_server, ban_reason, ban_staff, ban_begin, ban_end, ban_state FROM `"
-				+ table + "`" + " WHERE ban_ip = ?;";
+				+ table + "`" + " WHERE ban_ip = ? AND UUID IS NULL;";
 
 		public static final String updateExpiredBan = "UPDATE `" + table + "` SET ban_state = 0 "
 				+ "WHERE ban_state = 1 AND (ban_end != 0 AND ban_end < NOW());";
@@ -122,7 +124,8 @@ public class SQLQueries {
 	public static class Mute {
 		public final static String table = "BAT_mute";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
+				+ "`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
+				+ "`UUID` varchar(100) NULL,"
 				+ "`mute_ip` varchar(50) NULL,"
 
 				+ "`mute_staff` varchar(30) NOT NULL," + "`mute_reason` varchar(100) NULL,"
@@ -134,17 +137,17 @@ public class SQLQueries {
 
 				+ "INDEX(UUID)," + "INDEX(mute_ip)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
 
-		public static final String isMute = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND UUID = ? ;";
+		public static final String isMute = "SELECT mute_id FROM `" + table + "` WHERE mute_state = 1 AND UUID = ?;";
 		public static final String isMuteServer = "SELECT mute_id FROM `" + table
 				+ "` WHERE mute_state = 1 AND UUID = ? " + "AND mute_server = ?;";
 
 		public static final String isMuteIP = "SELECT mute_id FROM `" + table
-				+ "` WHERE mute_state = 1 AND mute_ip = ?;";
+				+ "` WHERE mute_state = 1 AND mute_ip = ?  AND UUID IS NULL;";
 		public static final String isMuteServerIP = "SELECT mute_id FROM `" + table
-				+ "` WHERE mute_state = 1 AND mute_ip = ? AND mute_server = ?;";
+				+ "` WHERE mute_state = 1 AND mute_ip = ? AND mute_server = ? AND UUID IS NULL;";
 
 		public static final String createMute = "INSERT INTO `" + table
-				+ "`(UUID, mute_ip, mute_staff, mute_server, mute_end, mute_reason) VALUES (?, ?, ?, ?, ?, ?);";
+				+ "`(UUID, mute_staff, mute_server, mute_end, mute_reason) VALUES (?, ?, ?, ?, ?);";
 
 		public static final String createMuteIP = "INSERT INTO `" + table
 				+ "`(mute_ip, mute_staff, mute_server, mute_end, mute_reason) VALUES (?, ?, ?, ?, ?);";
@@ -164,9 +167,9 @@ public class SQLQueries {
 				+ "WHERE mute_ip = ? AND mute_server = ? AND UUID IS NULL;";
 
 		public static final String getMute = "SELECT mute_server, mute_reason, mute_staff, mute_begin, mute_end, mute_state FROM `"
-				+ table + "` WHERE UUID = ? OR mute_ip = ?;";
+				+ table + "` WHERE UUID = ?;";
 		public static final String getMuteIP = "SELECT mute_server, mute_reason, mute_staff, mute_begin, mute_end, mute_state FROM `"
-				+ table + "` WHERE mute_ip = ?;";
+				+ table + "` WHERE mute_ip = ? AND UUID IS NULL;";
 
 		public static final String updateExpiredMute = "UPDATE `" + table + "` SET mute_state = 0 "
 				+ "WHERE mute_state = 1 AND (mute_end != 0 AND mute_end < NOW());";
@@ -212,22 +215,15 @@ public class SQLQueries {
 		public static final String table = "BAT_players";
 
 		public static final String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`BAT_player` varchar(30) NOT NULL," + "`UUID` varchar(100) UNIQUE NOT NULL,"
-				+ "`lastip` varchar(50) NOT NULL," + "`firstlogin` timestamp NULL,"
-				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," + "INDEX(BAT_player)"
+				+ "`BAT_player` varchar(30) NOT NULL," 
+				+ "`UUID` varchar(100) UNIQUE NOT NULL,"
+				+ "`lastip` varchar(50) NOT NULL," 
+				+ "`firstlogin` timestamp NULL,"
+				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," 
+				+ "INDEX(BAT_player)"
 				+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		public static final String updateIPUUID = "INSERT INTO `" + table + "` (BAT_player, lastip, firstlogin, UUID)"
-				+ " VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE lastip = ?, lastlogin = null, BAT_player = ?;"; // Set
-																													// lastlogin
-																													// to
-																													// null
-																													// to
-																													// update
-																													// the
-																													// date
-																													// to
-																													// the
-																													// current
+				+ " VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE lastip = ?, lastlogin = null, BAT_player = ?;";
 
 		public static final String getIP = "SELECT lastip FROM `" + table + "` WHERE UUID = ?;";
 

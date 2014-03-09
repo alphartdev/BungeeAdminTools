@@ -26,7 +26,7 @@ public class BAT extends ConfigurablePlugin {
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
 	private Configuration config;
-	private static String prefix;
+	private final static String prefix = "&6[&4BAT&6]&e";
 	private ModulesManager modules;
 
 	@Override
@@ -34,7 +34,6 @@ public class BAT extends ConfigurablePlugin {
 		instance = this;
 		config = new Configuration();
 		config.load();
-		prefix = config.getRootConfig().getString("prefix");
 		if (loadDB()) {
 			modules = new ModulesManager();
 			modules.loadModules();

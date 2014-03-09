@@ -270,14 +270,12 @@ public class Mute implements IModule, Listener {
 			else {
 				final String pName = mutedEntity;
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-				final String ip = Core.getPlayerIP(pName);
 				statement = conn.prepareStatement(SQLQueries.Mute.createMute);
 				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, ip);
-				statement.setString(3, staff);
-				statement.setString(4, server);
-				statement.setTimestamp(5, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
-				statement.setString(6, (NO_REASON.equals(reason)) ? null : reason);
+				statement.setString(2, staff);
+				statement.setString(3, server);
+				statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
+				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
 
@@ -467,7 +465,6 @@ public class Mute implements IModule, Listener {
 				final String pName = entity;
 				statement = conn.prepareStatement(SQLQueries.Mute.getMute);
 				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, Core.getPlayerIP(pName));
 				resultSet = statement.executeQuery();
 
 				while (resultSet.next()) {

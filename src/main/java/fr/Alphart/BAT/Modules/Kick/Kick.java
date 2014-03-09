@@ -18,7 +18,6 @@ import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
 import fr.Alphart.BAT.Modules.Core.Core;
-import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
@@ -105,10 +104,9 @@ public class Kick implements IModule {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
 			statement.setString(1, Core.getUUID(player.getName()));
-			statement.setString(2, Utils.getPlayerIP(player));
-			statement.setString(3, staff);
-			statement.setString(4, reason);
-			statement.setString(5, server);
+			statement.setString(2, staff);
+			statement.setString(3, reason);
+			statement.setString(4, server);
 			statement.executeUpdate();
 			statement.close();
 			
@@ -141,10 +139,9 @@ public class Kick implements IModule {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
 			statement.setString(1, Core.getUUID(player.getName()));
-			statement.setString(2, Utils.getPlayerIP(player));
-			statement.setString(3, staff);
-			statement.setString(4, reason);
-			statement.setString(5, GLOBAL_SERVER);
+			statement.setString(2, staff);
+			statement.setString(3, reason);
+			statement.setString(4, GLOBAL_SERVER);
 			statement.executeUpdate();
 			statement.close();
 			

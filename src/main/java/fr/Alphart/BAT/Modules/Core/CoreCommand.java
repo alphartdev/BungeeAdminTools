@@ -22,6 +22,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 
 import fr.Alphart.BAT.BAT;
@@ -213,14 +214,11 @@ public class CoreCommand {
 			if (isBan || isMute) {
 				finalMsg.append("\n&eState : ");
 				if (isBan) {
-					finalMsg.append("&c&lBanned &efrom &3");
+					finalMsg.append("\n&c&lBanned &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banServers));
 				}
 				if (isMute) {
-					if (isBan) {
-						finalMsg.append("\n       ");
-					}
-					finalMsg.append("&c&lMuted &efrom &3");
+					finalMsg.append("\n&c&lMute &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(muteServers));
 				}
 			}
@@ -262,36 +260,48 @@ public class CoreCommand {
 				returnedMsg.add(__("&eThe player &a" + pName + "&e was not found."));
 				return returnedMsg;
 			}
+			
+			final EntityEntry ipDetails = new EntityEntry(Core.getPlayerIP(pName));
 
 			boolean isBan = false;
+			boolean isBanIP = false;
 			int bansNumber = 0;
-			final List<String> banServers = new ArrayList<String>();
+			final List<String> banServers = Lists.newArrayList();
+			final List<String> banIPServers = Lists.newArrayList();
 			boolean isMute = false;
+			boolean isMuteIP = false;
 			int mutesNumber = 0;
-			final List<String> muteServers = new ArrayList<String>();
+			final List<String> muteServers = Lists.newArrayList();
+			final List<String> muteIPServers = Lists.newArrayList();
 			int kicksNumber = 0;
 
-			if (!pDetails.getBans().isEmpty()) {
-				for (final BanEntry banEntry : pDetails.getBans()) {
-					if (banEntry.isActive()) {
-						isBan = true;
-						banServers.add(banEntry.getServer());
-					}
+			for (final BanEntry banEntry : pDetails.getBans()) {
+				if (banEntry.isActive()) {
+					isBan = true;
+					banServers.add(banEntry.getServer());
 				}
-				bansNumber = pDetails.getBans().size();
 			}
-			if (!pDetails.getMutes().isEmpty()) {
-				for (final MuteEntry muteEntry : pDetails.getMutes()) {
-					if (muteEntry.isActive()) {
-						isMute = true;
-						muteServers.add(muteEntry.getServer());
-					}
+			for(final BanEntry banEntry : ipDetails.getBans()){
+				if (banEntry.isActive()) {
+					isBanIP = true;
+					banIPServers.add(banEntry.getServer());
 				}
-				mutesNumber = pDetails.getMutes().size();
 			}
-			if (!pDetails.getKicks().isEmpty()) {
-				kicksNumber = pDetails.getKicks().size();
+			for (final MuteEntry muteEntry : pDetails.getMutes()) {
+				if (muteEntry.isActive()) {
+					isMute = true;
+					muteServers.add(muteEntry.getServer());
+				}
 			}
+			for(final MuteEntry muteEntry : ipDetails.getMutes()){
+				if (muteEntry.isActive()) {
+					isMuteIP = true;
+					muteIPServers.add(muteEntry.getServer());
+				}
+			}
+			bansNumber = pDetails.getBans().size() + ipDetails.getBans().size();
+			mutesNumber = pDetails.getMutes().size() + ipDetails.getMutes().size();
+			kicksNumber = pDetails.getKicks().size();
 
 			// Construction of the message
 			finalMsg.append((ProxyServer.getInstance().getPlayer(pName) != null) ? "&a&lConnected &r&eon the &3"
@@ -300,15 +310,20 @@ public class CoreCommand {
 			if (isBan || isMute) {
 				finalMsg.append("\n&eState : ");
 				if (isBan) {
-					finalMsg.append("&c&lBanned &efrom &3");
+					finalMsg.append("\n&c&lBanned &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banServers));
 				}
+				if(isBanIP){
+					finalMsg.append("\n&c&lBanned IP &efrom &3");
+					finalMsg.append(Joiner.on("&f, &3").join(banIPServers));
+				}
 				if (isMute) {
-					if (isBan) {
-						finalMsg.append("\n       ");
-					}
-					finalMsg.append("&c&lMuted &efrom &3");
+					finalMsg.append("\n&c&lMute &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(muteServers));
+				}
+				if (isMuteIP) {
+					finalMsg.append("\n&c&lMute IP &efrom &3");
+					finalMsg.append(Joiner.on("&f, &3").join(muteIPServers));
 				}
 			}
 
@@ -354,7 +369,7 @@ public class CoreCommand {
 
 	public static class ConfirmCmd extends BATCommand {
 		public ConfirmCmd() {
-			super("bat confirm", "", "Confirm your queued command", "");
+			super("bat confirm", "", "Confirm your queued command", null);
 		}
 
 		@Override
