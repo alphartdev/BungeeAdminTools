@@ -2,6 +2,7 @@ package fr.Alphart.BAT.I18n;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import net.md_5.bungee.api.ChatColor;
@@ -13,7 +14,14 @@ public class I18n{
 	ResourceBundle bundle;
 	
 	private I18n(){
-		bundle = ResourceBundle.getBundle("messages", new Locale("en", "EN"), new UTF8_Control());
+		Locale locale = BAT.getInstance().getConfiguration().getLocale();
+		try{
+			bundle = ResourceBundle.getBundle("messages", locale, new UTF8_Control());
+			bundle.getString("GLOBAL");
+		}catch(MissingResourceException e){
+			BAT.getInstance().getLogger().severe("The language file " + locale.toLanguageTag() + " was not found or is incorrect. The language was set to english.");
+			bundle = ResourceBundle.getBundle("messages", new Locale("en"), new UTF8_Control());
+		}	
 	}
 	 
 	private static class I18nHolder {

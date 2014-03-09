@@ -86,8 +86,7 @@ public class DataSourceHandler {
 	// Useful methods
 
 	public static String handleException(final SQLException e) {
-		BAT.getInstance()
-				.getLogger()
+		BAT.getInstance().getLogger()
 				.severe("BAT encounters a problem with the database. Please report this and include the following lines :");
 		e.printStackTrace();
 		return "An error related to the database occured. Please check the log.";

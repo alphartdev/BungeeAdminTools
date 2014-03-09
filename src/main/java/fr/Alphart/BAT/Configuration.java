@@ -1,5 +1,7 @@
 package fr.Alphart.BAT;
 
+import java.util.Locale;
+
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.ConfigurationSection;
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 
@@ -39,5 +41,14 @@ public class Configuration {
 
 	public ConfigurationSection getStorageConfig() {
 		return config.getConfigurationSection("storage");
+	}
+
+	public Locale getLocale(){
+		String language = config.getString("language");
+		if(language.length() != 2){
+			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");
+			return new Locale("en");
+		}
+		return new Locale(language);
 	}
 }

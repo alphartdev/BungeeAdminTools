@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
@@ -41,6 +42,8 @@ public class BAT extends ConfigurablePlugin {
 			getLogger().severe("BAT is gonna shutdown because it can't connect to the database.");
 			return;
 		}
+		// Init the I18n module
+		I18n.getString("GLOBAL");
 	}
 
 	@Override
@@ -167,5 +170,4 @@ public class BAT extends ConfigurablePlugin {
 			player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
 		}
 	}
-
 }

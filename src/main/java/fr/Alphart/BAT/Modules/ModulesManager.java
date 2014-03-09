@@ -41,18 +41,20 @@ public class ModulesManager {
 
 	public void showHelp(final CommandSender sender) {
 		if (helpMessage == null) {
-			sb.append("&2---- &1Bungee&fAdmin&cTools&2 - AIDE ----\n");
+			sb.append("&2---- &1Bungee&fAdmin&cTools&2 - HELP ----\n");
 			for (final Entry<IModule, Integer> entry : modules.entrySet()) {
 				if (entry.getValue() == IModule.ON_STATE) {
 					sb.append("- &B/");
 					sb.append(entry.getKey().getName());
-					sb.append(" help&2 : Afficher l'aide relative au ");
+					sb.append(" help&2 : Show the help relative to the ");
 					sb.append(entry.getKey().getName());
+					sb.append(" module");
 				} else {
-					sb.append("- &MHors-Service : /");
+					sb.append("- &MDisabled : /");
 					sb.append(entry.getKey().getName());
-					sb.append(" help&2 : Afficher l'aide relative au ");
+					sb.append(" help&2 : Show the help relative to the ");
 					sb.append(entry.getKey().getName());
+					sb.append(" module");
 				}
 				sb.append("\n");
 			}
@@ -87,7 +89,7 @@ public class ModulesManager {
 					ProxyServer.getInstance().getPluginManager().registerCommand(BAT.getInstance(), cmd);
 				}
 			} else {
-				log.severe("Le module de " + module.getName() + " a rencontre une erreur lors du chargement.");
+				log.severe("The " + module.getName() + " module encountered an error during his loading.");
 			}
 		}
 		BAT.getInstance().saveConfig(); // Save the eventual changements made by

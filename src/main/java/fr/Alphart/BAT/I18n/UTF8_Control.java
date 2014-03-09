@@ -15,7 +15,7 @@ public class UTF8_Control extends Control{
     public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload) throws IllegalAccessException, InstantiationException, IOException
     {
         String bundleName = toBundleName(baseName, locale);
-        String resourceName = toResourceName(bundleName, "properties");
+        String resourceName = toResourceName(bundleName, "language");
         ResourceBundle bundle = null;
         InputStream stream = null;
         if (reload) {
