@@ -1,6 +1,7 @@
 package fr.Alphart.BAT.Modules.Kick;
 
-import static fr.Alphart.BAT.BAT.__;
+import static fr.Alphart.BAT.I18n.I18n._;
+import static fr.Alphart.BAT.I18n.I18n.__;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,12 +14,10 @@ import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
 import fr.Alphart.BAT.Modules.Core.Core;
-import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -114,10 +113,9 @@ public class Kick implements IModule {
 			statement.close();
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(__(Message_temp.WAS_KICKED_NOTIF.replaceAll("%reason%",
-					((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
+			player.sendMessage(__("WAS_KICKED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
 
-			return FormatUtils.formatBroadcastMsg(Message_temp.KICK_BROADCAST, player.getName(), staff, server, reason, 0);
+			return _("KICK_BROADCAST", new Object[]{player.getName(), staff, server, reason});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -143,13 +141,12 @@ public class Kick implements IModule {
 			statement.setString(2, Utils.getPlayerIP(player));
 			statement.setString(3, staff);
 			statement.setString(4, reason);
-			statement.setString(5, "(global)");
+			statement.setString(5, GLOBAL_SERVER);
 			statement.executeUpdate();
 			statement.close();
-			player.disconnect(FormatUtils._(Message_temp.WAS_KICKED_NOTIF.replace("%reason%",
-					((NO_REASON.equals(reason)) ? Message_temp.NO_REASON : reason))));
-			return FormatUtils.formatBroadcastMsg(Message_temp.GKICK_BROADCAST, player.getName(), staff, GLOBAL_SERVER,
-					reason, 0);
+			player.disconnect(__("WAS_KICKED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
+			
+			return _("GKICK_BROADCAST", new Object[]{player.getName(), staff, (NO_REASON.equals(reason) ? _("NO_REASON") : reason)});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {

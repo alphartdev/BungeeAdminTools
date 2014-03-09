@@ -1,11 +1,11 @@
 package fr.Alphart.BAT.Modules.Kick;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static fr.Alphart.BAT.I18n.I18n._;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
@@ -40,7 +40,7 @@ public class KickCommand extends CommandHandler {
 			}
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, Message_temp.OFFLINE_PLAYER);
+			checkArgument(player != null, _("OFFLINE_PLAYER"));
 			String returnedMsg;
 
 			// Command pattern : /kick <name>
@@ -67,7 +67,7 @@ public class KickCommand extends CommandHandler {
 				throws IllegalArgumentException {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, Message_temp.OFFLINE_PLAYER);
+			checkArgument(player != null, _("OFFLINE_PLAYER"));
 			String returnedMsg;
 
 			// Command pattern : /kick <name>
