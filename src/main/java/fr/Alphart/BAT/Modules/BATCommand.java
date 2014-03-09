@@ -1,5 +1,6 @@
 package fr.Alphart.BAT.Modules;
 
+import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
 import java.lang.annotation.ElementType;
@@ -21,7 +22,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
@@ -96,7 +96,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 						} catch (final IllegalArgumentException exception) {
 							if (exception.getMessage() == null) {
 								sender.sendMessage(__("INVALID_ARGS_USAGE", new Object[]{"&e/" + getFormatUsage()}));
-							} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
+							} else if (_("NO_PERM").equals(exception.getMessage())) {
 								sender.sendMessage(__("NO_PERM"));
 							} else {
 								sender.sendMessage(__("INVALID_ARGS", new Object[]{exception.getMessage()}));
@@ -110,7 +110,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		} catch (final IllegalArgumentException exception) {
 			if (exception.getMessage() == null) {
 				sender.sendMessage(__("INVALID_ARGS_USAGE", new Object[]{"&e/" + getFormatUsage()}));
-			} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
+			} else if (_("NO_PERM").equals(exception.getMessage())) {
 				sender.sendMessage(__("NO_PERM"));
 			} else {
 				sender.sendMessage(__("INVALID_ARGS", new Object[]{exception.getMessage()}));

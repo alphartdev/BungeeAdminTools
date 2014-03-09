@@ -11,38 +11,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
-import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
-import fr.Alphart.BAT.Modules.IModule;
 
 public class FormatUtils {
 	private static StringBuilder sb = new StringBuilder();
-
-	/**
-	 * Replace %p%,%staff%,%serv%,%reason%,%duration% by the specified value
-	 * 
-	 * @param message
-	 * @param pName
-	 * @param staff
-	 * @param server
-	 * @param reason
-	 * @return message filled with data
-	 */
-	public static String formatBroadcastMsg(final String message, final String pName, final String staff,
-			final String server, final String reason, final long expirationTimestamp) {
-		String formattedMsg = message.replaceAll("%entity%", pName).replaceAll("%staff%", staff);
-		if (server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER)) {
-			formattedMsg = formattedMsg.replaceAll("%serv%", Message_temp.GLOBAL);
-		} else {
-			formattedMsg = formattedMsg.replaceAll("%serv%", server);
-		}
-		formattedMsg = (reason != null) ? formattedMsg.replaceAll("%reason%", reason) : formattedMsg.replaceAll(
-				"%reason%", Message_temp.NO_REASON);
-		if (expirationTimestamp > 0) {
-			formattedMsg = formattedMsg.replaceAll("%duration%", getDuration(expirationTimestamp));
-		}
-		return formattedMsg;
-	}
 
 	/**
 	 * Get the duration between the given timestamp and the current one

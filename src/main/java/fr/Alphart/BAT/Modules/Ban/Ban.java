@@ -179,7 +179,7 @@ public class Ban implements IModule, Listener {
 	 * @return
 	 */
 	public String ban(final String bannedEntity, final String server, final String staff,
-			final long expirationTimestamp, final String reason) {
+			final long expirationTimestamp, String reason) {
 		try (Connection conn = BAT.getConnection()) {
 			// If the bannedEntity is an ip
 			if (Utils.validIP(bannedEntity)) {
@@ -194,9 +194,11 @@ public class Ban implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
+				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+				
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 					if (Utils.getPlayerIP(player).equals(ip)) {
-						BAT.kick(player, _("WAS_BANNED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
+						BAT.kick(player, _("WAS_BANNED_NOTIF", new Object[]{reason}));
 					}
 				}
 
@@ -223,11 +225,13 @@ public class Ban implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
+				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+				
 				// Kick player if he's online and on the server where he's
 				// banned
 				if (player != null
 						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
-					BAT.kick(player, _("WAS_BANNED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
+					BAT.kick(player, _("WAS_BANNED_NOTIF", new Object[]{reason}));
 				}
 				
 				if(expirationTimestamp > 0){
@@ -272,7 +276,7 @@ public class Ban implements IModule, Listener {
 	 * @param reason
 	 * @param unBanIP
 	 */
-	public String unBan(final String bannedEntity, final String server, final String staff, final String reason) {
+	public String unBan(final String bannedEntity, final String server, final String staff, String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			// If the bannedEntity is an ip
@@ -295,6 +299,8 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
+				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+				
 				return _("UNBAN_BROADCAST", new Object[]{ip, staff, server, reason});
 			}
 
@@ -319,6 +325,8 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
+				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+				
 				return _("UNBAN_BROADCAST", new Object[]{pName, staff, server, reason});
 			}
 		} catch (final SQLException e) {

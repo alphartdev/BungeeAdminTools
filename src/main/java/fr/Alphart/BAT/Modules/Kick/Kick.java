@@ -95,7 +95,7 @@ public class Kick implements IModule {
 	 * @param player
 	 * @param reason
 	 */
-	public String kick(final ProxiedPlayer player, final String staff, final String reason) {
+	public String kick(final ProxiedPlayer player, final String staff, String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			final String server = player.getServer().getInfo().getName();
@@ -111,9 +111,12 @@ public class Kick implements IModule {
 			statement.setString(5, server);
 			statement.executeUpdate();
 			statement.close();
+			
+			reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+			
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(__("WAS_KICKED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
+			player.sendMessage(__("WAS_KICKED_NOTIF", new Object[]{reason}));
 
 			return _("KICK_BROADCAST", new Object[]{player.getName(), staff, server, reason});
 		} catch (final SQLException e) {
@@ -129,7 +132,7 @@ public class Kick implements IModule {
 	 * @param player
 	 * @param reason
 	 */
-	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
+	public String gKick(final ProxiedPlayer player, final String staff, String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			if (DataSourceHandler.isSQLite()) {
@@ -144,9 +147,12 @@ public class Kick implements IModule {
 			statement.setString(5, GLOBAL_SERVER);
 			statement.executeUpdate();
 			statement.close();
-			player.disconnect(__("WAS_KICKED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
 			
-			return _("GKICK_BROADCAST", new Object[]{player.getName(), staff, (NO_REASON.equals(reason) ? _("NO_REASON") : reason)});
+			reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+			
+			player.disconnect(__("WAS_KICKED_NOTIF", new Object[]{reason}));
+			
+			return _("GKICK_BROADCAST", new Object[]{player.getName(), staff, reason});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
