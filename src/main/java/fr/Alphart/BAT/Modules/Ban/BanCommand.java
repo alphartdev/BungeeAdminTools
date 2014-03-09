@@ -1,6 +1,7 @@
 package fr.Alphart.BAT.Modules.Ban;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static fr.Alphart.BAT.I18n.I18n._;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -8,7 +9,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.google.common.base.Joiner;
 
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -110,10 +110,10 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, Message_temp.SPECIFY_SERVER);
+				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
-				checkArgument(Utils.isServer(args[1]), Message_temp.INVALID_SERVER);
+				checkArgument(Utils.isServer(args[1]), _("INVALID_SERVER"));
 				server = args[1];
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
@@ -123,25 +123,25 @@ public class BanCommand extends CommandHandler {
 		if (!Utils.validIP(target) && player == null) {
 			final String ip = Core.getPlayerIP(target);
 			if (ipBan) {
-				checkArgument(!"0.0.0.0".equals(ip), Message_temp.IP_UNKNOWN_PLAYER);
+				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 				target = ip;
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						Message_temp.OPERATION_UNKNOWN_PLAYER.replace("%player%", target));
+						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
 				return;
 			}
 		}
 
 		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server),
-				Message_temp.NO_PERM);
+				_("NO_PERM"));
 
 		// We just check if the target is exempt from the ban, which means he's
 		// exempt from the full module command
-		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), Message_temp.IS_EXEMPT);
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("IS_EXEMPT"));
 
-		checkArgument(!ban.isBan(target, server), Message_temp.ALREADY_BAN);
+		checkArgument(!ban.isBan(target, server), _("ALREADY_BAN"));
 
 		if (ipBan && player != null) {
 			returnedMsg = ban.banIP(player, server, staff, 0, reason);
@@ -226,10 +226,10 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 2) {
-				checkArgument(sender instanceof ProxiedPlayer, Message_temp.SPECIFY_SERVER);
+				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
-				checkArgument(Utils.isServer(args[2]), Message_temp.INVALID_SERVER);
+				checkArgument(Utils.isServer(args[2]), _("INVALID_SERVER"));
 				server = args[2];
 				reason = (args.length > 3) ? Utils.getFinalArg(args, 3) : IModule.NO_REASON;
 			}
@@ -239,23 +239,23 @@ public class BanCommand extends CommandHandler {
 		if (!Utils.validIP(target) && player == null) {
 			final String ip = Core.getPlayerIP(target);
 			if (ipBan) {
-				checkArgument(!"0.0.0.0".equals(ip), Message_temp.IP_UNKNOWN_PLAYER);
+				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 				target = ip;
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						Message_temp.OPERATION_UNKNOWN_PLAYER.replace("%player%", target));
+						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
 				return;
 			}
 		}
 
 		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server),
-				Message_temp.NO_PERM);
+				_("NO_PERM"));
 
-		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), Message_temp.IS_EXEMPT);
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("IS_EXEMPT"));
 
-		checkArgument(!ban.isBan(target, server), Message_temp.ALREADY_BAN);
+		checkArgument(!ban.isBan(target, server), _("ALREADY_BAN"));
 
 		if (ipBan && player != null) {
 			returnedMsg = ban.banIP(player, server, staff, expirationTimestamp, reason);
@@ -337,10 +337,10 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, Message_temp.SPECIFY_SERVER);
+				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
-				checkArgument(Utils.isServer(args[1]), Message_temp.INVALID_SERVER);
+				checkArgument(Utils.isServer(args[1]), _("INVALID_SERVER"));
 				server = args[1];
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
@@ -349,15 +349,17 @@ public class BanCommand extends CommandHandler {
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnban) {
 			final String ip = Core.getPlayerIP(target);
-			checkArgument(!"0.0.0.0".equals(ip), Message_temp.IP_UNKNOWN_PLAYER);
+			checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 			target = ip;
 		}
 
 		checkArgument(PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server),
-				Message_temp.NO_PERM);
+				_("NO_PERM"));
 
-		checkArgument(ban.isBan(target, server), (IModule.ANY_SERVER.equals(server) ? Message_temp.NOT_BAN_ANY
-				: ((ipUnban) ? Message_temp.NOT_BANIP : Message_temp.NOT_BAN)).replace("%entity%", args[0]));
+		Object[] formatArgs = {args[0]};
+		
+		checkArgument(ban.isBan(target, server), (IModule.ANY_SERVER.equals(server) ? _("NOT_BAN_ANY", formatArgs)
+				: ((ipUnban) ? _("NOT_BANIP", formatArgs) : _("NOT_BAN", formatArgs))));
 
 		if (ipUnban) {
 			returnedMsg = ban.unBanIP(target, server, staff, reason);
