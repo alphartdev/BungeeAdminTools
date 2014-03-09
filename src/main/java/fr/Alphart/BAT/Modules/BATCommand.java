@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
@@ -24,7 +23,6 @@ import com.google.common.base.Preconditions;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Message_temp;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
-import fr.Alphart.BAT.Utils.FormatUtils;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
 	private static final Pattern pattern = Pattern.compile("<.*?>");
@@ -97,13 +95,11 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 							onCommand(sender, args, confirmedCmd);
 						} catch (final IllegalArgumentException exception) {
 							if (exception.getMessage() == null) {
-								sender.sendMessage(__("&cAInvalid args. &BUsage : "));
-								sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
-										'&', "&e/") + getFormatUsage()));
+								sender.sendMessage(__("INVALID_ARGS_USAGE", new Object[]{"&e/" + getFormatUsage()}));
 							} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
-								sender.sendMessage(__(Message_temp.NO_PERM));
+								sender.sendMessage(__("NO_PERM"));
 							} else {
-								sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
+								sender.sendMessage(__("INVALID_ARGS", new Object[]{exception.getMessage()}));
 							}
 						}
 					}
@@ -113,12 +109,11 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			}
 		} catch (final IllegalArgumentException exception) {
 			if (exception.getMessage() == null) {
-				sender.sendMessage(__("&cInvalid args. &BUsage : "));
-				sender.sendMessage(FormatUtils._("&e/" + getFormatUsage()));
+				sender.sendMessage(__("INVALID_ARGS_USAGE", new Object[]{"&e/" + getFormatUsage()}));
 			} else if (Message_temp.NO_PERM.equals(exception.getMessage())) {
 				sender.sendMessage(__("NO_PERM"));
 			} else {
-				sender.sendMessage(__("&cInvalid args. &6" + exception.getMessage()));
+				sender.sendMessage(__("INVALID_ARGS", new Object[]{exception.getMessage()}));
 			}
 		}
 		if (confirmedCmd) {
