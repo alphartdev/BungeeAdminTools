@@ -173,9 +173,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public void mustConfirmCommand(final CommandSender sender, final String command, final String message) {
 		if (!CommandQueue.isExecutingQueueCommand(sender)) {
 			if ("".equals(message)) {
-				sender.sendMessage(__("You must &6confirm&e your command using &6/bat confirm"));
+				sender.sendMessage(__("MUST_CONFIRM", new Object[]{""}));
 			} else {
-				sender.sendMessage(__("You must &6confirm&e your command using &6/bat confirm&e because " + message));
+				sender.sendMessage(__("MUST_CONFIRM", new Object[]{message}));
 			}
 			CommandQueue.queueCommand(sender, command);
 		}

@@ -33,3 +33,4 @@ WAS_BANNED_NOTIF=You were banned. Reason : {0}
 WAS_KICKED_NOTIF=You were kicked from this server \! Reason : {0}
 WAS_MUTED_NOTIF=You were muted. Reason : {0}
 WAS_UNMUTED_NOTIF=You were unmuted. Reason : {0}
+MUST_CONFIRM=You must &aconfirm&e your command using &6/bat confirm {0}
