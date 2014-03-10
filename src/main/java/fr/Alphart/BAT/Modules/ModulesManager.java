@@ -96,6 +96,12 @@ public class ModulesManager {
 										// the different module
 	}
 
+	public void unloadModules(){
+		for(IModule module : getLoadedModules()){
+			module.unload();
+		}
+	}
+	
 	public Set<IModule> getLoadedModules() {
 		final Set<IModule> modulesList = new HashSet<IModule>();
 		for (final Entry<IModule, Integer> entry : modules.entrySet()) {

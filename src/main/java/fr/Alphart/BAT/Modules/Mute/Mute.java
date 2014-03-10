@@ -103,7 +103,7 @@ public class Mute implements IModule, Listener {
 	@Override
 	public boolean unload() {
 		task.cancel();
-		mutedPlayers = null;
+		mutedPlayers.clear();
 		return true;
 	}
 

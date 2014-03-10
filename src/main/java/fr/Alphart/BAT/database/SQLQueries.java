@@ -6,7 +6,6 @@ package fr.Alphart.BAT.database;
  * called "SQLite" which provides compatibility with SQLite.
  */
 public class SQLQueries {
-
 	public static class Kick {
 		public final static String table = "BAT_kick";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("

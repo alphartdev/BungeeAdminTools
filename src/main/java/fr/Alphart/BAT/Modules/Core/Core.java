@@ -81,7 +81,12 @@ public class Core implements IModule, Listener {
 	public static String getUUID(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player != null) {
-			return player.getUUID();
+			if(ProxyServer.getInstance().getConfig().isOnlineMode()){
+				return player.getUUID();
+			}
+			else{
+				
+			}
 		}
 
 		PreparedStatement statement = null;
@@ -112,7 +117,6 @@ public class Core implements IModule, Listener {
 		try (Connection conn = BAT.getConnection()) {
 			final String ip = Utils.getPlayerIP(player);
 			final String UUID = player.getUUID();
-			System.out.println("UUID : " + UUID);
 			statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
 					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 			statement.setString(1, player.getName());
