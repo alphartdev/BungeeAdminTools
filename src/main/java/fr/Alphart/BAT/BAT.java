@@ -91,7 +91,7 @@ public class BAT extends ConfigurablePlugin {
 					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 				} catch (final IOException e) {
 					getLogger()
-							.severe("An error occured during the downloading of the SQLite driver. Please report this error : ");
+					.severe("An error occured during the downloading of the SQLite driver. Please report this error : ");
 					e.printStackTrace();
 					return false;
 				} finally {

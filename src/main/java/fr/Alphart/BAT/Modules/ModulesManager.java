@@ -93,15 +93,15 @@ public class ModulesManager {
 			}
 		}
 		BAT.getInstance().saveConfig(); // Save the eventual changements made by
-										// the different module
+		// the different module
 	}
 
-	public void unloadModules(){
-		for(IModule module : getLoadedModules()){
+	public void unloadModules() {
+		for (final IModule module : getLoadedModules()) {
 			module.unload();
 		}
 	}
-	
+
 	public Set<IModule> getLoadedModules() {
 		final Set<IModule> modulesList = new HashSet<IModule>();
 		for (final Entry<IModule, Integer> entry : modules.entrySet()) {
@@ -130,7 +130,7 @@ public class ModulesManager {
 			}
 		} catch (final InvalidModuleException e) {
 			BAT.getInstance().getLogger()
-					.severe("The core module encountered a problem. Please report this to the developper :");
+			.severe("The core module encountered a problem. Please report this to the developper :");
 			e.printStackTrace();
 		}
 		return null;

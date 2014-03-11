@@ -95,12 +95,14 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		String target = args[0];
+		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+
+		String ip = null;
 
 		String returnedMsg;
 
@@ -121,26 +123,26 @@ public class MuteCommand extends CommandHandler {
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
-			final String ip = Core.getPlayerIP(target);
+			ip = Core.getPlayerIP(target);
 			if (ipMute) {
 				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 				return;
 			}
 		}
-		
-		if(!global){
+
+		if (!global) {
 			checkArgument(PermissionManager.canExecuteAction((ipMute) ? Action.MUTEIP : Action.MUTE, sender, server),
 					_("NO_PERM"));
 		}
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
 
-		checkArgument(!mute.isMute(target, server, false), _("ALREADY_MUTE"));
+		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("ALREADY_MUTE"));
 
 		if (ipMute && player != null) {
 			returnedMsg = mute.muteIP(player, server, staff, 0, reason);
@@ -198,7 +200,7 @@ public class MuteCommand extends CommandHandler {
 		public GTempMuteIPCmd() {
 			super("gtempmuteip", "<player/ip> <duration> [reason]",
 					"Mute temporarily player's IP from the whole network", Action.TEMPMUTEIP.getPermission()
-							+ ".global");
+					+ ".global");
 		}
 
 		@Override
@@ -210,13 +212,15 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		String target = args[0];
+		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+
+		String ip = null;
 
 		String returnedMsg;
 
@@ -237,19 +241,19 @@ public class MuteCommand extends CommandHandler {
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
-			final String ip = Core.getPlayerIP(target);
+			ip = Core.getPlayerIP(target);
 			if (ipMute) {
 				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 				return;
 			}
 		}
 
-		if(!global){
+		if (!global) {
 			checkArgument(
 					PermissionManager.canExecuteAction((ipMute) ? Action.TEMPMUTEIP : Action.TEMPMUTE, sender, server),
 					_("NO_PERM"));
@@ -257,7 +261,7 @@ public class MuteCommand extends CommandHandler {
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
 
-		checkArgument(!mute.isMute(target, server, false), _("ALREADY_MUTE"));
+		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("ALREADY_MUTE"));
 
 		if (ipMute && player != null) {
 			returnedMsg = mute.muteIP(player, server, staff, expirationTimestamp, reason);
@@ -326,10 +330,12 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		String target = args[0];
+		final String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
+
+		String ip = null;
 
 		String returnedMsg;
 
@@ -350,18 +356,22 @@ public class MuteCommand extends CommandHandler {
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnmute) {
-			checkArgument(!"0.0.0.0".equals(Core.getPlayerIP(target)), _("IP_UNKNOWN_PLAYER"));
+			ip = Core.getPlayerIP(target);
+			checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 		}
 
-		if(!global){
-			checkArgument(PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
+		if (!global) {
+			checkArgument(
+					PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
 					_("NO_PERM"));
 		}
 
-		String[] formatArgs = {args[0]};
-		
-		checkArgument(mute.isMute(target, server, true), (IModule.ANY_SERVER.equals(server) ? _("NOT_MUTE_ANY", formatArgs)
-				: ((ipUnmute) ? _("NOT_MUTEIP", formatArgs) : _("NOT_MUTE", formatArgs))));
+		final String[] formatArgs = { args[0] };
+
+		checkArgument(
+				mute.isMute((ip == null) ? target : ip, server, true),
+				(IModule.ANY_SERVER.equals(server) ? _("NOT_MUTE_ANY", formatArgs) : ((ipUnmute) ? _("NOT_MUTEIP",
+						formatArgs) : _("NOT_MUTE", formatArgs))));
 
 		if (ipUnmute) {
 			returnedMsg = mute.unMuteIP(target, server, staff, reason);

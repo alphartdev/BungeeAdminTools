@@ -81,8 +81,10 @@ public class Core implements IModule, Listener {
 	public static String getUUID(final String pName) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player != null) {
-			// Note: if it's an offline server, the UUID will be generated using this
-			// function java.util.UUID.nameUUIDFromBytes, however it's an prenium or cracked account
+			// Note: if it's an offline server, the UUID will be generated using
+			// this
+			// function java.util.UUID.nameUUIDFromBytes, however it's an
+			// prenium or cracked account
 			// Online server : bungee handle great the UUID
 			return player.getUUID();
 		}

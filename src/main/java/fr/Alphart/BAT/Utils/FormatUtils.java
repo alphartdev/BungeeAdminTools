@@ -25,7 +25,7 @@ public class FormatUtils {
 	 *            timestamp
 	 * @return readable duration
 	 */
-	public static String getDuration(long futureTimestamp) {
+	public static String getDuration(final long futureTimestamp) {
 		int seconds = (int) ((futureTimestamp - System.currentTimeMillis()) / 1000) + 1;
 		Preconditions.checkArgument(seconds > 0,
 				"The timestamp passed in parameter must be superior to the current timestamp !");

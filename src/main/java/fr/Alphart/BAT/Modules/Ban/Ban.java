@@ -179,7 +179,7 @@ public class Ban implements IModule, Listener {
 	 * @return
 	 */
 	public String ban(final String bannedEntity, final String server, final String staff,
-			final long expirationTimestamp, String reason) {
+			final long expirationTimestamp, final String reason) {
 		try (Connection conn = BAT.getConnection()) {
 			// If the bannedEntity is an ip
 			if (Utils.validIP(bannedEntity)) {
@@ -194,17 +194,17 @@ public class Ban implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 					if (Utils.getPlayerIP(player).equals(ip)) {
-						BAT.kick(player, _("WAS_BANNED_NOTIF", new String[]{reason}));
+						BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { reason }));
 					}
 				}
 
-				if(expirationTimestamp > 0){
-					return _("BANTEMP_BROADCAST", new String[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
-				}else{
-					return _("BAN_BROADCAST", new String[]{ip, staff, server, reason});
+				if (expirationTimestamp > 0) {
+					return _("BANTEMP_BROADCAST", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
+							staff, server, reason });
+				} else {
+					return _("BAN_BROADCAST", new String[] { ip, staff, server, reason });
 				}
 			}
 
@@ -221,18 +221,19 @@ public class Ban implements IModule, Listener {
 				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
 				statement.executeUpdate();
 				statement.close();
-				
+
 				// Kick player if he's online and on the server where he's
 				// banned
 				if (player != null
 						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
-					BAT.kick(player, _("WAS_BANNED_NOTIF", new String[]{reason}));
+					BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { reason }));
 				}
-				
-				if(expirationTimestamp > 0){
-					return _("BANTEMP_BROADCAST", new String[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
-				}else{
-					return _("BAN_BROADCAST", new String[]{pName, staff, server, reason});
+
+				if (expirationTimestamp > 0) {
+					return _("BANTEMP_BROADCAST", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
+							staff, server, reason });
+				} else {
+					return _("BAN_BROADCAST", new String[] { pName, staff, server, reason });
 				}
 			}
 		} catch (final SQLException e) {
@@ -255,8 +256,8 @@ public class Ban implements IModule, Listener {
 	public String banIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		BAT.kick(player, _("WAS_BANNED_NOTIF", new String[]{NO_REASON.equals(reason) ? _("NO_REASON") : reason}));
-		return _("BAN_BROADCAST", new String[]{player.getName() + "'s IP", staff, server, reason});
+		BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { NO_REASON.equals(reason) ? _("NO_REASON") : reason }));
+		return _("BAN_BROADCAST", new String[] { player.getName() + "'s IP", staff, server, reason });
 	}
 
 	/**
@@ -271,7 +272,7 @@ public class Ban implements IModule, Listener {
 	 * @param reason
 	 * @param unBanIP
 	 */
-	public String unBan(final String bannedEntity, final String server, final String staff, String reason) {
+	public String unBan(final String bannedEntity, final String server, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			// If the bannedEntity is an ip
@@ -287,14 +288,14 @@ public class Ban implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Ban.SQLite.unBanIPServer) : conn
 							.prepareStatement(SQLQueries.Ban.unBanIPServer);
-					statement.setString(1, reason);
-					statement.setString(2, staff);
-					statement.setString(3, ip);
-					statement.setString(4, server);
+							statement.setString(1, reason);
+							statement.setString(2, staff);
+							statement.setString(3, ip);
+							statement.setString(4, server);
 				}
 				statement.executeUpdate();
-				
-				return _("UNBAN_BROADCAST", new String[]{ip, staff, server, reason});
+
+				return _("UNBAN_BROADCAST", new String[] { ip, staff, server, reason });
 			}
 
 			// Otherwise it's a player
@@ -311,14 +312,14 @@ public class Ban implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Ban.SQLite.unBanServer) : conn
 							.prepareStatement(SQLQueries.Ban.unBanServer);
-					statement.setString(1, reason);
-					statement.setString(2, staff);
-					statement.setString(3, UUID);
-					statement.setString(4, server);
+							statement.setString(1, reason);
+							statement.setString(2, staff);
+							statement.setString(3, UUID);
+							statement.setString(4, server);
 				}
 				statement.executeUpdate();
 
-				return _("UNBAN_BROADCAST", new String[]{pName, staff, server, reason});
+				return _("UNBAN_BROADCAST", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -342,11 +343,11 @@ public class Ban implements IModule, Listener {
 	 *            ; set to 0 for ban def
 	 */
 	public String unBanIP(final String entity, final String server, final String staff, final String reason) {
-		if(Utils.validIP(entity)){
+		if (Utils.validIP(entity)) {
 			return unBan(entity, server, staff, reason);
-		}else{
+		} else {
 			unBan(Core.getPlayerIP(entity), server, staff, reason);
-			return _("UNBAN_BROADCAST", new String[]{entity + "'s IP", staff, server, reason});
+			return _("UNBAN_BROADCAST", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
 

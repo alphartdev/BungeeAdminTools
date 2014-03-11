@@ -1,6 +1,5 @@
 package fr.Alphart.BAT.Modules.Mute;
 
-
 import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
@@ -166,7 +165,7 @@ public class Mute implements IModule, Listener {
 	 *            ip related mute
 	 * @return
 	 */
-	public boolean isMute(final String mutedEntity, final String server, boolean forceUseUncachedData) {
+	public boolean isMute(final String mutedEntity, final String server, final boolean forceUseUncachedData) {
 		// Check if the entity is an online player, in this case we're going to
 		// use the cached method
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(mutedEntity);
@@ -231,7 +230,7 @@ public class Mute implements IModule, Listener {
 	 * @return
 	 */
 	public String mute(final String mutedEntity, final String server, final String staff,
-			final long expirationTimestamp, String reason) {
+			final long expirationTimestamp, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			if (Utils.validIP(mutedEntity)) {
@@ -252,15 +251,15 @@ public class Mute implements IModule, Listener {
 						} else {
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
-						player.sendMessage(__("WAS_MUTED_NOTIF",
-								new String[]{reason}));
+						player.sendMessage(__("WAS_MUTED_NOTIF", new String[] { reason }));
 					}
 				}
 
-				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new String[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
-				}else{
-					return _("MUTE_BROADCAST", new String[]{ip, staff, server, reason});
+				if (expirationTimestamp > 0) {
+					return _("MUTETEMP_BROADCAST", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
+							staff, server, reason });
+				} else {
+					return _("MUTE_BROADCAST", new String[] { ip, staff, server, reason });
 				}
 			}
 
@@ -285,13 +284,14 @@ public class Mute implements IModule, Listener {
 					} else {
 						mutedPlayers.get(player.getName()).addServer(server);
 					}
-					player.sendMessage(__("WAS_MUTED_NOTIF", new String[]{reason}));
+					player.sendMessage(__("WAS_MUTED_NOTIF", new String[] { reason }));
 				}
 
-				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new String[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
-				}else{
-					return _("MUTE_BROADCAST", new String[]{pName, staff, server, reason});
+				if (expirationTimestamp > 0) {
+					return _("MUTETEMP_BROADCAST", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
+							staff, server, reason });
+				} else {
+					return _("MUTE_BROADCAST", new String[] { pName, staff, server, reason });
 				}
 			}
 		} catch (final SQLException e) {
@@ -316,7 +316,7 @@ public class Mute implements IModule, Listener {
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		return _("MUTE_BROADCAST", new String[]{player.getName() + "'s IP", staff, server, reason});
+		return _("MUTE_BROADCAST", new String[] { player.getName() + "'s IP", staff, server, reason });
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class Mute implements IModule, Listener {
 	 * @param reason
 	 * @param unMuteIP
 	 */
-	public String unMute(final String mutedEntity, final String server, final String staff, String reason) {
+	public String unMute(final String mutedEntity, final String server, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			// If the mutedEntity is an ip
@@ -347,15 +347,15 @@ public class Mute implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Mute.SQLite.unMuteIPServer) : conn
 							.prepareStatement(SQLQueries.Mute.unMuteIPServer);
-					statement.setString(1, reason);
-					statement.setString(2, staff);
-					statement.setString(3, ip);
-					statement.setString(4, server);
+							statement.setString(1, reason);
+							statement.setString(2, staff);
+							statement.setString(3, ip);
+							statement.setString(4, server);
 				}
 				statement.executeUpdate();
 				statement.close();
 
-				return _("UNMUTE_BROADCAST", new String[]{ip, staff, server, reason});
+				return _("UNMUTE_BROADCAST", new String[] { ip, staff, server, reason });
 			}
 
 			// Otherwise it's a player
@@ -371,10 +371,10 @@ public class Mute implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Mute.SQLite.unMuteServer) : conn
 							.prepareStatement(SQLQueries.Mute.unMuteServer);
-					statement.setString(1, reason);
-					statement.setString(2, staff);
-					statement.setString(3, Core.getUUID(pName));
-					statement.setString(4, server);
+							statement.setString(1, reason);
+							statement.setString(2, staff);
+							statement.setString(3, Core.getUUID(pName));
+							statement.setString(4, server);
 				}
 				statement.executeUpdate();
 				statement.close();
@@ -390,10 +390,10 @@ public class Mute implements IModule, Listener {
 							pma.removeServer(server);
 						}
 					}
-					player.sendMessage(__("WAS_UNMUTED_NOTIF", new String[]{reason}));
+					player.sendMessage(__("WAS_UNMUTED_NOTIF", new String[] { reason }));
 				}
 
-				return _("UNMUTE_BROADCAST", new String[]{pName, staff, server, reason});
+				return _("UNMUTE_BROADCAST", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -416,11 +416,11 @@ public class Mute implements IModule, Listener {
 	 *            ; set to 0 for mute def
 	 */
 	public String unMuteIP(final String entity, final String server, final String staff, final String reason) {
-		if(Utils.validIP(entity)){
+		if (Utils.validIP(entity)) {
 			return unMute(entity, server, staff, reason);
-		}else{
+		} else {
 			unMute(Core.getPlayerIP(entity), server, staff, reason);
-			return _("UNMUTE_BROADCAST", new String[]{entity + "'s IP", staff, server, reason});
+			return _("UNMUTE_BROADCAST", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
 

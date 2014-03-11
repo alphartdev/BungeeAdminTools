@@ -8,17 +8,17 @@ public class PermissionManager {
 	static String permPrefix = "bat.";
 
 	public static enum Action {
-		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), 
-		BAN_BROADCAST("ban.broadcast"),
+		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), BAN_BROADCAST(
+				"ban.broadcast"),
 
-		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), 
-		UNMUTEIP("unmuteip"), MUTE_BROADCAST("mute.broadcast"),
+				MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
+						"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
-		KICK("kick"), KICK_BROADCAST("kick.broadcast");
+						KICK("kick"), KICK_BROADCAST("kick.broadcast");
 
 		String permission;
 
-		Action(String permission) {
+		Action(final String permission) {
 			this.permission = permission;
 		}
 
@@ -26,6 +26,7 @@ public class PermissionManager {
 			return permPrefix + permission;
 		}
 
+		@Override
 		public String toString() {
 			return getPermission();
 		}
@@ -39,10 +40,10 @@ public class PermissionManager {
 	 * @param server
 	 * @return true if he can otherwise false
 	 */
-	public static boolean canExecuteAction(Action action, CommandSender executor, String server) {
+	public static boolean canExecuteAction(final Action action, final CommandSender executor, final String server) {
 		return (executor.hasPermission(action.getPermission() + ".global")
-				|| executor.hasPermission(permPrefix + ".grantall." + server)
-				|| executor.hasPermission(action.getPermission() + '.' + server));
+				|| executor.hasPermission(permPrefix + ".grantall." + server) || executor.hasPermission(action
+						.getPermission() + '.' + server));
 	}
 
 	/**
@@ -53,7 +54,7 @@ public class PermissionManager {
 	 * @param target
 	 * @return true if it is exempt from this action otherwise false
 	 */
-	public static boolean isExemptFrom(Action action, String target) {
+	public static boolean isExemptFrom(final Action action, final String target) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
 		if (player != null) {
 			return player.hasPermission(action.getPermission() + ".exempt");

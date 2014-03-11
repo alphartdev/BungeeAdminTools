@@ -1,7 +1,6 @@
 package fr.Alphart.BAT.Modules.Kick;
 
 import static fr.Alphart.BAT.I18n.I18n._;
-import static fr.Alphart.BAT.I18n.I18n.__;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -94,7 +94,7 @@ public class Kick implements IModule {
 	 * @param player
 	 * @param reason
 	 */
-	public String kick(final ProxiedPlayer player, final String staff, String reason) {
+	public String kick(final ProxiedPlayer player, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			final String server = player.getServer().getInfo().getName();
@@ -109,12 +109,12 @@ public class Kick implements IModule {
 			statement.setString(4, server);
 			statement.executeUpdate();
 			statement.close();
-			
+
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(__("WAS_KICKED_NOTIF", new String[]{reason}));
+			player.sendMessage(TextComponent.fromLegacyText(_("WAS_KICKED_NOTIF", new String[] { reason })));
 
-			return _("KICK_BROADCAST", new String[]{player.getName(), staff, server, reason});
+			return _("KICK_BROADCAST", new String[] { player.getName(), staff, server, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -128,7 +128,7 @@ public class Kick implements IModule {
 	 * @param player
 	 * @param reason
 	 */
-	public String gKick(final ProxiedPlayer player, final String staff, String reason) {
+	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			if (DataSourceHandler.isSQLite()) {
@@ -142,10 +142,10 @@ public class Kick implements IModule {
 			statement.setString(4, GLOBAL_SERVER);
 			statement.executeUpdate();
 			statement.close();
-			
-			player.disconnect(__("WAS_KICKED_NOTIF", new String[]{reason}));
-			
-			return _("GKICK_BROADCAST", new String[]{player.getName(), staff, reason});
+
+			player.disconnect(TextComponent.fromLegacyText(_("WAS_KICKED_NOTIF", new String[] { reason })));
+
+			return _("GKICK_BROADCAST", new String[] { player.getName(), staff, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {

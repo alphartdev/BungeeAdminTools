@@ -260,7 +260,7 @@ public class CoreCommand {
 				returnedMsg.add(__("&eThe player &a" + pName + "&e was not found."));
 				return returnedMsg;
 			}
-			
+
 			final EntityEntry ipDetails = new EntityEntry(Core.getPlayerIP(pName));
 
 			boolean isBan = false;
@@ -281,7 +281,7 @@ public class CoreCommand {
 					banServers.add(banEntry.getServer());
 				}
 			}
-			for(final BanEntry banEntry : ipDetails.getBans()){
+			for (final BanEntry banEntry : ipDetails.getBans()) {
 				if (banEntry.isActive()) {
 					isBanIP = true;
 					banIPServers.add(banEntry.getServer());
@@ -293,7 +293,7 @@ public class CoreCommand {
 					muteServers.add(muteEntry.getServer());
 				}
 			}
-			for(final MuteEntry muteEntry : ipDetails.getMutes()){
+			for (final MuteEntry muteEntry : ipDetails.getMutes()) {
 				if (muteEntry.isActive()) {
 					isMuteIP = true;
 					muteIPServers.add(muteEntry.getServer());
@@ -307,13 +307,13 @@ public class CoreCommand {
 			finalMsg.append((ProxyServer.getInstance().getPlayer(pName) != null) ? "&a&lConnected &r&eon the &3"
 					+ ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() : "&8&lDéconnecté");
 
-			if (isBan || isMute) {
+			if (isBan || isMute || isBanIP || isMuteIP) {
 				finalMsg.append("\n&eState : ");
 				if (isBan) {
 					finalMsg.append("\n&c&lBanned &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banServers));
 				}
-				if(isBanIP){
+				if (isBanIP) {
 					finalMsg.append("\n&c&lBanned IP &efrom &3");
 					finalMsg.append(Joiner.on("&f, &3").join(banIPServers));
 				}
@@ -423,7 +423,7 @@ public class CoreCommand {
 					if (i % 500 == 0) {
 						BAT.getInstance().getLogger().info("<!> " + i + " enregistrements ont été insérés ...");
 						BAT.getInstance().getLogger()
-								.info("<!> Il reste " + (rowsNumber - i) + " enregistrements à insérer.");
+						.info("<!> Il reste " + (rowsNumber - i) + " enregistrements à insérer.");
 					}
 
 				}

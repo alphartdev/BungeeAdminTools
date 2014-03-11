@@ -42,9 +42,9 @@ public class Configuration {
 		return config.getConfigurationSection("storage");
 	}
 
-	public Locale getLocale(){
-		String language = config.getString("language");
-		if(language.length() != 2){
+	public Locale getLocale() {
+		final String language = config.getString("language");
+		if (language.length() != 2) {
 			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");
 			return new Locale("en");
 		}

@@ -95,11 +95,11 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 							onCommand(sender, args, confirmedCmd);
 						} catch (final IllegalArgumentException exception) {
 							if (exception.getMessage() == null) {
-								sender.sendMessage(__("INVALID_ARGS_USAGE", new String[]{"&e/" + getFormatUsage()}));
+								sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
 							} else if (_("NO_PERM").equals(exception.getMessage())) {
 								sender.sendMessage(__("NO_PERM"));
 							} else {
-								sender.sendMessage(__("INVALID_ARGS", new String[]{exception.getMessage()}));
+								sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
 							}
 						}
 					}
@@ -109,11 +109,11 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			}
 		} catch (final IllegalArgumentException exception) {
 			if (exception.getMessage() == null) {
-				sender.sendMessage(__("INVALID_ARGS_USAGE", new String[]{"&e/" + getFormatUsage()}));
+				sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
 			} else if (_("NO_PERM").equals(exception.getMessage())) {
 				sender.sendMessage(__("NO_PERM"));
 			} else {
-				sender.sendMessage(__("INVALID_ARGS", new String[]{exception.getMessage()}));
+				sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
 			}
 		}
 		if (confirmedCmd) {
@@ -173,9 +173,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public void mustConfirmCommand(final CommandSender sender, final String command, final String message) {
 		if (!CommandQueue.isExecutingQueueCommand(sender)) {
 			if ("".equals(message)) {
-				sender.sendMessage(__("MUST_CONFIRM", new String[]{""}));
+				sender.sendMessage(__("MUST_CONFIRM", new String[] { "" }));
 			} else {
-				sender.sendMessage(__("MUST_CONFIRM", new String[]{message}));
+				sender.sendMessage(__("MUST_CONFIRM", new String[] { message }));
 			}
 			CommandQueue.queueCommand(sender, command);
 		}

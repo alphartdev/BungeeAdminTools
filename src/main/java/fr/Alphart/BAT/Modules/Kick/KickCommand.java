@@ -8,6 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
+import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
@@ -24,7 +25,8 @@ public class KickCommand extends CommandHandler {
 
 	public static class KickCmd extends BATCommand {
 		public KickCmd() {
-			super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", Action.KICK.getPermission());
+			super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", Action.KICK
+					.getPermission());
 		}
 
 		@Override
@@ -42,22 +44,19 @@ public class KickCommand extends CommandHandler {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 			checkArgument(player != null, _("OFFLINE_PLAYER"));
-			String returnedMsg;
+			final String pServer = player.getServer().getInfo().getName();
+			checkArgument(
+					pServer != null && !pServer.equals(player.getPendingConnection().getListener().getDefaultServer()),
+					_("CANT_KICK_DEFAULT_SERVER", new String[] { pName }));
 
-			// Command pattern : /kick <name>
-			if (args.length == 1) {
-				returnedMsg = kick.kick(player, sender.getName(), null);
-			}
-			// Command pattern : /kick <name> <raison>
-			else {
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = kick.kick(player, sender.getName(), reason);
-			}
-			
-			checkArgument(PermissionManager.canExecuteAction(Action.KICK, sender, player.getServer().getInfo().getName()),
+			checkArgument(
+					PermissionManager.canExecuteAction(Action.KICK, sender, player.getServer().getInfo().getName()),
 					_("NO_PERM"));
 
 			checkArgument(!PermissionManager.isExemptFrom(Action.KICK, pName), _("IS_EXEMPT"));
+
+			final String returnedMsg = kick.kick(player, sender.getName(),
+					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 
 			BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 		}
@@ -65,7 +64,8 @@ public class KickCommand extends CommandHandler {
 
 	public static class GKickCmd extends BATCommand {
 		public GKickCmd() {
-			super("gkick", "<player> [reason]", "Kick the player from the proxy", Action.KICK.getPermission() + ".global");
+			super("gkick", "<player> [reason]", "Kick the player from the proxy", Action.KICK.getPermission()
+					+ ".global");
 		}
 
 		@Override
@@ -74,19 +74,11 @@ public class KickCommand extends CommandHandler {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 			checkArgument(player != null, _("OFFLINE_PLAYER"));
-			String returnedMsg;
-
-			// Command pattern : /kick <name>
-			if (args.length == 1) {
-				returnedMsg = kick.gKick(player, sender.getName(), null);
-			}
-			// Command pattern : /kick <name> <raison>
-			else {
-				final String reason = Utils.getFinalArg(args, 1);
-				returnedMsg = kick.gKick(player, sender.getName(), reason);
-			}
 
 			checkArgument(!PermissionManager.isExemptFrom(Action.KICK, pName), _("IS_EXEMPT"));
+
+			final String returnedMsg = kick.gKick(player, sender.getName(),
+					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 
 			BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 		}

@@ -31,9 +31,9 @@ public abstract class CommandHandler {
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | SecurityException e) {
 				BAT.getInstance()
-						.getLogger()
-						.severe("An error happend during loading of " + module.getName()
-								+ " commands please report this :");
+				.getLogger()
+				.severe("An error happend during loading of " + module.getName()
+						+ " commands please report this :");
 				e.printStackTrace();
 			}
 		}

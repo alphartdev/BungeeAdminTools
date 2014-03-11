@@ -22,11 +22,11 @@ public class SQLQueries {
 
 		public static class SQLite {
 			public final static String[] createTable = {
-					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "`UUID` varchar(100) NOT NULL," + "`kick_staff` varchar(30) NOT NULL,"
-							+ "`kick_reason` varchar(100) NULL," + "`kick_server` varchar(30) NOT NULL,"
-							+ "`kick_date` timestamp NOT NULL" + ");",
-					"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);" };
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "`UUID` varchar(100) NOT NULL," + "`kick_staff` varchar(30) NOT NULL,"
+						+ "`kick_reason` varchar(100) NULL," + "`kick_server` varchar(30) NOT NULL,"
+						+ "`kick_date` timestamp NOT NULL" + ");",
+						"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);" };
 			public final static String kickPlayer = "INSERT INTO `" + table
 					+ "`(UUID, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, date());";
 		}
@@ -89,8 +89,8 @@ public class SQLQueries {
 		public static class SQLite {
 			// Ban related
 			public final static String[] createTable = {
-					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`ban_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "`UUID` varchar(100) NULL," + "`ban_ip` varchar(50) NULL,"
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`ban_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "`UUID` varchar(100) NULL," + "`ban_ip` varchar(50) NULL,"
 
 							+ "`ban_staff` varchar(30) NOT NULL," + "`ban_reason` varchar(100) NULL,"
 							+ "`ban_server` varchar(30) NOT NULL,"
@@ -99,8 +99,8 @@ public class SQLQueries {
 
 							+ "`ban_unbandate` timestamp NULL," + "`ban_unbanstaff` varchar(30) NULL,"
 							+ "`ban_unbanreason` varchar(100) NULL" + ");",
-					"CREATE INDEX IF NOT EXISTS `ban.uuid_index` ON " + table + " (`UUID`);",
-					"CREATE INDEX IF NOT EXISTS `ban.ip_index` ON " + table + " (`ban_ip`);" };
+							"CREATE INDEX IF NOT EXISTS `ban.uuid_index` ON " + table + " (`UUID`);",
+							"CREATE INDEX IF NOT EXISTS `ban.ip_index` ON " + table + " (`ban_ip`);" };
 			public static final String unBan = "UPDATE `" + table
 					+ "` SET ban_state = 0, ban_unbanreason = ?, ban_unbanstaff = ?, ban_unbandate = datetime() "
 					+ "WHERE UUID = ? AND ban_state = 1;";
@@ -172,8 +172,8 @@ public class SQLQueries {
 
 		public static class SQLite {
 			public final static String[] createTable = {
-					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`mute_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "`UUID` varchar(100) NULL," + "`mute_ip` varchar(50) NULL,"
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`mute_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "`UUID` varchar(100) NULL," + "`mute_ip` varchar(50) NULL,"
 
 							+ "`mute_staff` varchar(30) NOT NULL," + "`mute_reason` varchar(100) NULL,"
 							+ "`mute_server` varchar(30) NOT NULL,"
@@ -182,8 +182,8 @@ public class SQLQueries {
 
 							+ "`mute_unmutedate` timestamp NULL," + "`mute_unmutestaff` varchar(30) NULL,"
 							+ "`mute_unmutereason` varchar(100) NULL" + ");",
-					"CREATE INDEX IF NOT EXISTS `mute.uuid_index` ON " + table + " (`UUID`);",
-					"CREATE INDEX IF NOT EXISTS `mute.ip_index` ON " + table + " (`mute_ip`);" };
+							"CREATE INDEX IF NOT EXISTS `mute.uuid_index` ON " + table + " (`UUID`);",
+							"CREATE INDEX IF NOT EXISTS `mute.ip_index` ON " + table + " (`mute_ip`);" };
 
 			public static final String unMute = "UPDATE `"
 					+ table
@@ -229,11 +229,11 @@ public class SQLQueries {
 
 		public static class SQLite {
 			public static final String createTable[] = {
-					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`BAT_player` varchar(30) NOT NULL,"
-							+ "`UUID` varchar(100) UNIQUE NOT NULL," + "`lastip` varchar(50) NOT NULL,"
-							+ "`firstlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
-							+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL" + ");",
-					"CREATE INDEX IF NOT EXISTS `core.player_index` ON " + table + " (`BAT_player`);" };
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`BAT_player` varchar(30) NOT NULL,"
+						+ "`UUID` varchar(100) UNIQUE NOT NULL," + "`lastip` varchar(50) NOT NULL,"
+						+ "`firstlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+						+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL" + ");",
+						"CREATE INDEX IF NOT EXISTS `core.player_index` ON " + table + " (`BAT_player`);" };
 			public static final String updateIPUUID = "INSERT OR REPLACE INTO `" + table
 					+ "` (BAT_player, lastip, firstlogin, lastlogin, UUID)"
 					+ " VALUES (?, ?, (SELECT firstlogin FROM `" + table + "` WHERE UUID = ?), DATETIME(), ?);";
