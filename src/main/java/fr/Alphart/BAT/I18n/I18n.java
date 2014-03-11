@@ -17,11 +17,6 @@ import fr.Alphart.BAT.Modules.IModule;
 
 public class I18n{
 	private static Map<String, String> argsReplacer = Maps.newHashMap();
-	{
-		argsReplacer.put(IModule.ANY_SERVER, _("GLOBAL"));
-		argsReplacer.put(IModule.GLOBAL_SERVER, _("GLOBAL"));
-		argsReplacer.put(IModule.NO_REASON, _("NO_REASON"));
-	}
 	private ResourceBundle bundle;
 	
 	private I18n(){
@@ -33,6 +28,10 @@ public class I18n{
 			BAT.getInstance().getLogger().severe("The language file " + locale.toLanguageTag() + " was not found or is incorrect. The language was set to english.");
 			bundle = ResourceBundle.getBundle("messages", new Locale("en"), new UTF8_Control());
 		}
+		
+		argsReplacer.put(IModule.ANY_SERVER, ChatColor.translateAlternateColorCodes('&', bundle.getString("GLOBAL")));
+		argsReplacer.put(IModule.GLOBAL_SERVER, ChatColor.translateAlternateColorCodes('&', bundle.getString("GLOBAL")));
+		argsReplacer.put(IModule.NO_REASON, ChatColor.translateAlternateColorCodes('&', bundle.getString("NO_REASON")));
 	}
 	 
 	private static class I18nHolder {

@@ -124,7 +124,6 @@ public class BanCommand extends CommandHandler {
 			final String ip = Core.getPlayerIP(target);
 			if (ipBan) {
 				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
-				target = ip;
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
@@ -242,7 +241,6 @@ public class BanCommand extends CommandHandler {
 			final String ip = Core.getPlayerIP(target);
 			if (ipBan) {
 				checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
-				target = ip;
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
@@ -352,9 +350,7 @@ public class BanCommand extends CommandHandler {
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnban) {
-			final String ip = Core.getPlayerIP(target);
-			checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
-			target = ip;
+			checkArgument(!"0.0.0.0".equals(Core.getPlayerIP(target)), _("IP_UNKNOWN_PLAYER"));
 		}
 		
 		if(!global){

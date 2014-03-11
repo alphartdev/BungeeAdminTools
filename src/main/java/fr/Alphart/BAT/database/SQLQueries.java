@@ -9,10 +9,9 @@ public class SQLQueries {
 	public static class Kick {
 		public final static String table = "BAT_kick";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
-				+ "`UUID` varchar(100) NOT NULL,"
-				+ "`kick_ip` varchar(50) NOT NULL," + "`kick_staff` varchar(30) NOT NULL,"
-				+ "`kick_reason` varchar(100) NULL," + "`kick_server` varchar(30) NOT NULL,"
+				+ "`kick_id` INTEGER PRIMARY KEY AUTO_INCREMENT,"
+				+ "`UUID` varchar(100) NOT NULL,`kick_staff` varchar(30) NOT NULL,"
+				+ "`kick_reason` varchar(100) NULL, `kick_server` varchar(30) NOT NULL,"
 				+ "`kick_date` timestamp NOT NULL,"
 
 				+ "INDEX(UUID)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
@@ -24,12 +23,11 @@ public class SQLQueries {
 		public static class SQLite {
 			public final static String[] createTable = {
 					"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`kick_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "`UUID` varchar(100) NOT NULL,"
-							+ "`kick_staff` varchar(30) NOT NULL," + "`kick_reason` varchar(100) NULL,"
-							+ "`kick_server` varchar(30) NOT NULL," + "`kick_date` timestamp NOT NULL" + ");",
+							+ "`UUID` varchar(100) NOT NULL," + "`kick_staff` varchar(30) NOT NULL,"
+							+ "`kick_reason` varchar(100) NULL," + "`kick_server` varchar(30) NOT NULL,"
+							+ "`kick_date` timestamp NOT NULL" + ");",
 					"CREATE INDEX IF NOT EXISTS `kick.uuid_index` ON " + table + " (`UUID`);" };
-			public final static String kickPlayer = "INSERT INTO `"
-					+ table
+			public final static String kickPlayer = "INSERT INTO `" + table
 					+ "`(UUID, kick_staff, kick_reason, kick_server, kick_date) VALUES (?, ?, ?, ?, date());";
 		}
 	}
@@ -37,8 +35,7 @@ public class SQLQueries {
 	public static class Ban {
 		public final static String table = "BAT_ban";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
-				+ "`UUID` varchar(100) NULL,"
+				+ "`ban_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
 				+ "`ban_ip` varchar(50) NULL,"
 
 				+ "`ban_staff` varchar(30) NOT NULL," + "`ban_reason` varchar(100) NULL,"
@@ -56,7 +53,8 @@ public class SQLQueries {
 		public static final String isBanServer = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND UUID = ? "
 				+ "AND ban_server = ?;";
 
-		public static final String isBanIP = "SELECT ban_id FROM `" + table + "` WHERE ban_state = 1 AND ban_ip = ? AND UUID IS NULL;";
+		public static final String isBanIP = "SELECT ban_id FROM `" + table
+				+ "` WHERE ban_state = 1 AND ban_ip = ? AND UUID IS NULL;";
 		public static final String isBanServerIP = "SELECT ban_id FROM `" + table
 				+ "` WHERE ban_state = 1 AND ban_ip = ? AND ban_server = ? AND UUID IS NULL;";
 
@@ -123,8 +121,7 @@ public class SQLQueries {
 	public static class Mute {
 		public final static String table = "BAT_mute";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT," 
-				+ "`UUID` varchar(100) NULL,"
+				+ "`mute_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
 				+ "`mute_ip` varchar(50) NULL,"
 
 				+ "`mute_staff` varchar(30) NOT NULL," + "`mute_reason` varchar(100) NULL,"
@@ -214,12 +211,9 @@ public class SQLQueries {
 		public static final String table = "BAT_players";
 
 		public static final String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`BAT_player` varchar(30) NOT NULL," 
-				+ "`UUID` varchar(100) UNIQUE NOT NULL,"
-				+ "`lastip` varchar(50) NOT NULL," 
-				+ "`firstlogin` timestamp NULL,"
-				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," 
-				+ "INDEX(BAT_player)"
+				+ "`BAT_player` varchar(30) NOT NULL," + "`UUID` varchar(100) UNIQUE NOT NULL,"
+				+ "`lastip` varchar(50) NOT NULL," + "`firstlogin` timestamp NULL,"
+				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," + "INDEX(BAT_player)"
 				+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		public static final String updateIPUUID = "INSERT INTO `" + table + "` (BAT_player, lastip, firstlogin, UUID)"
 				+ " VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE lastip = ?, lastlogin = null, BAT_player = ?;";

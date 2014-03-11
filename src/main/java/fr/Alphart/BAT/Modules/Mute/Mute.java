@@ -316,8 +316,6 @@ public class Mute implements IModule, Listener {
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		player.sendMessage(__("WAS_MUTED_NOTIF", new String[]{NO_REASON.equals(reason) ? _("NO_REASON")
-				: reason}));
 		return _("MUTE_BROADCAST", new String[]{player.getName() + "'s IP", staff, server, reason});
 	}
 
