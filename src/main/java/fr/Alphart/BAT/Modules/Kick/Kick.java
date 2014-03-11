@@ -110,13 +110,11 @@ public class Kick implements IModule {
 			statement.executeUpdate();
 			statement.close();
 			
-			reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
-			
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(__("WAS_KICKED_NOTIF", new Object[]{reason}));
+			player.sendMessage(__("WAS_KICKED_NOTIF", new String[]{reason}));
 
-			return _("KICK_BROADCAST", new Object[]{player.getName(), staff, server, reason});
+			return _("KICK_BROADCAST", new String[]{player.getName(), staff, server, reason});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -145,11 +143,9 @@ public class Kick implements IModule {
 			statement.executeUpdate();
 			statement.close();
 			
-			reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
+			player.disconnect(__("WAS_KICKED_NOTIF", new String[]{reason}));
 			
-			player.disconnect(__("WAS_KICKED_NOTIF", new Object[]{reason}));
-			
-			return _("GKICK_BROADCAST", new Object[]{player.getName(), staff, reason});
+			return _("GKICK_BROADCAST", new String[]{player.getName(), staff, reason});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {

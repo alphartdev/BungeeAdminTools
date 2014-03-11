@@ -245,8 +245,6 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
-				
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 					if (Utils.getPlayerIP(player).equals(ip)) {
 						if (server.equals(GLOBAL_SERVER)) {
@@ -255,14 +253,14 @@ public class Mute implements IModule, Listener {
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
 						player.sendMessage(__("WAS_MUTED_NOTIF",
-								new Object[]{reason}));
+								new String[]{reason}));
 					}
 				}
 
 				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new Object[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
+					return _("MUTETEMP_BROADCAST", new String[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
-					return _("MUTE_BROADCAST", new Object[]{ip, staff, server, reason});
+					return _("MUTE_BROADCAST", new String[]{ip, staff, server, reason});
 				}
 			}
 
@@ -279,8 +277,6 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
-				
 				// Update the cached data
 				if (player != null
 						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
@@ -289,13 +285,13 @@ public class Mute implements IModule, Listener {
 					} else {
 						mutedPlayers.get(player.getName()).addServer(server);
 					}
-					player.sendMessage(__("WAS_MUTED_NOTIF", new Object[]{reason}));
+					player.sendMessage(__("WAS_MUTED_NOTIF", new String[]{reason}));
 				}
 
 				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new Object[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
+					return _("MUTETEMP_BROADCAST", new String[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
-					return _("MUTE_BROADCAST", new Object[]{pName, staff, server, reason});
+					return _("MUTE_BROADCAST", new String[]{pName, staff, server, reason});
 				}
 			}
 		} catch (final SQLException e) {
@@ -319,10 +315,10 @@ public class Mute implements IModule, Listener {
 	 */
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
-		String returnedMsg = mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		player.sendMessage(__("WAS_MUTED_NOTIF", new Object[]{NO_REASON.equals(reason) ? _("NO_REASON")
+		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
+		player.sendMessage(__("WAS_MUTED_NOTIF", new String[]{NO_REASON.equals(reason) ? _("NO_REASON")
 				: reason}));
-		return returnedMsg;
+		return _("MUTE_BROADCAST", new String[]{player.getName() + "'s IP", staff, server, reason});
 	}
 
 	/**
@@ -361,9 +357,7 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
-				
-				return _("UNMUTE_BROADCAST", new Object[]{ip, staff, server, reason});
+				return _("UNMUTE_BROADCAST", new String[]{ip, staff, server, reason});
 			}
 
 			// Otherwise it's a player
@@ -387,8 +381,6 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				reason = NO_REASON.equals(reason) ? _("NO_REASON") : reason;
-				
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				if (player != null) {
 					if (ANY_SERVER.equals(server)) {
@@ -400,10 +392,10 @@ public class Mute implements IModule, Listener {
 							pma.removeServer(server);
 						}
 					}
-					player.sendMessage(__("WAS_UNMUTED_NOTIF", new Object[]{reason}));
+					player.sendMessage(__("WAS_UNMUTED_NOTIF", new String[]{reason}));
 				}
 
-				return _("UNMUTE_BROADCAST", new Object[]{pName, staff, server, reason});
+				return _("UNMUTE_BROADCAST", new String[]{pName, staff, server, reason});
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -426,7 +418,12 @@ public class Mute implements IModule, Listener {
 	 *            ; set to 0 for mute def
 	 */
 	public String unMuteIP(final String entity, final String server, final String staff, final String reason) {
-		return unMute((Utils.validIP(entity)) ? entity : Core.getPlayerIP(entity), server, staff, reason);
+		if(Utils.validIP(entity)){
+			return unMute(entity, server, staff, reason);
+		}else{
+			unMute(Core.getPlayerIP(entity), server, staff, reason);
+			return _("UNMUTE_BROADCAST", new String[]{entity + "'s IP", staff, server, reason});
+		}
 	}
 
 	/**
@@ -558,7 +555,7 @@ public class Mute implements IModule, Listener {
 
 			statement = conn
 					.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND mute_ip = ?;");
-			statement.setString(1, player.getAddress().getHostName());
+			statement.setString(1, Core.getPlayerIP(pName));
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				final String server = resultSet.getString("mute_server");

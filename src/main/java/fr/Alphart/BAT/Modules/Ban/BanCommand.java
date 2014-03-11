@@ -129,7 +129,7 @@ public class BanCommand extends CommandHandler {
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
 				return;
 			}
 		}
@@ -247,7 +247,7 @@ public class BanCommand extends CommandHandler {
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
 				return;
 			}
 		}
@@ -362,7 +362,7 @@ public class BanCommand extends CommandHandler {
 					_("NO_PERM"));
 		}
 
-		Object[] formatArgs = {args[0]};
+		String[] formatArgs = {args[0]};
 		
 		checkArgument(ban.isBan(target, server), (IModule.ANY_SERVER.equals(server) ? _("NOT_BAN_ANY", formatArgs)
 				: ((ipUnban) ? _("NOT_BANIP", formatArgs) : _("NOT_BAN", formatArgs))));

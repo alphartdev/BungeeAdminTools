@@ -129,7 +129,7 @@ public class MuteCommand extends CommandHandler {
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
 				return;
 			}
 		}
@@ -246,7 +246,7 @@ public class MuteCommand extends CommandHandler {
 			// If ip = 0.0.0.0, it means the player never connects
 			else if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 				command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-						_("OPERATION_UNKNOWN_PLAYER", new Object[]{target}));
+						_("OPERATION_UNKNOWN_PLAYER", new String[]{target}));
 				return;
 			}
 		}
@@ -362,7 +362,7 @@ public class MuteCommand extends CommandHandler {
 					_("NO_PERM"));
 		}
 
-		Object[] formatArgs = {args[0]};
+		String[] formatArgs = {args[0]};
 		
 		checkArgument(mute.isMute(target, server, true), (IModule.ANY_SERVER.equals(server) ? _("NOT_MUTE_ANY", formatArgs)
 				: ((ipUnmute) ? _("NOT_MUTEIP", formatArgs) : _("NOT_MUTE", formatArgs))));
