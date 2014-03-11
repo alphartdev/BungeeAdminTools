@@ -260,7 +260,7 @@ public class Mute implements IModule, Listener {
 				}
 
 				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new Object[]{ip, staff, server, reason, FormatUtils.getDuration(expirationTimestamp)});
+					return _("MUTETEMP_BROADCAST", new Object[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
 					return _("MUTE_BROADCAST", new Object[]{ip, staff, server, reason});
 				}
@@ -293,7 +293,7 @@ public class Mute implements IModule, Listener {
 				}
 
 				if(expirationTimestamp > 0){
-					return _("MUTETEMP_BROADCAST", new Object[]{pName, staff, server, reason, FormatUtils.getDuration(expirationTimestamp)});
+					return _("MUTETEMP_BROADCAST", new Object[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
 					return _("MUTE_BROADCAST", new Object[]{pName, staff, server, reason});
 				}

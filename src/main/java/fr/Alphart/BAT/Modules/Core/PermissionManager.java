@@ -40,9 +40,9 @@ public class PermissionManager {
 	 * @return true if he can otherwise false
 	 */
 	public static boolean canExecuteAction(Action action, CommandSender executor, String server) {
-		return (executor.hasPermission(permPrefix + ".grantall." + server)
-				|| executor.hasPermission(action.getPermission() + '.' + server) || executor.hasPermission(
-				action.getPermission() + ".global"));
+		return (executor.hasPermission(action.getPermission() + ".global")
+				|| executor.hasPermission(permPrefix + ".grantall." + server)
+				|| executor.hasPermission(action.getPermission() + '.' + server));
 	}
 
 	/**

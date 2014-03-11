@@ -133,9 +133,11 @@ public class BanCommand extends CommandHandler {
 				return;
 			}
 		}
-
-		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server),
-				_("NO_PERM"));
+		
+		if(!global){
+			checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server),
+					_("NO_PERM"));
+		}
 
 		// We just check if the target is exempt from the ban, which means he's
 		// exempt from the full module command
@@ -249,9 +251,11 @@ public class BanCommand extends CommandHandler {
 				return;
 			}
 		}
-
-		checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server),
-				_("NO_PERM"));
+		
+		if(!global){
+			checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server),
+					_("NO_PERM"));
+		}
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("IS_EXEMPT"));
 
@@ -352,9 +356,11 @@ public class BanCommand extends CommandHandler {
 			checkArgument(!"0.0.0.0".equals(ip), _("IP_UNKNOWN_PLAYER"));
 			target = ip;
 		}
-
-		checkArgument(PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server),
-				_("NO_PERM"));
+		
+		if(!global){
+			checkArgument(PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server),
+					_("NO_PERM"));
+		}
 
 		Object[] formatArgs = {args[0]};
 		

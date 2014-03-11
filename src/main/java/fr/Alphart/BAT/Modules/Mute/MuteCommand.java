@@ -133,9 +133,11 @@ public class MuteCommand extends CommandHandler {
 				return;
 			}
 		}
-
-		checkArgument(PermissionManager.canExecuteAction((ipMute) ? Action.MUTEIP : Action.MUTE, sender, server),
-				_("NO_PERM"));
+		
+		if(!global){
+			checkArgument(PermissionManager.canExecuteAction((ipMute) ? Action.MUTEIP : Action.MUTE, sender, server),
+					_("NO_PERM"));
+		}
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
 
@@ -249,9 +251,11 @@ public class MuteCommand extends CommandHandler {
 			}
 		}
 
-		checkArgument(
-				PermissionManager.canExecuteAction((ipMute) ? Action.TEMPMUTEIP : Action.TEMPMUTE, sender, server),
-				_("NO_PERM"));
+		if(!global){
+			checkArgument(
+					PermissionManager.canExecuteAction((ipMute) ? Action.TEMPMUTEIP : Action.TEMPMUTE, sender, server),
+					_("NO_PERM"));
+		}
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
 
@@ -353,8 +357,10 @@ public class MuteCommand extends CommandHandler {
 			target = ip;
 		}
 
-		checkArgument(PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
-				_("NO_PERM"));
+		if(!global){
+			checkArgument(PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
+					_("NO_PERM"));
+		}
 
 		Object[] formatArgs = {args[0]};
 		

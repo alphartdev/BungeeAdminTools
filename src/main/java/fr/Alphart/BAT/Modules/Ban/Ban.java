@@ -142,7 +142,6 @@ public class Ban implements IModule, Listener {
 			// If this is a player which may be banned
 			else {
 				final String pName = bannedEntity;
-				Core.getPlayerIP(pName);
 				statement = conn.prepareStatement((ANY_SERVER.equals(server)) ? SQLQueries.Ban.isBan
 						: SQLQueries.Ban.isBanServer);
 				statement.setString(1, Core.getUUID(pName));
@@ -204,7 +203,7 @@ public class Ban implements IModule, Listener {
 				}
 
 				if(expirationTimestamp > 0){
-					return _("BANTEMP_BROADCAST", new Object[]{ip, staff, server, reason, FormatUtils.getDuration(expirationTimestamp)});
+					return _("BANTEMP_BROADCAST", new Object[]{ip, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
 					return _("BAN_BROADCAST", new Object[]{ip, staff, server, reason});
 				}
@@ -234,7 +233,7 @@ public class Ban implements IModule, Listener {
 				}
 				
 				if(expirationTimestamp > 0){
-					return _("BANTEMP_BROADCAST", new Object[]{pName, staff, server, reason, FormatUtils.getDuration(expirationTimestamp)});
+					return _("BANTEMP_BROADCAST", new Object[]{pName, FormatUtils.getDuration(expirationTimestamp), staff, server, reason});
 				}else{
 					return _("BAN_BROADCAST", new Object[]{pName, staff, server, reason});
 				}
