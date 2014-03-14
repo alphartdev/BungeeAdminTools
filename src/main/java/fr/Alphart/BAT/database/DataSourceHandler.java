@@ -87,7 +87,7 @@ public class DataSourceHandler {
 	public static boolean isSQLite() {
 		return BAT.getInstance().getDsHandler().getSQLite();
 	}
-	
+
 	// Useful methods
 
 	public static String handleException(final SQLException e) {

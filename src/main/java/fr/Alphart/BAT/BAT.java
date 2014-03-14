@@ -11,13 +11,13 @@ import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.ConfigurationSection;
-import net.craftminecraft.bungee.bungeeyaml.pluginapi.ConfigurablePlugin;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Plugin;
 
 import com.google.common.base.Preconditions;
 
@@ -25,7 +25,10 @@ import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
-public class BAT extends ConfigurablePlugin {
+//TODO: Associer le ban au pardon, mute au unmute dans les perms
+//TODO: 
+
+public class BAT extends Plugin {
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
 	private Configuration config;
@@ -36,7 +39,6 @@ public class BAT extends ConfigurablePlugin {
 	public void onEnable() {
 		instance = this;
 		config = new Configuration();
-		config.load();
 		if (loadDB()) {
 			modules = new ModulesManager();
 			modules.loadModules();
@@ -54,25 +56,23 @@ public class BAT extends ConfigurablePlugin {
 	}
 
 	public boolean loadDB() {
-		final ConfigurationSection storageConf = config.getStorageConfig();
-		if (storageConf.getBoolean("mysql.enabled")) {
-			final ConfigurationSection mysqlConf = storageConf.getConfigurationSection("mysql");
-			final String username = mysqlConf.getString("user");
-			final String password = mysqlConf.getString("password");
-			final String database = mysqlConf.getString("database");
-			final String port = mysqlConf.getString("port");
-			final String host = mysqlConf.getString("host");
+		if (config.isMysql_enabled()) {
+			final String username = config.getMysql_user();
+			final String password = config.getMysql_password();
+			final String database = config.getMysql_database();
+			final String port = config.getMysql_port();
+			final String host = config.getMysql_host();
+			// BoneCP can accept no database
+			Preconditions.checkArgument(!"".equals(database), "You must set the database.");
 			dsHandler = new DataSourceHandler(host, port, database, username, password);
 			final Connection c = dsHandler.getConnection();
 			if (c != null) {
 				try {
 					c.close();
+					return true;
 				} catch (final SQLException e) {
 					return false;
 				}
-				return true;
-			} else {
-				return false;
 			}
 		}
 		// If MySQL is disabled, we are gonna use SQLite
@@ -82,12 +82,11 @@ public class BAT extends ConfigurablePlugin {
 			if(loadSQLiteDriver()){
 				dsHandler = new DataSourceHandler();
 				return true;
-			}else{
-				return false;
 			}
 		}
+		return false;
 	}
-	
+
 	public boolean loadSQLiteDriver(){
 		final File driverPath = new File(getDataFolder() + File.separator + "lib" + File.separator
 				+ "sqlite_driver.jar");
@@ -135,30 +134,33 @@ public class BAT extends ConfigurablePlugin {
 			return false;
 		}
 	}
-	
-	public void migrate(String target) throws IllegalArgumentException{
+
+	public void migrate(final String target) throws IllegalArgumentException{
 		//TODO: Finish the migrate function
 		Preconditions.checkArgument("mysql".equalsIgnoreCase(target) || "sqlite".equalsIgnoreCase(target));
 		modules.unloadModules();
-		
+
 		if("mysql".equalsIgnoreCase(target))
 		{
-			final DataSourceHandler sqlite = dsHandler;
-			config.getStorageConfig().set("mysql.enabled", true);
-			saveConfig();
+			config.setMysql_enabled(false);
+			try {
+				config.save();
+			} catch (final InvalidConfigurationException e) {
+				e.printStackTrace();
+			}
 			if(!loadDB()){
 				throw new IllegalArgumentException("BAT can't connect to the MySQL database. Please check your login details.");
 			}
-			
+
 			// Load and unload all modules to generate the table in the new DB
 			modules.loadModules();
 			modules.unloadModules();
-			
+
 			// Move all the data
 		}
 		else
 		{
-			
+
 		}
 	}
 

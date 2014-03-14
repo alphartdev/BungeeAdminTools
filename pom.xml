@@ -16,8 +16,8 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
 		<repository>
-			<id>craftminecraft-dev</id>
-			<url>http://repo.craftminecraft.net/content/groups/public/</url>
+			<id>cubespace-repo</id>
+			<url>http://nexus.cube-space.net/content/groups/public/</url>
 		</repository>
 		<repository>
 			<releases>
@@ -36,9 +36,9 @@
 			<version>1.7-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>net.craftminecraft.bungee</groupId>
-			<artifactId>bungeeyaml</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<groupId>net.cubespace</groupId>
+			<artifactId>Yamler-Core</artifactId>
+			<version>2.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

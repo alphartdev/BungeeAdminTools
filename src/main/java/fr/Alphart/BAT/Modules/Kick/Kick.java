@@ -24,7 +24,11 @@ import fr.Alphart.BAT.database.SQLQueries;
 public class Kick implements IModule {
 	private final String name = "kick";
 	private KickCommand commandHandler;
-	private KickConfig config;
+	private final KickConfig config;
+
+	public Kick(){
+		config = new KickConfig();
+	}
 
 	@Override
 	public List<BATCommand> getCommands() {
@@ -66,9 +70,6 @@ public class Kick implements IModule {
 			DataSourceHandler.close(statement);
 		}
 
-		// Config initialize
-		config = new KickConfig(this);
-
 		// Register commands
 		commandHandler = new KickCommand(this);
 		commandHandler.loadCmds();
@@ -83,8 +84,8 @@ public class Kick implements IModule {
 	}
 
 	public class KickConfig extends ModuleConfiguration {
-		public KickConfig(final IModule module) {
-			super(module);
+		public KickConfig() {
+			super(name);
 		}
 	}
 

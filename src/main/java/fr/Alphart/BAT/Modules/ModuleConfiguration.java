@@ -1,22 +1,34 @@
 package fr.Alphart.BAT.Modules;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.ConfigurationSection;
+import lombok.Getter;
+import net.cubespace.Yamler.Config.Config;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import fr.Alphart.BAT.BAT;
 
-public abstract class ModuleConfiguration {
-	protected ConfigurationSection config;
+public class ModuleConfiguration extends Config {
 
-	public ModuleConfiguration(final IModule module) {
-		config = BAT.getInstance().getConfiguration().getRootConfig().getConfigurationSection(module.getName());
-		if (config.getConfigurationSection("commands") == null) {
-			config.createSection("commands");
+	public ModuleConfiguration(final String moduleName) {
+		CONFIG_HEADER = new String[] { "BungeeAdminTools - " + moduleName + " configuration file" };
+		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), moduleName + ".yml");
+		try {
+			init();
+		} catch (final InvalidConfigurationException e) {
+			e.printStackTrace();
 		}
 	}
+
+	@Getter
+	private final boolean enabled = true;
+
+	private final Map<String, Boolean> commands = new HashMap<String, Boolean>();
 
 	/**
 	 * Get the names of the enabled commands for this module
@@ -25,10 +37,9 @@ public abstract class ModuleConfiguration {
 	 */
 	public List<String> getEnabledCmds() {
 		final List<String> enabledCmds = new ArrayList<String>();
-		final Set<String> commandsSet = config.getConfigurationSection("commands").getKeys(false);
-		for (final String command : commandsSet) {
-			if (config.getConfigurationSection("commands").getBoolean(command)) {
-				enabledCmds.add(command);
+		for (final Entry<String, Boolean> entry : commands.entrySet()) {
+			if (entry.getValue()) {
+				enabledCmds.add(entry.getKey());
 			}
 		}
 		return enabledCmds;
@@ -43,7 +54,9 @@ public abstract class ModuleConfiguration {
 	public void addDefaultCmds(final List<String> cmds) {
 		Collections.sort(cmds);
 		for (final String command : cmds) {
-			config.getConfigurationSection("commands").addDefault(command, true);
+			if (!commands.containsKey(command)) {
+				commands.put(command, true);
+			}
 		}
 	}
 }

@@ -3,6 +3,12 @@ package fr.Alphart.BAT.Modules.Core;
 import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,8 +24,12 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.mojang.api.profiles.HttpProfileRepository;
+import com.mojang.api.profiles.Profile;
+import com.mojang.api.profiles.ProfileCriteria;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -30,6 +40,7 @@ import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
+import fr.Alphart.BAT.database.SQLQueries;
 
 public class CoreCommand {
 	private final static BaseComponent[] CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
@@ -52,8 +63,10 @@ public class CoreCommand {
 			subCmd.put(module.getName().split(" ")[1], module);
 			final ConfirmCmd confirm = new ConfirmCmd();
 			subCmd.put(confirm.getName().split(" ")[1], confirm);
-//			MigrateCmd migrate = new MigrateCmd();
-//			subCmd.put(confirm.getName().split(" ")[1], migrate);
+			final ImportCmd importCmd = new ImportCmd();
+			subCmd.put(importCmd.getName().split(" ")[1], importCmd);
+			//			MigrateCmd migrate = new MigrateCmd();
+			//			subCmd.put(confirm.getName().split(" ")[1], migrate);
 		}
 
 		public List<BATCommand> getSubCmd() {
@@ -378,19 +391,129 @@ public class CoreCommand {
 
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
+		private final HttpProfileRepository profileRepository = new HttpProfileRepository();
 		public ImportCmd() { super("bat import", "", "Import the ban data from BungeeSuitBan", "bat.import");}
-		
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
-			
+
+		public String getUUIDusingMojangAPI(final String pName){
+			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
+
+			if (profiles.length > 0) {
+				return profiles[0].getId();
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+				throws IllegalArgumentException {
+			ResultSet res = null;
+			try (Connection conn = BAT.getConnection()) {
+				// Check if the bungee suite tables are here
+				final DatabaseMetaData dbm = conn.getMetaData();
+				for(final String table : Arrays.asList("BungeeBans", "BungeePlayers")){
+					final ResultSet tables = dbm.getTables(null, null, table, null);
+					if (!tables.next()) {
+						throw new IllegalArgumentException("The table " + table + " wasn't found. Import aborted ...");
+					}
+				}
+
+				sender.sendMessage(BAT.__("BAT will be disabled during the import ..."));
+				BAT.getInstance().getModules().unloadModules();
+
+				int totalEntries = 0;
+				int convertedEntries = 0;
+
+				// Count the number of entries (use to show the progression)
+				final ResultSet resCount = conn.prepareStatement("SELECT COUNT(*) FROM BungeeBans;").executeQuery();
+				if(resCount.next()){
+					totalEntries = resCount.getInt("COUNT(*)");
+				}
+
+				if(totalEntries == 0){
+					sender.sendMessage(BAT.__("There is no entry to convert."));
+					return;
+				}
+
+				final PreparedStatement insertBans = conn.prepareStatement("INSERT INTO `" + SQLQueries.Ban.table
+						+ "`(UUID, ban_ip, ban_staff, ban_server, ban_begin, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?, ?, ?);");
+
+				final PreparedStatement getIP = conn.prepareStatement("SELECT ipaddress FROM BungeePlayers WHERE playername = ?;");
+
+				res = conn.prepareStatement("SELECT * FROM BungeeBans;").executeQuery();
+
+				// Contains all the player uuids already used
+				final Map<String, String> pUUIDs = new HashMap<String, String>();
+
+				while (res.next()) {
+					final boolean ipBan = "ipban".equals(res.getString("type"));
+
+					final String pName = res.getString("player");
+					final String server = IModule.GLOBAL_SERVER;
+					final String staff = res.getString("banned_by");
+					final String reason = res.getString("reason");
+					final Timestamp ban_begin = res.getTimestamp("banned_on");
+					final Timestamp ban_end = res.getTimestamp("banned_until");
+
+					// Get the ip
+					String ip = null;
+					getIP.setString(1, pName);	
+					final ResultSet resIP = getIP.executeQuery();
+					if(resIP.next()){
+						ip = resIP.getString("ipaddress");
+					}
+					resIP.close();
+					if(ipBan && ip == null){
+						continue;
+					}
+
+					// Get UUID
+					String UUID = pUUIDs.get(pName);
+					if(UUID == null){
+						UUID = getUUIDusingMojangAPI(pName);
+						if(UUID == null){
+							UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + getName()).getBytes(Charsets.UTF_8)).toString();
+						}
+						pUUIDs.put(pName, UUID);
+					}
+
+					// Insert the ban
+					insertBans.setString(1, (ipBan) ? null : Core.getUUID(pName));
+					insertBans.setString(2, (ipBan) ? ip : null);
+					insertBans.setString(3, staff);
+					insertBans.setString(4, server);
+					insertBans.setTimestamp(5, ban_begin);
+					insertBans.setTimestamp(6, ban_end);
+					insertBans.setString(7, reason);
+					insertBans.execute();
+					insertBans.clearParameters();
+					getIP.clearParameters();
+					convertedEntries++;
+
+					// Every 100 entries converted, show the progess
+					if(convertedEntries % 100 == 0){
+						sender.sendMessage(BAT.__("&a" + (convertedEntries / totalEntries) +  "%&e entries converted !&a"
+								+ (totalEntries - convertedEntries) + "&e remaining entries on a total of &6" + totalEntries));
+					}
+				}
+
+				sender.sendMessage(BAT.__("Congratulations, the migration is finished. &a" + convertedEntries + " entries&e was converted successfully."));
+				BAT.getInstance().getModules().loadModules();
+			} catch (final SQLException e) {
+				sender.sendMessage(BAT.__(DataSourceHandler.handleException(e)));
+			} finally{
+				DataSourceHandler.close(res);
+			}
 		}
 	}
-	
+
 	@RunAsync
 	public static class MigrateCmd extends BATCommand {
 		public MigrateCmd() { super("bat migrate", "<target>", "Migrate from the source to the target datasource (mysql or sqlite)", "bat.migrate");}
-	
+
+		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
-			String target = args[1];
+			final String target = args[1];
 			checkArgument(!Arrays.asList("mysql", "sqlite").contains(target.toLowerCase()), "Target must be mysql or sqlite.");	
 			if("sqlite".equalsIgnoreCase(target)){
 				checkArgument(!DataSourceHandler.isSQLite(), "SQLite is already used.");

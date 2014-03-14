@@ -35,7 +35,11 @@ public class Ban implements IModule, Listener {
 	private final String name = "ban";
 	private ScheduledTask task;
 	private BanCommand commandHandler;
-	private BanConfig config;
+	private final BanConfig config;
+
+	public Ban(){
+		config = new BanConfig();
+	}
 
 	@Override
 	public List<BATCommand> getCommands() {
@@ -74,9 +78,6 @@ public class Ban implements IModule, Listener {
 			DataSourceHandler.handleException(e);
 		}
 
-		// Load config
-		config = new BanConfig(this);
-
 		// Register commands
 		commandHandler = new BanCommand(this);
 		commandHandler.loadCmds();
@@ -84,6 +85,18 @@ public class Ban implements IModule, Listener {
 		// Launch tempban task
 		final BanTask banTask = new BanTask();
 		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banTask, 10, 10, TimeUnit.SECONDS);
+
+		// Check if the online players are banned (if the module has been reloaded)
+		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
+			if(isBan(player, player.getServer().getInfo().getName())){
+				if (player.getServer().getInfo().getName().equals(player.getPendingConnection().getListener().getDefaultServer())) {
+					player.disconnect(__("IS_BANNED"));
+					continue;
+				}
+				player.sendMessage(__("IS_BANNED"));
+				player.connect(ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()));
+			}
+		}
 
 		return true;
 	}
@@ -95,8 +108,8 @@ public class Ban implements IModule, Listener {
 	}
 
 	public class BanConfig extends ModuleConfiguration {
-		public BanConfig(final IModule module) {
-			super(module);
+		public BanConfig() {
+			super(name);
 		}
 	}
 

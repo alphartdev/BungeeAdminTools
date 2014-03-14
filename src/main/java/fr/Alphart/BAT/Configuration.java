@@ -1,49 +1,38 @@
 package fr.Alphart.BAT;
 
+import java.io.File;
 import java.util.Locale;
 
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.ConfigurationSection;
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
+import lombok.Getter;
+import lombok.Setter;
+import net.cubespace.Yamler.Config.Comment;
+import net.cubespace.Yamler.Config.Config;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
 
-public class Configuration {
-	private FileConfiguration config;
-	private final static String HEADER = "Bungee Admin Tools - Configuration file";
-
-	public void load(){
-		config = BAT.getInstance().getConfig();
-		config.options().copyDefaults(true);
-
-		// Add defaults
-		config.options().header(HEADER);
-
-		config.addDefault("language", "en");
-
-		config.addDefault("storage.mysql.enabled", true);
-		config.setComment("storage.mysql.enabled", "Set to true to use MySQL. Otherwise SQL Lite will be used");
-		config.addDefault("storage.mysql.user", "<user>");
-		config.addDefault("storage.mysql.password", "<password>");
-		config.addDefault("storage.mysql.database", "<databaseName>");
-		config.addDefault("storage.mysql.host", "<host>");
-		config.addDefault("storage.mysql.port", 3306);
-
-		config.addDefault("mute.enabled", true);
-		config.addDefault("ban.enabled", true);
-		config.addDefault("kick.enabled", true);
-
-		BAT.getInstance().saveConfig();
-		config.options().copyDefaults(true);
-	}
-	
-	public ConfigurationSection getRootConfig() {
-		return config;
+@Getter
+public class Configuration extends Config{
+	public Configuration(){
+		CONFIG_HEADER = new String[]{"Bungee Admin Tools - Configuration file"};
+		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), "config.yml");
+		try {
+			init();
+		} catch (final InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public ConfigurationSection getStorageConfig() {
-		return config.getConfigurationSection("storage");
-	}
+	private final String language = "en";
 
+	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
+	@Setter
+	private boolean mysql_enabled = true;
+	private final String mysql_user = "";
+	private final String mysql_password = "";
+	private final String mysql_database = "";
+	private final String mysql_host = "localhost";
+	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
+	private final String mysql_port = "3306";
 	public Locale getLocale() {
-		final String language = config.getString("language");
 		if (language.length() != 2) {
 			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");
 			return new Locale("en");

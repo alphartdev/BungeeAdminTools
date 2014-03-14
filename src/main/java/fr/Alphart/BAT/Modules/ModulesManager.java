@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -70,8 +71,7 @@ public class ModulesManager {
 		for (final IModule module : modules.keySet()) {
 			// The core doesn't have settings to enable or disable it
 			if (!module.getName().equals("core")) {
-				final Boolean isEnabled = BAT.getInstance().getConfiguration().getRootConfig()
-						.getBoolean(module.getName() + ".enabled");
+				final Boolean isEnabled = module.getConfig().isEnabled();
 				if (isEnabled == null || !isEnabled) {
 					continue;
 				}
@@ -88,12 +88,18 @@ public class ModulesManager {
 					cmdsModules.put(cmd.getName(), module);
 					ProxyServer.getInstance().getPluginManager().registerCommand(BAT.getInstance(), cmd);
 				}
+
+				if(module.getConfig() != null){
+					try {
+						module.getConfig().save();
+					} catch (final InvalidConfigurationException e) {
+						e.printStackTrace();
+					}
+				}
 			} else {
 				log.severe("The " + module.getName() + " module encountered an error during his loading.");
 			}
 		}
-		BAT.getInstance().saveConfig(); // Save the eventual changements made by
-		// the different module
 	}
 
 	public void unloadModules() {
@@ -104,7 +110,7 @@ public class ModulesManager {
 				ProxyServer.getInstance().getPluginManager().unregisterListener((Listener) module);
 			}
 			if(!(module instanceof Core)){
-				for(BATCommand cmd : module.getCommands()){
+				for(final BATCommand cmd : module.getCommands()){
 					ProxyServer.getInstance().getPluginManager().unregisterCommands(BAT.getInstance());
 				}
 			}

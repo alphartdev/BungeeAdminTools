@@ -10,11 +10,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+import net.cubespace.Yamler.Config.Comment;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -43,7 +44,11 @@ public class Mute implements IModule, Listener {
 	private static ConcurrentHashMap<String, PlayerMuteData> mutedPlayers;
 	private CommandHandler commandHandler;
 	private ScheduledTask task;
-	private MuteConfig config;
+	private final MuteConfig config;
+
+	public Mute(){
+		config = new MuteConfig();
+	}
 
 	@Override
 	public List<BATCommand> getCommands() {
@@ -85,9 +90,6 @@ public class Mute implements IModule, Listener {
 			DataSourceHandler.close(statement);
 		}
 
-		// Load configs
-		config = new MuteConfig(this);
-
 		// Register commands
 		commandHandler = new MuteCommand(this);
 		commandHandler.loadCmds();
@@ -95,7 +97,7 @@ public class Mute implements IModule, Listener {
 		mutedPlayers = new ConcurrentHashMap<String, PlayerMuteData>();
 
 		final MuteTask muteTask = new MuteTask(this);
-		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), muteTask, 10, 10, TimeUnit.SECONDS);
+		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), muteTask, 0, 10, TimeUnit.SECONDS);	
 		return true;
 	}
 
@@ -107,23 +109,16 @@ public class Mute implements IModule, Listener {
 	}
 
 	public class MuteConfig extends ModuleConfiguration {
-		private final List<String> forbiddenCmds;
-
-		public MuteConfig(final IModule module) {
-			super(module);
-			config.addDefault("forbiddenCommands", Arrays.asList("msg"));
-			config.setComment("forbiddenCommands", "List of commands that a player can't execute when he is mute");
-			forbiddenCmds = config.getStringList("forbiddenCommands");
+		public MuteConfig() {
+			super(name);
 		}
 
-		/**
-		 * Get the forbidden commands for a mute player
-		 * 
-		 * @return list of forbidden commands
-		 */
-		public List<String> getForbiddenCmds() {
-			return forbiddenCmds;
-		}
+
+		@Comment("Forbidden commands when a player is mute")
+		@Getter
+		private final List<String> forbiddenCmds = new ArrayList<String>(){{
+			add("msg");
+		}};
 	}
 
 	/**
