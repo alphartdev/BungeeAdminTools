@@ -97,8 +97,17 @@ public class ModulesManager {
 	}
 
 	public void unloadModules() {
+		//TODO: Check each unload and load
 		for (final IModule module : getLoadedModules()) {
 			module.unload();
+			if(module instanceof Listener){
+				ProxyServer.getInstance().getPluginManager().unregisterListener((Listener) module);
+			}
+			if(!(module instanceof Core)){
+				for(BATCommand cmd : module.getCommands()){
+					ProxyServer.getInstance().getPluginManager().unregisterCommands(BAT.getInstance());
+				}
+			}
 		}
 	}
 

@@ -43,7 +43,7 @@ public class KickCommand extends CommandHandler {
 			}
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, _("OFFLINE_PLAYER"));
+			checkArgument(player != null, _("playerNotFound"));
 			final String pServer = player.getServer().getInfo().getName();
 			checkArgument(
 					pServer != null && !pServer.equals(player.getPendingConnection().getListener().getDefaultServer()),
@@ -73,7 +73,7 @@ public class KickCommand extends CommandHandler {
 				throws IllegalArgumentException {
 			final String pName = args[0];
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-			checkArgument(player != null, _("OFFLINE_PLAYER"));
+			checkArgument(player != null, _("playerNotFound"));
 
 			checkArgument(!PermissionManager.isExemptFrom(Action.KICK, pName), _("IS_EXEMPT"));
 

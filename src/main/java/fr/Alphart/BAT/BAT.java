@@ -18,6 +18,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.google.common.base.Preconditions;
+
 import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -65,6 +68,7 @@ public class BAT extends ConfigurablePlugin {
 				try {
 					c.close();
 				} catch (final SQLException e) {
+					return false;
 				}
 				return true;
 			} else {
@@ -75,54 +79,86 @@ public class BAT extends ConfigurablePlugin {
 		// Before initialize the connection, we must download the sqlite driver
 		// (if it isn't already in the lib folder) and load it
 		else {
-			final File driverPath = new File(getDataFolder() + File.separator + "lib" + File.separator
-					+ "sqlite_driver.jar");
-			new File(getDataFolder() + File.separator + "lib").mkdir();
-
-			// Download the driver if it doesn't exist
-			if (!new File(getDataFolder() + File.separator + "lib" + File.separator + "sqlite_driver.jar").exists()) {
-				getLogger().info("The SQLLite driver was not found. It is being downloaded, please wait ...");
-
-				final String driverUrl = "http://cdn.bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.2.jar";
-				FileOutputStream fos = null;
-				try {
-					final ReadableByteChannel rbc = Channels.newChannel(new URL(driverUrl).openStream());
-					fos = new FileOutputStream(driverPath);
-					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				} catch (final IOException e) {
-					getLogger()
-					.severe("An error occured during the downloading of the SQLite driver. Please report this error : ");
-					e.printStackTrace();
-					return false;
-				} finally {
-					DataSourceHandler.close(fos);
-				}
-
-				getLogger().info("The driver has been successfully downloaded.");
-			}
-
-			// Load the driver
-			try {
-				URLClassLoader systemClassLoader;
-				URL u;
-				Class<URLClassLoader> sysclass;
-				u = driverPath.toURI().toURL();
-				systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-				sysclass = URLClassLoader.class;
-				final Method method = sysclass.getDeclaredMethod("addURL", new Class[] { URL.class });
-				method.setAccessible(true);
-				method.invoke(systemClassLoader, new Object[] { u });
-
-				Class.forName("org.sqlite.JDBC");
-			} catch (final Throwable t) {
-				getLogger().severe("The sqlite driver cannot be loaded. Please report this error : ");
-				t.printStackTrace();
+			if(loadSQLiteDriver()){
+				dsHandler = new DataSourceHandler();
+				return true;
+			}else{
 				return false;
 			}
+		}
+	}
+	
+	public boolean loadSQLiteDriver(){
+		final File driverPath = new File(getDataFolder() + File.separator + "lib" + File.separator
+				+ "sqlite_driver.jar");
+		new File(getDataFolder() + File.separator + "lib").mkdir();
 
-			dsHandler = new DataSourceHandler();
+		// Download the driver if it doesn't exist
+		if (!new File(getDataFolder() + File.separator + "lib" + File.separator + "sqlite_driver.jar").exists()) {
+			getLogger().info("The SQLLite driver was not found. It is being downloaded, please wait ...");
 
+			final String driverUrl = "http://cdn.bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.2.jar";
+			FileOutputStream fos = null;
+			try {
+				final ReadableByteChannel rbc = Channels.newChannel(new URL(driverUrl).openStream());
+				fos = new FileOutputStream(driverPath);
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			} catch (final IOException e) {
+				getLogger()
+				.severe("An error occured during the downloading of the SQLite driver. Please report this error : ");
+				e.printStackTrace();
+				return false;
+			} finally {
+				DataSourceHandler.close(fos);
+			}
+
+			getLogger().info("The driver has been successfully downloaded.");
+		}
+
+		// Load the driver
+		try {
+			URLClassLoader systemClassLoader;
+			URL u;
+			Class<URLClassLoader> sysclass;
+			u = driverPath.toURI().toURL();
+			systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+			sysclass = URLClassLoader.class;
+			final Method method = sysclass.getDeclaredMethod("addURL", new Class[] { URL.class });
+			method.setAccessible(true);
+			method.invoke(systemClassLoader, new Object[] { u });
+
+			Class.forName("org.sqlite.JDBC");
 			return true;
+		} catch (final Throwable t) {
+			getLogger().severe("The sqlite driver cannot be loaded. Please report this error : ");
+			t.printStackTrace();
+			return false;
+		}
+	}
+	
+	public void migrate(String target) throws IllegalArgumentException{
+		//TODO: Finish the migrate function
+		Preconditions.checkArgument("mysql".equalsIgnoreCase(target) || "sqlite".equalsIgnoreCase(target));
+		modules.unloadModules();
+		
+		if("mysql".equalsIgnoreCase(target))
+		{
+			final DataSourceHandler sqlite = dsHandler;
+			config.getStorageConfig().set("mysql.enabled", true);
+			saveConfig();
+			if(!loadDB()){
+				throw new IllegalArgumentException("BAT can't connect to the MySQL database. Please check your login details.");
+			}
+			
+			// Load and unload all modules to generate the table in the new DB
+			modules.loadModules();
+			modules.unloadModules();
+			
+			// Move all the data
+		}
+		else
+		{
+			
 		}
 	}
 
@@ -154,6 +190,10 @@ public class BAT extends ConfigurablePlugin {
 
 	public static Connection getConnection() {
 		return dsHandler.getConnection();
+	}
+
+	public DataSourceHandler getDsHandler() {
+		return dsHandler;
 	}
 
 	/**

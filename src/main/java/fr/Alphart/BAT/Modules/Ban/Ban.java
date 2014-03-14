@@ -195,7 +195,7 @@ public class Ban implements IModule, Listener {
 				statement.close();
 
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-					if (Utils.getPlayerIP(player).equals(ip)) {
+					if (Utils.getPlayerIP(player).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equals(player.getServer().getInfo().getName())) ) {
 						BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { reason }));
 					}
 				}
@@ -256,7 +256,6 @@ public class Ban implements IModule, Listener {
 	public String banIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		ban(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { NO_REASON.equals(reason) ? _("NO_REASON") : reason }));
 		return _("BAN_BROADCAST", new String[] { player.getName() + "'s IP", staff, server, reason });
 	}
 

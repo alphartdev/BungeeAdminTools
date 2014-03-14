@@ -1,18 +1,15 @@
 package fr.Alphart.BAT.Modules.Core;
 
-import static fr.Alphart.BAT.BAT.__;
+import static com.google.common.base.Preconditions.checkArgument;
+import static fr.Alphart.BAT.I18n.I18n.__;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TimeZone;
 
 import net.md_5.bungee.api.ChatColor;
@@ -23,7 +20,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -34,7 +30,6 @@ import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
-import fr.Alphart.BAT.database.SQLQueries;
 
 public class CoreCommand {
 	private final static BaseComponent[] CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
@@ -57,8 +52,8 @@ public class CoreCommand {
 			subCmd.put(module.getName().split(" ")[1], module);
 			final ConfirmCmd confirm = new ConfirmCmd();
 			subCmd.put(confirm.getName().split(" ")[1], confirm);
-			// InsertCmd insert = new InsertCmd();
-			// subCmd.put(insert.getName().split(" ")[1], insert);
+//			MigrateCmd migrate = new MigrateCmd();
+//			subCmd.put(confirm.getName().split(" ")[1], migrate);
 		}
 
 		public List<BATCommand> getSubCmd() {
@@ -84,10 +79,10 @@ public class CoreCommand {
 					if (cmd.getName() == "bat confirm" || sender.hasPermission(cmd.getPermission())) {
 						cmd.execute(sender, cleanArgs);
 					} else {
-						sender.sendMessage(__("&cYou don't have the permission !"));
+						sender.sendMessage(__("NO_PERM"));
 					}
 				} else {
-					sender.sendMessage(__("Invalid command !"));
+					sender.sendMessage(__("INVALID_COMMAND"));
 				}
 			}
 		}
@@ -121,7 +116,7 @@ public class CoreCommand {
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
-			sender.sendMessage(__("The loaded modules are :&a"));
+			sender.sendMessage(BAT.__("The loaded modules are :&a"));
 			for (final IModule module : BAT.getInstance().getModules().getLoadedModules()) {
 				if (module instanceof Core) {
 					continue;
@@ -137,8 +132,7 @@ public class CoreCommand {
 			// It means that no module were loaded otherwise there would be
 			// something remaining in the StringBuilder
 			if (sb.length() == 0) {
-				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-						"&cThere aren't any loaded modules!")));
+				sender.sendMessage(BAT.__("&cThere aren't any loaded modules!"));
 			} else {
 				sb.setLength(0); // Clean the sb
 			}
@@ -257,7 +251,7 @@ public class CoreCommand {
 
 			if (!pDetails.exist()) {
 				final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-				returnedMsg.add(__("&eThe player &a" + pName + "&e was not found."));
+				returnedMsg.add(__("playerNotFound"));
 				return returnedMsg;
 			}
 
@@ -383,87 +377,27 @@ public class CoreCommand {
 	}
 
 	@RunAsync
-	public static class InsertCmd extends BATCommand {
-		public InsertCmd() {
-			super("bat insert", "", "Insère des informations aléatoires dans la DB", "bat.lookup");
-		}
-
-		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
-				throws IllegalArgumentException {
-
-			sender.sendMessage(__("Insertion des infos en cours ..."));
-
-			final int rowsNumber = 10000;
-
-			// Random column
-			final RandomString player = new RandomString(15);
-			final RandomString server = new RandomString(10);
-			final RandomString staff = new RandomString(15);
-			final RandomString reason = new RandomString(30);
-
-			// Random timestamp
-			final long offset = Timestamp.valueOf("2014-02-12 15:00:00").getTime();
-			final long end = Timestamp.valueOf("2016-01-01 00:00:00").getTime();
-			final long diff = end - offset + 1;
-
-			try (Connection conn = BAT.getConnection()) {
-				final PreparedStatement statement = conn.prepareStatement(SQLQueries.Ban.createBan);
-				final Random random = new Random();
-
-				for (int i = 0; i < rowsNumber; i++) {
-					statement.setString(1, player.nextString());
-					statement.setString(2, InetAddresses.fromInteger(random.nextInt()).getHostAddress());
-					statement.setString(3, staff.nextString());
-					statement.setString(4, server.nextString());
-					statement.setTimestamp(5, new Timestamp(offset + (long) (Math.random() * diff)));
-					statement.setString(6, reason.nextString());
-					statement.executeUpdate();
-
-					if (i % 500 == 0) {
-						BAT.getInstance().getLogger().info("<!> " + i + " enregistrements ont été insérés ...");
-						BAT.getInstance().getLogger()
-						.info("<!> Il reste " + (rowsNumber - i) + " enregistrements à insérer.");
-					}
-
-				}
-
-			} catch (final SQLException e) {
-				DataSourceHandler.handleException(e);
-			}
-
-			BAT.getInstance().getLogger().info("<!> Toutes les données ont été insérées !!");
-		}
-
-		public static class RandomString {
-			private static final char[] symbols = new char[36];
-			static {
-				for (int idx = 0; idx < 10; ++idx) {
-					symbols[idx] = (char) ('0' + idx);
-				}
-				for (int idx = 10; idx < 36; ++idx) {
-					symbols[idx] = (char) ('a' + idx - 10);
-				}
-			}
-
-			private final Random random = new Random();
-
-			private final char[] buf;
-
-			public RandomString(final int length) {
-				if (length < 1) {
-					throw new IllegalArgumentException("length < 1: " + length);
-				}
-				buf = new char[length];
-			}
-
-			public String nextString() {
-				for (int idx = 0; idx < buf.length; ++idx) {
-					buf[idx] = symbols[random.nextInt(symbols.length)];
-				}
-				return new String(buf);
-			}
+	public static class ImportCmd extends BATCommand{
+		public ImportCmd() { super("bat import", "", "Import the ban data from BungeeSuitBan", "bat.import");}
+		
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			
 		}
 	}
-
+	
+	@RunAsync
+	public static class MigrateCmd extends BATCommand {
+		public MigrateCmd() { super("bat migrate", "<target>", "Migrate from the source to the target datasource (mysql or sqlite)", "bat.migrate");}
+	
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			String target = args[1];
+			checkArgument(!Arrays.asList("mysql", "sqlite").contains(target.toLowerCase()), "Target must be mysql or sqlite.");	
+			if("sqlite".equalsIgnoreCase(target)){
+				checkArgument(!DataSourceHandler.isSQLite(), "SQLite is already used.");
+			}else if("mysql".equalsIgnoreCase(target)){
+				checkArgument(DataSourceHandler.isSQLite(), "MySQL is already used.");
+			}
+			BAT.getInstance().migrate(target);
+		}
+	}
 }

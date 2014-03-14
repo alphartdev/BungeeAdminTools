@@ -5,7 +5,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class PermissionManager {
-	static String permPrefix = "bat.";
+	private static final String permPrefix = "bat.";
 
 	public static enum Action {
 		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), BAN_BROADCAST(

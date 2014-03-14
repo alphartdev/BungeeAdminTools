@@ -12,7 +12,7 @@ import fr.Alphart.BAT.BAT;
 public class DataSourceHandler {
 	// Connexion informations
 	private final BoneCPDataSource ds;
-	private static boolean sqlite = false; // If sqlite is used or not
+	private boolean sqlite = false; // If sqlite is used or not
 
 	/**
 	 * Constructor used for MySQL
@@ -23,6 +23,7 @@ public class DataSourceHandler {
 	 * @param username
 	 * @param password
 	 */
+
 	public DataSourceHandler(String host, String port, String database, String username, String password) {
 		// Check database's informations and init connection
 		host = Preconditions.checkNotNull(host);
@@ -79,10 +80,14 @@ public class DataSourceHandler {
 		}
 	}
 
-	public static boolean isSQLite() {
+	public boolean getSQLite() {
 		return sqlite;
 	}
 
+	public static boolean isSQLite() {
+		return BAT.getInstance().getDsHandler().getSQLite();
+	}
+	
 	// Useful methods
 
 	public static String handleException(final SQLException e) {

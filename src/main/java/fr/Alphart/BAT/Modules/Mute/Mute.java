@@ -420,6 +420,7 @@ public class Mute implements IModule, Listener {
 			return unMute(entity, server, staff, reason);
 		} else {
 			unMute(Core.getPlayerIP(entity), server, staff, reason);
+			updateMuteData(entity);
 			return _("UNMUTE_BROADCAST", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
