@@ -14,10 +14,17 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+
+import com.google.common.base.Charsets;
+import com.mojang.api.profiles.HttpProfileRepository;
+import com.mojang.api.profiles.Profile;
+import com.mojang.api.profiles.ProfileCriteria;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -25,6 +32,7 @@ import fr.Alphart.BAT.database.SQLQueries;
 public class Core implements IModule, Listener {
 	private final String name = "core";
 	private List<BATCommand> cmds;
+	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
 
 	@Override
 	public String getName() {
@@ -78,7 +86,13 @@ public class Core implements IModule, Listener {
 		return "bat";
 	}
 
-	public static String getUUID(final String pName) {
+	/**
+	 * Get the UUID of the specified player
+	 * @param pName
+	 * @throws UUIDNotFoundException
+	 * @return String which is the UUID
+	 */
+	public static String getUUID(final String pName){
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player != null) {
 			// Note: if it's an offline server, the UUID will be generated using
@@ -92,6 +106,7 @@ public class Core implements IModule, Listener {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		String UUID = "";
+		// Try to get the UUID from the BAT db
 		try (Connection conn = BAT.getConnection()) {
 			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
 			statement.setString(1, pName);
@@ -104,7 +119,27 @@ public class Core implements IModule, Listener {
 		} finally {
 			DataSourceHandler.close(statement);
 		}
+		
+		// If online server, retrieve the UUID from the mojang server
+		if(UUID.isEmpty() && ProxyServer.getInstance().getConfig().isOnlineMode()){
+			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
+
+			if (profiles.length > 0) {
+				UUID = profiles[0].getId();
+			} else{
+				throw new UUIDNotFoundException(pName);
+			}
+		}
+		// If offline server, generate the UUID
+		else if(UUID.isEmpty()){
+			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString();
+		}
+
 		return UUID;
+	}
+
+	public static HttpProfileRepository getProfileRepository() {
+		return profileRepository;
 	}
 
 	/**

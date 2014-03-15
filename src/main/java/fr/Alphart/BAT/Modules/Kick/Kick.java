@@ -146,7 +146,7 @@ public class Kick implements IModule {
 
 			player.disconnect(TextComponent.fromLegacyText(_("WAS_KICKED_NOTIF", new String[] { reason })));
 
-			return _("GKICK_BROADCAST", new String[] { player.getName(), staff, reason });
+			return _("gKickBroadcast", new String[] { player.getName(), staff, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {

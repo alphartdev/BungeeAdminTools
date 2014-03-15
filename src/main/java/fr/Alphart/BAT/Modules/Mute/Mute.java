@@ -116,7 +116,7 @@ public class Mute implements IModule, Listener {
 
 		@Comment("Forbidden commands when a player is mute")
 		@Getter
-		private final List<String> forbiddenCmds = new ArrayList<String>(){{
+		private List<String> forbiddenCmds = new ArrayList<String>(){{
 			add("msg");
 		}};
 	}

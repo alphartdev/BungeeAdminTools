@@ -26,7 +26,6 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
 //TODO: Associer le ban au pardon, mute au unmute dans les perms
-//TODO: 
 
 public class BAT extends Plugin {
 	private static BAT instance;

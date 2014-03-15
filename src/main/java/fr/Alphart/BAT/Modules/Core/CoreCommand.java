@@ -383,7 +383,7 @@ public class CoreCommand {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			if (!CommandQueue.executeQueueCommand(sender)) {
-				sender.sendMessage(__("You have no queued command ..."));
+				sender.sendMessage(__("noQueuedCommand"));
 			}
 		}
 
@@ -391,8 +391,8 @@ public class CoreCommand {
 
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
-		private final HttpProfileRepository profileRepository = new HttpProfileRepository();
-		public ImportCmd() { super("bat import", "", "Import the ban data from BungeeSuitBan", "bat.import");}
+		private final HttpProfileRepository profileRepository = Core.getProfileRepository();
+		public ImportCmd() { super("bat import", "<bungeeSuiteBans/geSuitBans>", "Import the ban data from the specified source", "bat.import");}
 
 		public String getUUIDusingMojangAPI(final String pName){
 			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
@@ -407,6 +407,18 @@ public class CoreCommand {
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
+			String source = args[0];
+			
+			if("bungeeSuiteBans".equalsIgnoreCase(source)){
+				importFromBungeeSuite(sender);
+			}else if("geSuitBans".equalsIgnoreCase(source)){
+				importFromGeSuit(sender);
+			}else{
+				throw new IllegalArgumentException("The specified source is incorrect. It may be either &abungeeSuiteBans&e or &ageSuitBans");
+			}
+		}
+		
+		public void importFromBungeeSuite(final CommandSender sender){
 			ResultSet res = null;
 			try (Connection conn = BAT.getConnection()) {
 				// Check if the bungee suite tables are here
@@ -449,6 +461,106 @@ public class CoreCommand {
 					final boolean ipBan = "ipban".equals(res.getString("type"));
 
 					final String pName = res.getString("player");
+					final String server = IModule.GLOBAL_SERVER;
+					final String staff = res.getString("banned_by");
+					final String reason = res.getString("reason");
+					final Timestamp ban_begin = res.getTimestamp("banned_on");
+					final Timestamp ban_end = res.getTimestamp("banned_until");
+
+					// Get the ip
+					String ip = null;
+					getIP.setString(1, pName);	
+					final ResultSet resIP = getIP.executeQuery();
+					if(resIP.next()){
+						ip = resIP.getString("ipaddress");
+					}
+					resIP.close();
+					if(ipBan && ip == null){
+						continue;
+					}
+
+					// Get UUID
+					String UUID = pUUIDs.get(pName);
+					if(UUID == null){
+						UUID = getUUIDusingMojangAPI(pName);
+						if(UUID == null){
+							UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + getName()).getBytes(Charsets.UTF_8)).toString();
+						}
+						pUUIDs.put(pName, UUID);
+					}
+
+					// Insert the ban
+					insertBans.setString(1, (ipBan) ? null : Core.getUUID(pName));
+					insertBans.setString(2, (ipBan) ? ip : null);
+					insertBans.setString(3, staff);
+					insertBans.setString(4, server);
+					insertBans.setTimestamp(5, ban_begin);
+					insertBans.setTimestamp(6, ban_end);
+					insertBans.setString(7, reason);
+					insertBans.execute();
+					insertBans.clearParameters();
+					getIP.clearParameters();
+					convertedEntries++;
+
+					// Every 100 entries converted, show the progess
+					if(convertedEntries % 100 == 0){
+						sender.sendMessage(BAT.__("&a" + (convertedEntries / totalEntries) +  "%&e entries converted !&a"
+								+ (totalEntries - convertedEntries) + "&e remaining entries on a total of &6" + totalEntries));
+					}
+				}
+
+				sender.sendMessage(BAT.__("Congratulations, the migration is finished. &a" + convertedEntries + " entries&e was converted successfully."));
+				BAT.getInstance().getModules().loadModules();
+			} catch (final SQLException e) {
+				sender.sendMessage(BAT.__(DataSourceHandler.handleException(e)));
+			} finally{
+				DataSourceHandler.close(res);
+			}
+		}
+	
+		public void importFromGeSuit(final CommandSender sender){
+			ResultSet res = null;
+			try (Connection conn = BAT.getConnection()) {
+				// Check if the bungee suite tables are here
+				final DatabaseMetaData dbm = conn.getMetaData();
+				for(final String table : Arrays.asList("bans", "players")){
+					final ResultSet tables = dbm.getTables(null, null, table, null);
+					if (!tables.next()) {
+						throw new IllegalArgumentException("The table " + table + " wasn't found. Import aborted ...");
+					}
+				}
+
+				sender.sendMessage(BAT.__("BAT will be disabled during the import ..."));
+				BAT.getInstance().getModules().unloadModules();
+
+				int totalEntries = 0;
+				int convertedEntries = 0;
+
+				// Count the number of entries (use to show the progression)
+				final ResultSet resCount = conn.prepareStatement("SELECT COUNT(*) FROM bans;").executeQuery();
+				if(resCount.next()){
+					totalEntries = resCount.getInt("COUNT(*)");
+				}
+
+				if(totalEntries == 0){
+					sender.sendMessage(BAT.__("There is no entry to convert."));
+					return;
+				}
+
+				final PreparedStatement insertBans = conn.prepareStatement("INSERT INTO `" + SQLQueries.Ban.table
+						+ "`(UUID, ban_ip, ban_staff, ban_server, ban_begin, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?, ?, ?);");
+
+				final PreparedStatement getIP = conn.prepareStatement("SELECT ipaddress FROM players WHERE playername = ?;");
+
+				res = conn.prepareStatement("SELECT * FROM bans;").executeQuery();
+
+				// Contains all the player uuids already used
+				final Map<String, String> pUUIDs = new HashMap<String, String>();
+
+				while (res.next()) {
+					final boolean ipBan = "ipban".equals(res.getString("type"));
+
+					final String pName = res.getString("display");
 					final String server = IModule.GLOBAL_SERVER;
 					final String staff = res.getString("banned_by");
 					final String reason = res.getString("reason");

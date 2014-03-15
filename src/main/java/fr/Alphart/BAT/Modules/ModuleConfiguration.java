@@ -26,9 +26,9 @@ public class ModuleConfiguration extends Config {
 	}
 
 	@Getter
-	private final boolean enabled = true;
+	private boolean enabled = true;
 
-	private final Map<String, Boolean> commands = new HashMap<String, Boolean>();
+	private Map<String, Boolean> commands = new HashMap<String, Boolean>();
 
 	/**
 	 * Get the names of the enabled commands for this module

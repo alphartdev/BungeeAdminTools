@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
 	private static final Pattern pattern = Pattern.compile("<.*?>");
@@ -82,6 +83,21 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return ChatColor.translateAlternateColorCodes('&', "&e" + name + " &6" + syntax + " &f-&B " + description);
 	}
 
+	public void handleCommandException(final CommandSender sender, final Exception exception){
+		if(exception instanceof IllegalArgumentException){
+			if (exception.getMessage() == null) {
+				sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
+			} else if (_("NO_PERM").equals(exception.getMessage())) {
+				sender.sendMessage(__("NO_PERM"));
+			} else {
+				sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
+			}
+		}
+		else if(exception instanceof UUIDNotFoundException){
+			sender.sendMessage(__("INVALID_ARGS", new String[] { _("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
+		}
+	}
+	
 	@Override
 	public void execute(final CommandSender sender, final String[] args) {
 		final boolean confirmedCmd = CommandQueue.isExecutingQueueCommand(sender);
@@ -93,28 +109,16 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 					public void run() {
 						try {
 							onCommand(sender, args, confirmedCmd);
-						} catch (final IllegalArgumentException exception) {
-							if (exception.getMessage() == null) {
-								sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
-							} else if (_("NO_PERM").equals(exception.getMessage())) {
-								sender.sendMessage(__("NO_PERM"));
-							} else {
-								sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
-							}
-						}
+						} catch (final Exception exception) {
+							handleCommandException(sender, exception);
+						} 
 					}
 				});
 			} else {
 				onCommand(sender, args, confirmedCmd);
 			}
-		} catch (final IllegalArgumentException exception) {
-			if (exception.getMessage() == null) {
-				sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
-			} else if (_("NO_PERM").equals(exception.getMessage())) {
-				sender.sendMessage(__("NO_PERM"));
-			} else {
-				sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
-			}
+		} catch (final Exception exception) {
+			handleCommandException(sender, exception);
 		}
 		if (confirmedCmd) {
 			CommandQueue.removeFromExecutingQueueCommand(sender);

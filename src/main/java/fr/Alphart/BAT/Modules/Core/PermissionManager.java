@@ -8,7 +8,7 @@ public class PermissionManager {
 	private static final String permPrefix = "bat.";
 
 	public static enum Action {
-		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), BAN_BROADCAST(
+		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), banBroadcast(
 				"ban.broadcast"),
 
 				MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(

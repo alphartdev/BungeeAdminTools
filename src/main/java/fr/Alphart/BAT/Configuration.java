@@ -21,17 +21,17 @@ public class Configuration extends Config{
 		}
 	}
 
-	private final String language = "en";
+	private String language = "en";
 
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter
 	private boolean mysql_enabled = true;
-	private final String mysql_user = "";
-	private final String mysql_password = "";
-	private final String mysql_database = "";
-	private final String mysql_host = "localhost";
+	private String mysql_user = "";
+	private String mysql_password = "";
+	private String mysql_database = "";
+	private String mysql_host = "localhost";
 	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
-	private final String mysql_port = "3306";
+	private String mysql_port = "3306";
 	public Locale getLocale() {
 		if (language.length() != 2) {
 			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");
