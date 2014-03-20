@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -67,6 +69,12 @@ public class Core implements IModule, Listener {
 		// Register commands
 		cmds = new ArrayList<BATCommand>();
 		cmds.add(new CoreCommand.CommandHandler());
+		
+		// Try to hook into BungeePerms
+		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
+			
+		}
+		
 		return true;
 	}
 
@@ -193,6 +201,16 @@ public class Core implements IModule, Listener {
 		return "0.0.0.0";
 	}
 
+	/**
+	 * Get the command sender permission list using bungee api or bungeeperms api if it installed
+	 * @param sender
+	 * @return permission in a collection of strings
+	 */
+	public static Collection<String> getCommandSenderPermission(final CommandSender sender){
+		//TODO: Need to implement the BungeePerms API (easy with the net.alpenblock.bungeeperms.PermissionsManager, but find an maven repo will be nice)
+		return sender.getPermissions();
+	}
+	
 	// Event listener
 	@EventHandler
 	public void onPlayerJoin(final PostLoginEvent ev) {

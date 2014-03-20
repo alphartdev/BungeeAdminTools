@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
@@ -30,6 +31,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	private final String name;
 	private final String syntax;
 	private final String description;
+	private final String permission;
 	private boolean runAsync = false;
 
 	private int minArgs = 0;
@@ -48,9 +50,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	 */
 	public BATCommand(final String name, final String syntax, final String description, final String permission,
 			final String... aliases) {
-		super(name, permission, aliases);
+		super(name, null, aliases); // Use own permission system
 		this.name = name;
 		this.syntax = syntax;
+		this.permission = permission;
 		this.description = description;
 
 		// Compute min args
@@ -100,6 +103,21 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	
 	@Override
 	public void execute(final CommandSender sender, final String[] args) {
+		// If the sender doesn't have the permission, we're gonna check if he has this permission with children permission
+		// Example : in this plugin, if the sender has "bat.ban.server1", he also has "bat.ban"
+		if(!(sender.hasPermission(permission) || sender.hasPermission("bat.admin"))){
+			boolean hasPerm = false;
+			for(final String perm : Core.getCommandSenderPermission(sender)){
+				if(perm.toLowerCase().startsWith(permission)){
+					hasPerm = true;
+					break;
+				}
+			}
+			if(!hasPerm){
+				sender.sendMessage(__("NO_PERM"));
+				return;
+			}
+		}
 		final boolean confirmedCmd = CommandQueue.isExecutingQueueCommand(sender);
 		try {
 			Preconditions.checkArgument(args.length >= minArgs);

@@ -3,6 +3,7 @@ package fr.Alphart.BAT.Modules.Core;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import fr.Alphart.BAT.Modules.IModule;
 
 public class PermissionManager {
 	private static final String permPrefix = "bat.";
@@ -11,10 +12,10 @@ public class PermissionManager {
 		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), banBroadcast(
 				"ban.broadcast"),
 
-				MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
-						"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
+		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
+				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
-						KICK("kick"), KICK_BROADCAST("kick.broadcast");
+		KICK("kick"), KICK_BROADCAST("kick.broadcast");
 
 		String permission;
 
@@ -41,9 +42,24 @@ public class PermissionManager {
 	 * @return true if he can otherwise false
 	 */
 	public static boolean canExecuteAction(final Action action, final CommandSender executor, final String server) {
-		return (executor.hasPermission(action.getPermission() + ".global")
-				|| executor.hasPermission(permPrefix + ".grantall." + server) || executor.hasPermission(action
-						.getPermission() + '.' + server));
+		if(executor.hasPermission("bat.admin")){
+			return true;
+		}
+		// If the user has global perm, check if he has some perm which negates this
+		if(executor.hasPermission(permPrefix + ".grantall." + server) || 
+			((executor.hasPermission(action.getPermission() + ".global") && // If it's for global server (or any which is the same, don't need to check the permission)
+					!(server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER))))){
+			
+			final String denialPerm = '-' + action.getPermission() + '.' + server;
+			
+			for(final String perm : Core.getCommandSenderPermission(executor)){
+				if(perm.equals(denialPerm)){
+					return false;
+				}
+			}
+		}
+		// Else just check if he has the specified server perm
+		return executor.hasPermission(action.getPermission() + '.' + server);
 	}
 
 	/**
@@ -57,7 +73,7 @@ public class PermissionManager {
 	public static boolean isExemptFrom(final Action action, final String target) {
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
 		if (player != null) {
-			return player.hasPermission(action.getPermission() + ".exempt");
+			return (player.hasPermission("bat.admin") || player.hasPermission(action.getPermission() + ".exempt"));
 		}
 		return false;
 	}
