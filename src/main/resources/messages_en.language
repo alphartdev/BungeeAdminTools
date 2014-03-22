@@ -1,4 +1,4 @@
-# BungeeAdminTools language EN file
+# BungeeAdminTools language EN file - thanks to JJames for his help with the translation
 alreadyBan=&cThis player is already banned from this server\!
 alreadyMute=&cThis player is already muted from this server\!
 banBroadcast=&a{0}&e was &6banned definitively&e by &a{1}&e from the server &a{2}&e. Reason : {3}
@@ -7,9 +7,9 @@ gKickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the network. Reason : {2}
 GLOBAL=global
 invalidServer=The specified server is invalid\!
 ipUnknownPlayer=You can''t perfom operation on this user''s ip because he never connected.
-isBanned=You are banned from this server. Reason: {0}
-isBannedTemp=You are banned from this server. Reason: {0} Remaining duration: {1}
-IS_EXEMPT=&cThis command cannot be executed on this player\!
+isBanned=You been banned from this server for: {0}
+isBannedTemp=You have been temporarily banned from this server, you were banned for: Reason: {0} This ban ends in: {1}
+IS_EXEMPT=&cYou can''t perform this command on this player!\!
 IS_MUTE=You''re muted, you can''t talk.
 INVALID_ARGS=Invalid args. {0}
 INVALID_ARGS_USAGE=Invalid args. Usage : {0}
@@ -19,7 +19,7 @@ LOADING_MUTEDATA=Loading of data in progress : you may speak in a little while.
 MUTE_BROADCAST=&a{0}&e was &6muted definitively&e by &a{1}&e from the server &a{2}&e. Reason : {3}
 MUTETEMP_BROADCAST=&a{0}&e was &6muted &eduring &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
 NO_PERM=&cYou don''t have the permission to execute this command\!
-NO_REASON=reason not specified
+NO_REASON= No reason was specified.
 NOT_BAN=&c{0} isn''t banned from this server.
 NOT_BAN_ANY=&c{0} isn''t banned from any server \!
 NOT_BANIP=&c{0} isn''t banned IP from this server.
@@ -28,7 +28,7 @@ NOT_MUTE_ANY=&c{0} isn''t muted from any server \!
 NOT_MUTEIP=&c{0} isn''t IP muted from this server.
 playerNotFound=Player not found
 OPERATION_UNKNOWN_PLAYER=You''re currently perfoming operation on the player {0} who never connected.
-SPECIFY_SERVER=You must specify a server\!
+SPECIFY_SERVER=Please specify a specific server\!
 UNbanBroadcast=&a{0}&e was &6unbanned &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 UNMUTE_BROADCAST=&a{0}&e was &6unmuted &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 WAS_BANNED_NOTIF=You were banned. Reason : {0}
