@@ -116,7 +116,8 @@ public class EntityEntry {
 			if (modules.isLoaded("mute")) {
 				mutes.addAll(modules.getMuteModule().getMuteData(entity));
 			}
-			if (modules.isLoaded("kick")) {
+			// No ip kick
+			if (modules.isLoaded("kick") && ipUsers.isEmpty()) {
 				kicks.addAll(modules.getKickModule().getKickData(entity));
 			}
 		} catch (final InvalidModuleException e) {

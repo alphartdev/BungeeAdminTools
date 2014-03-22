@@ -83,7 +83,7 @@ public class FormatUtils {
 		msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())));
 		sb.setLength(0);
 		for (final BATCommand cmd : cmds) {
-			if (sender.hasPermission(cmd.getPermission())) {
+			if (sender.hasPermission(cmd.getBATPermission())) {
 				sb.append(" &f- &e/");
 				sb.append(cmd.getFormatUsage());
 				msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())));

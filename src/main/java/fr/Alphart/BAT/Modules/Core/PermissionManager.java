@@ -46,7 +46,7 @@ public class PermissionManager {
 			return true;
 		}
 		// If the user has global perm, check if he has some perm which negates this
-		if(executor.hasPermission(permPrefix + ".grantall." + server) || 
+		if(executor.hasPermission(permPrefix + "grantall." + server) ||  
 			((executor.hasPermission(action.getPermission() + ".global") && // If it's for global server (or any which is the same, don't need to check the permission)
 					!(server.equals(IModule.GLOBAL_SERVER) || server.equals(IModule.ANY_SERVER))))){
 			
@@ -57,6 +57,7 @@ public class PermissionManager {
 					return false;
 				}
 			}
+			return true;
 		}
 		// Else just check if he has the specified server perm
 		return executor.hasPermission(action.getPermission() + '.' + server);

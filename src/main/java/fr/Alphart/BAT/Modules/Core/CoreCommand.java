@@ -89,7 +89,7 @@ public class CoreCommand {
 				}
 
 				if (cmd != null) {
-					if (cmd.getName() == "bat confirm" || sender.hasPermission(cmd.getPermission())) {
+					if (cmd.getName().equals("bat confirm") || sender.hasPermission(cmd.getBATPermission()) || sender.hasPermission("bat.admin")) {
 						cmd.execute(sender, cleanArgs);
 					} else {
 						sender.sendMessage(__("NO_PERM"));

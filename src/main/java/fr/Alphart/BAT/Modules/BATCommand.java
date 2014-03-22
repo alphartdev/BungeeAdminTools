@@ -56,6 +56,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		this.permission = permission;
 		this.description = description;
 
+		
 		// Compute min args
 		final Matcher matcher = pattern.matcher(syntax);
 		while (matcher.find()) {
@@ -86,6 +87,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return ChatColor.translateAlternateColorCodes('&', "&e" + name + " &6" + syntax + " &f-&B " + description);
 	}
 
+	public String getBATPermission(){
+		return permission;
+	}
+	
 	public void handleCommandException(final CommandSender sender, final Exception exception){
 		if(exception instanceof IllegalArgumentException){
 			if (exception.getMessage() == null) {
@@ -108,7 +113,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		if(!(sender.hasPermission(permission) || sender.hasPermission("bat.admin"))){
 			boolean hasPerm = false;
 			for(final String perm : Core.getCommandSenderPermission(sender)){
-				if(perm.toLowerCase().startsWith(permission)){
+				// The grantall give acces to all command (used when command is executed, but the plugin check in the command if the sender can execute this action)
+				// except the /bat ... commands
+				if(perm.toLowerCase().startsWith(permission) || (!name.startsWith("bat") && perm.toLowerCase().startsWith("bat.grantall"))){
 					hasPerm = true;
 					break;
 				}

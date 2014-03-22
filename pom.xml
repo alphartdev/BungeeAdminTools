@@ -109,9 +109,6 @@
 						</goals>
 						<configuration>
 							<minimizeJar>true</minimizeJar>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>full</shadedClassifierName>
-							<outputDirectory>C:\Serveur Test\Bungee1\plugins\</outputDirectory>
 							<artifactSet>
 								<includes>
 									<include>com.jolbox:bonecp</include>

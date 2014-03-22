@@ -23,10 +23,14 @@ import com.google.common.base.Preconditions;
 
 import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
-//TODO: Associer le ban au pardon, mute au unmute dans les perms
-
+/**
+ * Main class BungeeAdminTools
+ * 
+ * @author Alphart
+ */
 public class BAT extends Plugin {
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
@@ -61,7 +65,7 @@ public class BAT extends Plugin {
 			final String database = config.getMysql_database();
 			final String port = config.getMysql_port();
 			final String host = config.getMysql_host();
-			// BoneCP can accept no database
+			// BoneCP can accept no database and we want to avoid that
 			Preconditions.checkArgument(!"".equals(database), "You must set the database.");
 			dsHandler = new DataSourceHandler(host, port, database, username, password);
 			final Connection c = dsHandler.getConnection();
@@ -171,11 +175,20 @@ public class BAT extends Plugin {
 		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', prefix + message));
 	}
 
-	public static void broadcast(final String message, final String PERM) {
+	public static void broadcast(final String message, final String perm) {
 		final BaseComponent[] bsMsg = __(message);
 		for (final ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
-			if (p.hasPermission(PERM)) {
+			if (p.hasPermission(perm) || p.hasPermission("bat.admin")) {
 				p.sendMessage(bsMsg);
+			}
+			// If he has a grantall permission, he will have the broadcast on all the servers
+			else{
+				for(final String playerPerm : Core.getCommandSenderPermission(p)){
+					if(playerPerm.startsWith("bat.grantall.")){
+						p.sendMessage(bsMsg);
+						break;
+					}
+				}
 			}
 		}
 		getInstance().getLogger().info(ChatColor.translateAlternateColorCodes('&', message));
