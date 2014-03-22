@@ -273,7 +273,7 @@ public class Mute implements IModule, Listener {
 
 				// Update the cached data
 				if (player != null
-						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
+						&& ((server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server)))) {
 					if (server.equals(GLOBAL_SERVER)) {
 						mutedPlayers.get(player.getName()).setGlobal();
 					} else {

@@ -285,7 +285,7 @@ public class BanCommand extends CommandHandler {
 	public static class PardonCmd extends BATCommand {
 		public PardonCmd() {
 			super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", Action.UNBAN
-					.getPermission());
+					.getPermission(), "unban");
 		}
 
 		@Override
@@ -299,7 +299,7 @@ public class BanCommand extends CommandHandler {
 	public static class PardonIPCmd extends BATCommand {
 		public PardonIPCmd() {
 			super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", Action.UNBANIP
-					.getPermission());
+					.getPermission(), "unbanip");
 		}
 
 		@Override
@@ -313,7 +313,7 @@ public class BanCommand extends CommandHandler {
 	public static class GPardonCmd extends BATCommand {
 		public GPardonCmd() {
 			super("gpardon", "<player> [reason]", "Unban the player from the whole network", Action.UNBAN
-					.getPermission() + ".global");
+					.getPermission() + ".global", "gunban");
 		}
 
 		@Override
@@ -327,7 +327,7 @@ public class BanCommand extends CommandHandler {
 	public static class GPardonIPCmd extends BATCommand {
 		public GPardonIPCmd() {
 			super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", Action.UNBANIP
-					.getPermission() + ".global");
+					.getPermission() + ".global", "gunbanip");
 		}
 
 		@Override

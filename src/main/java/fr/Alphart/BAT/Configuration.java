@@ -26,9 +26,9 @@ public class Configuration extends Config{
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter
 	private boolean mysql_enabled = true;
-	private String mysql_user = "";
-	private String mysql_password = "";
-	private String mysql_database = "";
+	private String mysql_user = "user";
+	private String mysql_password = "password";
+	private String mysql_database = "database";
 	private String mysql_host = "localhost";
 	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
 	private String mysql_port = "3306";

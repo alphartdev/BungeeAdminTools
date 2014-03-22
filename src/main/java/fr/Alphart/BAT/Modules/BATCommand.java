@@ -154,7 +154,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public Iterable<String> onTabComplete(final CommandSender sender, final String[] args) {
 		final List<String> result = new ArrayList<String>();
 		if (args.length == 0) {
-			sender.sendMessage(__("Add the first letter to autocomplete"));
+			sender.sendMessage(BAT.__("Add the first letter to autocomplete"));
 			return result;
 		}
 		final String playerToCheck = args[args.length - 1];
