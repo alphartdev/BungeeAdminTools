@@ -122,9 +122,10 @@ public class Ban implements IModule, Listener {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement("SELECT ban_reason, ban_end FROM `" + SQLQueries.Ban.table + "` WHERE UUID = ? AND ban_state = 1;");
+			statement = conn.prepareStatement("SELECT ban_reason, ban_end FROM `" + SQLQueries.Ban.table + "` WHERE (UUID = ? OR ban_ip = ?) AND ban_state = 1;");
 			try{
 				statement.setString(1, Core.getUUID(pName));
+				statement.setString(2, Core.getPlayerIP(pName));
 			}catch(final UUIDNotFoundException exception){
 				BAT.getInstance().getLogger().severe("Error during retrieving of the UUID of " + pName + ". Please report this error :");
 				System.out.println(exception.getStackTrace());
