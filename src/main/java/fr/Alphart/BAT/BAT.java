@@ -26,6 +26,7 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
+
 /**
  * Main class BungeeAdminTools
  * 
@@ -35,13 +36,14 @@ public class BAT extends Plugin {
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
 	private Configuration config;
-	private final static String prefix = "&6[&4BAT&6]&e";
+	private static String prefix;
 	private ModulesManager modules;
 
 	@Override
 	public void onEnable() {
 		instance = this;
 		config = new Configuration();
+		prefix = config.getPrefix();
 		if (loadDB()) {
 			modules = new ModulesManager();
 			modules.loadModules();

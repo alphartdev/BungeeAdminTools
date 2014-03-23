@@ -22,7 +22,8 @@ public class Configuration extends Config{
 	}
 
 	private String language = "en";
-
+	private String prefix = "&6[&4BAT&6]&e ";
+	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter
 	private boolean mysql_enabled = true;

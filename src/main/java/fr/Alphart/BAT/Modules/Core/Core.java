@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.alpenblock.bungeeperms.BungeePerms;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -35,6 +36,7 @@ public class Core implements IModule, Listener {
 	private final String name = "core";
 	private List<BATCommand> cmds;
 	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
+	private static BungeePerms bungeePerms;
 
 	@Override
 	public String getName() {
@@ -72,7 +74,7 @@ public class Core implements IModule, Listener {
 		
 		// Try to hook into BungeePerms
 		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
-			
+			bungeePerms = (BungeePerms) ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms");
 		}
 		
 		return true;
@@ -207,8 +209,18 @@ public class Core implements IModule, Listener {
 	 * @return permission in a collection of strings
 	 */
 	public static Collection<String> getCommandSenderPermission(final CommandSender sender){
-		//TODO: Need to implement the BungeePerms API (easy with the net.alpenblock.bungeeperms.PermissionsManager, but find an maven repo will be nice)
-		return sender.getPermissions();
+		if(bungeePerms != null){
+			if(sender.equals(ProxyServer.getInstance().getConsole())){
+				return sender.getPermissions();	
+			}
+			try{
+				return bungeePerms.getPermissionsManager().getUser(sender.getName()).getEffectivePerms();
+			}catch(final NullPointerException e){
+				return new ArrayList<String>();
+			}
+		}else{
+			return sender.getPermissions();	
+		}
 	}
 	
 	// Event listener

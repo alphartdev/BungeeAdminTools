@@ -78,6 +78,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return usage;
 	}
 
+	public String getSyntax(){
+		return syntax;
+	}
+	
 	/**
 	 * Get a nice coloured usage
 	 * 
