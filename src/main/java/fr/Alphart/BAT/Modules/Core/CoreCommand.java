@@ -103,7 +103,7 @@ public class CoreCommand {
 
 	public static class HelpCmd extends BATCommand {
 		public HelpCmd() {
-			super("bat help", "", "Show the help", "bat.help");
+			super("bat help", "", "Displays help for core BAT commands.", "bat.help");
 		}
 
 		@Override
@@ -123,7 +123,7 @@ public class CoreCommand {
 		private final StringBuilder sb = new StringBuilder();
 
 		public ModulesCmd() {
-			super("bat modules", "", "Show the loaded modules and their commands", "bat.modules");
+			super("bat modules", "", "Displays what modules are loaded and commands for those modules.", "bat.modules");
 		}
 
 		@Override
@@ -154,11 +154,11 @@ public class CoreCommand {
 
 	@RunAsync
 	public static class LookupCmd extends BATCommand {
-		private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy à HH'h'mm");
+		private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy 'at' HH:mm");
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
 
 		public LookupCmd() {
-			super("bat lookup", "<player/ip>", "Display a player or an ip related informations", "bat.lookup");
+			super("bat lookup", "<player/ip>", "Display a player or an ip related information.", "bat.lookup");
 		}
 
 		@Override
@@ -243,7 +243,7 @@ public class CoreCommand {
 					finalMsg.append((mutesNumber > 1) ? "&e mutes" : "&e mute");
 				}
 			} else {
-				finalMsg.append("\n&eNone sanction indexed");
+				finalMsg.append("\n&eNo sanctions ever imposed.");
 			}
 
 			finalMsg.append("\n&f-- &BLookup &f- &a");
@@ -312,7 +312,7 @@ public class CoreCommand {
 
 			// Construction of the message
 			finalMsg.append((ProxyServer.getInstance().getPlayer(pName) != null) ? "&a&lConnected &r&eon the &3"
-					+ ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() : "&8&lDéconnecté");
+					+ ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() + " &eserver" : "&8&lOffline");
 
 			if (isBan || isMute || isBanIP || isMuteIP) {
 				finalMsg.append("\n&eState : ");
@@ -363,7 +363,7 @@ public class CoreCommand {
 					finalMsg.append((kicksNumber > 1) ? "&e kicks" : "&e kick");
 				}
 			} else {
-				finalMsg.append("\n&eNone sanction indexed");
+				finalMsg.append("\n&eNo sanctions ever imposed.");
 			}
 
 			finalMsg.append("\n&f-- &BLookup &f- &a");
@@ -376,7 +376,7 @@ public class CoreCommand {
 
 	public static class ConfirmCmd extends BATCommand {
 		public ConfirmCmd() {
-			super("bat confirm", "", "Confirm your queued command", null);
+			super("bat confirm", "", "Confirm your queued command.", null);
 		}
 
 		@Override
@@ -392,7 +392,7 @@ public class CoreCommand {
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
 		private final HttpProfileRepository profileRepository = Core.getProfileRepository();
-		public ImportCmd() { super("bat import", "<bungeeSuiteBans/geSuitBans>", "Import the ban data from the specified source", "bat.import");}
+		public ImportCmd() { super("bat import", "<bungeeSuiteBans/geSuitBans>", "Imports ban data from the specified source.", "bat.import");}
 
 		public String getUUIDusingMojangAPI(final String pName){
 			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));

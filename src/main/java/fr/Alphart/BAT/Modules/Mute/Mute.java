@@ -376,7 +376,7 @@ public class Mute implements IModule, Listener {
 
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				if (player != null) {
-					if (ANY_SERVER.equals(server)) {
+					if (ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server)) {
 						final PlayerMuteData pMuteData = mutedPlayers.get(player.getName());
 						pMuteData.clearServers();
 					} else {

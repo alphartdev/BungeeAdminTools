@@ -31,7 +31,8 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class BanCmd extends BATCommand {
 		public BanCmd() {
-			super("ban", "<player> [server] [reason]", "Ban definitively the player from the specified server",
+			super("ban", "<player> [server] [reason]",
+					"Ban the player on username basis on the specified server permanently or until unbanned.",
 					Action.BAN.getPermission());
 		}
 
@@ -54,8 +55,9 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class BanIPCmd extends BATCommand {
 		public BanIPCmd() {
-			super("banip", "<player/ip> [server] [reason]", "Ban definitively player's IP from the specified server",
-					Action.BANIP.getPermission());
+			super("banip", "<player/ip> [server] [reason]",
+					"Ban player on an IP basis on the specified server permanently or until unbanned. ", Action.BANIP
+							.getPermission());
 		}
 
 		@Override
@@ -68,8 +70,11 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class GBanCmd extends BATCommand {
 		public GBanCmd() {
-			super("gban", "<player> [reason]", "Ban definitively the player from the whole network", Action.BAN
-					.getPermission() + ".global");
+			super(
+					"gban",
+					"<player> [reason]",
+					"Ban the player on username basis on all servers (the whole network) permanently or until unbanned.",
+					Action.BAN.getPermission() + ".global");
 		}
 
 		@Override
@@ -82,8 +87,9 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class GBanIPCmd extends BATCommand {
 		public GBanIPCmd() {
-			super("gbanip", "<player/ip> [reason]", "Ban definitively player's IP from the whole network", Action.BANIP
-					.getPermission() + ".global");
+			super("gbanip", "<player/ip> [reason]",
+					"Ban player on an IP basis on all servers (the whole network) permanently or until unbanned.",
+					Action.BANIP.getPermission() + ".global");
 		}
 
 		@Override
@@ -129,7 +135,7 @@ public class BanCommand extends CommandHandler {
 			}
 			// If ip = 0.0.0.0, it means the player never connects
 			else {
-				if ("0.0.0.0".equals(ip) && !confirmedCmd){
+				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
 							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 					return;
@@ -163,7 +169,8 @@ public class BanCommand extends CommandHandler {
 	public static class TempBanCmd extends BATCommand {
 		public TempBanCmd() {
 			super("tempban", "<player> <duration> [server] [reason]",
-					"Ban temporarily the player from the specified server", Action.TEMPBAN.getPermission());
+					"Temporarily ban the player on username basis on from the specified server for duration.",
+					Action.TEMPBAN.getPermission());
 		}
 
 		@Override
@@ -177,7 +184,8 @@ public class BanCommand extends CommandHandler {
 	public static class TempBanIPCmd extends BATCommand {
 		public TempBanIPCmd() {
 			super("tempbanip", "<player/ip> <duration> [server] [reason]",
-					"Ban temporarily player's IP from the specified server", Action.TEMPBANIP.getPermission());
+					"Temporarily ban the player on IP basis on the specified server for duration.", Action.TEMPBANIP
+							.getPermission());
 		}
 
 		@Override
@@ -190,7 +198,8 @@ public class BanCommand extends CommandHandler {
 	@RunAsync
 	public static class GTempBanCmd extends BATCommand {
 		public GTempBanCmd() {
-			super("gtempban", "<player> <duration> [reason]", "Ban temporarily the player from the whole network",
+			super("gtempban", "<player> <duration> [reason]",
+					"Temporarily ban the player on username basis on all servers (the whole network) for duration.",
 					Action.TEMPBAN.getPermission() + ".global");
 		}
 
@@ -205,7 +214,8 @@ public class BanCommand extends CommandHandler {
 	public static class GTempBanIPCmd extends BATCommand {
 		public GTempBanIPCmd() {
 			super("gtempbanip", "<player/ip> <duration> [reason]",
-					"Ban temporarily player's IP from the whole network", Action.TEMPBANIP.getPermission() + ".global");
+					"Temporarily ban the player on IP basis on all servers (the whole network) for duration.",
+					Action.TEMPBANIP.getPermission() + ".global");
 		}
 
 		@Override
@@ -249,10 +259,9 @@ public class BanCommand extends CommandHandler {
 			ip = Core.getPlayerIP(target);
 			if (ipBan) {
 				checkArgument(!"0.0.0.0".equals(ip), _("ipUnknownPlayer"));
-			}
-			else {
+			} else {
 				// If ip = 0.0.0.0, it means the player never connects
-				if ("0.0.0.0".equals(ip) && !confirmedCmd){
+				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
 							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 					return;
@@ -282,10 +291,11 @@ public class BanCommand extends CommandHandler {
 	}
 
 	@RunAsync
-	public static class PardonCmd extends BATCommand {
-		public PardonCmd() {
-			super("pardon", "<player> [server] [reason]", "Unban the player from the specified server", Action.UNBAN
-					.getPermission(), "unban");
+	public static class UnbanCmd extends BATCommand {
+		public UnbanCmd() {
+			super("unban", "<player> [server] [reason]",
+					"Unban the player on a username basis from the specified server.", Action.UNBAN.getPermission(),
+					"pardon");
 		}
 
 		@Override
@@ -296,10 +306,10 @@ public class BanCommand extends CommandHandler {
 	}
 
 	@RunAsync
-	public static class PardonIPCmd extends BATCommand {
-		public PardonIPCmd() {
-			super("pardonip", "<player/ip> [server] [reason]", "Unban IP from the specified server", Action.UNBANIP
-					.getPermission(), "unbanip");
+	public static class UnbanIPCmd extends BATCommand {
+		public UnbanIPCmd() {
+			super("unbanip", "<player/ip> [server] [reason]", "Unban IP from the specified server", Action.UNBANIP
+					.getPermission(), "pardonip");
 		}
 
 		@Override
@@ -310,10 +320,11 @@ public class BanCommand extends CommandHandler {
 	}
 
 	@RunAsync
-	public static class GPardonCmd extends BATCommand {
-		public GPardonCmd() {
-			super("gpardon", "<player> [reason]", "Unban the player from the whole network", Action.UNBAN
-					.getPermission() + ".global", "gunban");
+	public static class GUnbanCmd extends BATCommand {
+		public GUnbanCmd() {
+			super("gunban", "<player> [reason]",
+					"Unban the player on a username basis from all servers (the whole network).", Action.UNBAN
+							.getPermission() + ".global", "gpardon");
 		}
 
 		@Override
@@ -324,10 +335,11 @@ public class BanCommand extends CommandHandler {
 	}
 
 	@RunAsync
-	public static class GPardonIPCmd extends BATCommand {
-		public GPardonIPCmd() {
-			super("gpardonip", "<player/ip> [reason]", "Unban IP from the whole network", Action.UNBANIP
-					.getPermission() + ".global", "gunbanip");
+	public static class GUnbanIPCmd extends BATCommand {
+		public GUnbanIPCmd() {
+			super("gunbanip", "<player/ip> [reason]",
+					"Unban the player on an IP basis from all servers (the whole network).", Action.UNBANIP
+							.getPermission() + ".global", "gpardonip");
 		}
 
 		@Override

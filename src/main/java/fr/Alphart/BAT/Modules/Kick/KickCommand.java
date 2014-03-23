@@ -64,7 +64,7 @@ public class KickCommand extends CommandHandler {
 
 	public static class GKickCmd extends BATCommand {
 		public GKickCmd() {
-			super("gkick", "<player> [reason]", "Kick the player from the proxy", Action.KICK.getPermission()
+			super("gkick", "<player> [reason]", "Kick the player from the network", Action.KICK.getPermission()
 					+ ".global");
 		}
 

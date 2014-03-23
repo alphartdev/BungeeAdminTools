@@ -31,7 +31,8 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class MuteCmd extends BATCommand {
 		public MuteCmd() {
-			super("mute", "<player> [server] [reason]", "Mute definitively the player from the specified server",
+			super("mute", "<player> [server] [reason]",
+					"Mute the player on username basis on the specified server permanently or until unbanned.",
 					Action.MUTE.getPermission());
 		}
 
@@ -54,8 +55,11 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class MuteIPCmd extends BATCommand {
 		public MuteIPCmd() {
-			super("muteip", "<player/ip> [server] [reason]", "Mute definitively the player's IP", Action.MUTEIP
-					.getPermission());
+			super(
+					"muteip",
+					"<player/ip> [server] [reason]",
+					"Mute player on an IP basis on the specified server permanently or until unbanned. No player logged in with that IP will be able to speak.",
+					Action.MUTEIP.getPermission());
 		}
 
 		@Override
@@ -68,8 +72,11 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GMuteCmd extends BATCommand {
 		public GMuteCmd() {
-			super("gmute", "<name> [reason]", "Mute definitively the player from the whole network", Action.MUTE
-					.getPermission() + ".global");
+			super(
+					"gmute",
+					"<name> [reason]",
+					"Mute the player on username basis on all servers (the whole network) permanently or until unbanned.",
+					Action.MUTE.getPermission() + ".global");
 		}
 
 		@Override
@@ -82,7 +89,10 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GMuteIPCmd extends BATCommand {
 		public GMuteIPCmd() {
-			super("gmuteip", "<player/ip> [reason]", "Mute definitively player's IP from the whole network",
+			super(
+					"gmuteip",
+					"<player/ip> [reason]",
+					"Mute player on an IP basis on all servers (the whole network) permanently or until unbanned. No player logged in with that IP will be able to speak.",
 					Action.MUTEIP.getPermission() + ".global");
 		}
 
@@ -126,10 +136,9 @@ public class MuteCommand extends CommandHandler {
 			ip = Core.getPlayerIP(target);
 			if (ipMute) {
 				checkArgument(!"0.0.0.0".equals(ip), _("ipUnknownPlayer"));
-			}
-			else {
+			} else {
 				// If ip = 0.0.0.0, it means the player never connects
-				if ("0.0.0.0".equals(ip) && !confirmedCmd){
+				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
 							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 					return;
@@ -161,7 +170,8 @@ public class MuteCommand extends CommandHandler {
 	public static class TempMuteCmd extends BATCommand {
 		public TempMuteCmd() {
 			super("tempmute", "<player/ip> <duration> [server] [reason]",
-					"Mute temporarily the player from the specified server", Action.TEMPMUTE.getPermission());
+					"Temporarily mute the player on username basis on from the specified server for duration.",
+					Action.TEMPMUTE.getPermission());
 		}
 
 		@Override
@@ -174,8 +184,11 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class TempMuteIPCmd extends BATCommand {
 		public TempMuteIPCmd() {
-			super("tempmuteip", "<player> <duration> [server] [reason]",
-					"Mute temporarily player's IP from the specified server", Action.TEMPMUTEIP.getPermission());
+			super(
+					"tempmuteip",
+					"<player> <duration> [server] [reason]",
+					"Temporarily mute the player on IP basis on the specified server for duration. No player logged in with that IP will be able to speak.",
+					Action.TEMPMUTEIP.getPermission());
 		}
 
 		@Override
@@ -188,7 +201,8 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GTempMuteCmd extends BATCommand {
 		public GTempMuteCmd() {
-			super("gtempmute", "<player> <duration> [reason]", "Mute temporarily the player from the whole network",
+			super("gtempmute", "<player> <duration> [reason]",
+					"Temporarily mute the player on username basis on all servers (the whole network) for duration.",
 					Action.TEMPMUTE.getPermission() + ".global");
 		}
 
@@ -202,9 +216,11 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GTempMuteIPCmd extends BATCommand {
 		public GTempMuteIPCmd() {
-			super("gtempmuteip", "<player/ip> <duration> [reason]",
-					"Mute temporarily player's IP from the whole network", Action.TEMPMUTEIP.getPermission()
-					+ ".global");
+			super(
+					"gtempmuteip",
+					"<player/ip> <duration> [reason]",
+					"Temporarily mute the player on IP basis on all servers (the whole network) for duration. No player logged in with that IP will be able to speak.",
+					Action.TEMPMUTEIP.getPermission() + ".global");
 		}
 
 		@Override
@@ -248,10 +264,9 @@ public class MuteCommand extends CommandHandler {
 			ip = Core.getPlayerIP(target);
 			if (ipMute) {
 				checkArgument(!"0.0.0.0".equals(ip), _("ipUnknownPlayer"));
-			}
-			else {
+			} else {
 				// If ip = 0.0.0.0, it means the player never connects
-				if ("0.0.0.0".equals(ip) && !confirmedCmd){
+				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
 							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
 					return;
@@ -283,8 +298,8 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class UnmuteCmd extends BATCommand {
 		public UnmuteCmd() {
-			super("unmute", "<player> [server] [reason]", "Unmute the player from the specified server", Action.UNMUTE
-					.getPermission());
+			super("unmute", "<player> [server] [reason]",
+					"Unmute the player on a username basis from the specified server.", Action.UNMUTE.getPermission());
 		}
 
 		@Override
@@ -297,8 +312,9 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class UnmuteIPCmd extends BATCommand {
 		public UnmuteIPCmd() {
-			super("unmuteip", "<player/ip> [server] [reason]", "Unmute IP from the specified server", Action.UNMUTEIP
-					.getPermission());
+			super("unmuteip", "<player/ip> [server] [reason]",
+					"Unmute the player on a username basis from all servers (the whole network).", Action.UNMUTEIP
+							.getPermission());
 		}
 
 		@Override
@@ -311,8 +327,8 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GUnmuteCmd extends BATCommand {
 		public GUnmuteCmd() {
-			super("gunmute", "<player> [reason]", "Unmute the player from the whole network", Action.UNMUTE
-					.getPermission() + ".global");
+			super("gunmute", "<player> [reason]", "Unmute the player on an IP basis from the specified server.",
+					Action.UNMUTE.getPermission() + ".global");
 		}
 
 		@Override
@@ -325,8 +341,9 @@ public class MuteCommand extends CommandHandler {
 	@RunAsync
 	public static class GUnmuteIPCmd extends BATCommand {
 		public GUnmuteIPCmd() {
-			super("gunmuteip", "<player/ip> [reason]", "Unmute IP from the whole network", Action.UNMUTEIP
-					.getPermission() + ".global");
+			super("gunmuteip", "<player/ip> [reason]",
+					"Unmute the player on an IP basis from all servers (the whole network).", Action.UNMUTEIP
+							.getPermission() + ".global");
 		}
 
 		@Override
