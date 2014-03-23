@@ -1,0 +1,1 @@
+Don't forget to add BungeePerms in your lib folder (no maven repo available :( )
