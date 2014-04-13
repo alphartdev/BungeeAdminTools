@@ -3,7 +3,7 @@ package fr.Alphart.BAT.Modules;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,7 +28,7 @@ public class ModuleConfiguration extends Config {
 	@Getter
 	private boolean enabled = true;
 
-	private Map<String, Boolean> commands = new HashMap<String, Boolean>();
+	private Map<String, Boolean> commands = new LinkedHashMap<String, Boolean>();
 
 	/**
 	 * Get the names of the enabled commands for this module
