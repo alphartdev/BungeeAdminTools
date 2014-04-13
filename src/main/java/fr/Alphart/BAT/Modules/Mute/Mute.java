@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -113,12 +114,9 @@ public class Mute implements IModule, Listener {
 			super(name);
 		}
 
-
 		@Comment("Forbidden commands when a player is mute")
 		@Getter
-		private List<String> forbiddenCmds = new ArrayList<String>(){{
-			add("msg");
-		}};
+		private List<String> forbiddenCmds = new ArrayList<String>(Arrays.asList("msg"));
 	}
 
 	/**

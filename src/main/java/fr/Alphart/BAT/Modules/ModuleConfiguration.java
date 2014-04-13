@@ -20,6 +20,7 @@ public class ModuleConfiguration extends Config {
 		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), moduleName + ".yml");
 		try {
 			init();
+			load();
 		} catch (final InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -57,6 +58,11 @@ public class ModuleConfiguration extends Config {
 			if (!commands.containsKey(command)) {
 				commands.put(command, true);
 			}
+		}
+		try {
+			save();
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
 		}
 	}
 }

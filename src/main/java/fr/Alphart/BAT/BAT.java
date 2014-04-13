@@ -26,6 +26,11 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
+//TODO: Enlever la case sensitivity
+
+//TODO: For the note and warning features, add another table which will be named BAT_comments
+// It will have 6 columns : id of the note, uuid or ip of the player which is involved in this note called entity, the note itself, statue : note or warning
+// name of the staff member who wrote this and finally date
 
 /**
  * Main class BungeeAdminTools

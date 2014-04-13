@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,6 +109,9 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		else if(exception instanceof UUIDNotFoundException){
 			sender.sendMessage(__("INVALID_ARGS", new String[] { _("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
 		}
+		else if(exception instanceof MissingResourceException){
+			sender.sendMessage(BAT.__("&cAn error occured with the translation. Key involved : &a" + ((MissingResourceException)exception).getKey()));
+		}
 	}
 	
 	@Override
@@ -129,7 +133,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 				return;
 			}
 		}
-		final boolean confirmedCmd = CommandQueue.isExecutingQueueCommand(sender);
+		// Overrides command to confirm if /bat confirm is disabled
+		final boolean confirmedCmd = (BAT.getInstance().getConfiguration().isConfirmCommand()) ? CommandQueue.isExecutingQueueCommand(sender) : true;
 		try {
 			Preconditions.checkArgument(args.length >= minArgs);
 			if (runAsync) {
@@ -188,6 +193,14 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public @interface RunAsync {
 	}
 
+	/**
+	 * Use this annotation to disable a command
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface Disable {
+	}
+	
 	/* Utils for command */
 	/**
 	 * Check if the sender is a player <br>
@@ -208,7 +221,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			if ("".equals(message)) {
 				sender.sendMessage(__("MUST_CONFIRM", new String[] { "" }));
 			} else {
-				sender.sendMessage(__("MUST_CONFIRM", new String[] { message }));
+				sender.sendMessage(__("MUST_CONFIRM", new String[] { "&e"+message }));
 			}
 			CommandQueue.queueCommand(sender, command);
 		}

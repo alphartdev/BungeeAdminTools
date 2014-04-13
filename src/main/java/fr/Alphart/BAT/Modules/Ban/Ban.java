@@ -18,7 +18,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
@@ -457,20 +456,27 @@ public class Ban implements IModule, Listener {
 	}
 
 	// Event listener
-	/**
-	 * Used to store the player to kick in the ServerConnectedEvent
-	 */
-	private final List<String> playerToKick = new ArrayList<String>();
-
+	
 	@EventHandler
 	public void onServerConnect(final ServerConnectEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
 
 		if (isBan(player, e.getTarget().getName())) {
 			if (e.getTarget().getName().equals(player.getPendingConnection().getListener().getDefaultServer())) {
-				// We need to kick the player during the ServerConnectedEvent,
-				// in order to send him a message
-				playerToKick.add(player.getName());
+				// If it's player's join server kick him
+				if(e.getPlayer().getServer() == null){
+					e.setCancelled(true);
+					// Need to delay for avoiding the "bit cannot be cast to fm exception" and to annoy the banned player :p
+					ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), new Runnable() {
+						@Override
+						public void run() {
+							e.getPlayer().disconnect(getBanMessage(e.getPlayer().getName()));
+						}
+					}, 500, TimeUnit.MILLISECONDS);
+				}else{
+					e.setCancelled(true);
+					e.getPlayer().sendMessage(getBanMessage(e.getPlayer().getName()));
+				}
 				return;
 			}
 			player.sendMessage(getBanMessage(player.getName()));
@@ -479,14 +485,6 @@ public class Ban implements IModule, Listener {
 						player.getPendingConnection().getListener().getDefaultServer()));
 			}
 			e.setCancelled(true);
-		}
-	}
-
-	// Use in order to the player get the right ban message
-	@EventHandler
-	public void onServerConnected(final ServerConnectedEvent e) {
-		if (playerToKick.remove(e.getPlayer().getName())) {
-			e.getPlayer().disconnect(getBanMessage(e.getPlayer().getName()));
 		}
 	}
 

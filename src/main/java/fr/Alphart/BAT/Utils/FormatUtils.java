@@ -82,9 +82,14 @@ public class FormatUtils {
 		sb.append("&9 - &fHELP &9---- ");
 		msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())));
 		sb.setLength(0);
+		boolean coreHelp = "core".equalsIgnoreCase(helpName);
 		for (final BATCommand cmd : cmds) {
 			if (sender.hasPermission("bat.admin") || sender.hasPermission(cmd.getBATPermission())) {
-				sb.append(" &f- &e/");
+				if(coreHelp){
+					sb.append(" &f- &e/bat ");
+				}else{
+					sb.append(" &f- &e/");	
+				}
 				sb.append(cmd.getFormatUsage());
 				msg.add(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', sb.toString())));
 				sb.setLength(0);

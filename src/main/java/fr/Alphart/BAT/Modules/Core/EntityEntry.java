@@ -16,6 +16,7 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Ban.BanEntry;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -25,11 +26,15 @@ import fr.Alphart.BAT.database.SQLQueries;
  * entity.
  */
 public class EntityEntry {
+	public static final Timestamp noDateFound = new Timestamp(877478400); 
+	// No use of the standard timestamp because the standard one is a good way to find when error happens (as 1970 isn't an usual date on mcserver)
+	
 	private final String entity;
 
 	private final List<BanEntry> bans = new ArrayList<BanEntry>();
 	private final List<MuteEntry> mutes = new ArrayList<MuteEntry>();
 	private final List<KickEntry> kicks = new ArrayList<KickEntry>();
+	private final List<Comment> comments = new ArrayList<Comment>();
 
 	private Timestamp firstLogin;
 	private Timestamp lastLogin;
@@ -72,8 +77,8 @@ public class EntityEntry {
 								lastIP = resultSet.getString("lastip");
 							}
 						} else {
-							exist = false;
-							return;
+							firstLogin = noDateFound;
+							lastLogin = noDateFound;
 						}
 			} catch (final SQLException e) {
 				DataSourceHandler.handleException(e);
@@ -101,12 +106,8 @@ public class EntityEntry {
 			} finally {
 				DataSourceHandler.close(statement, resultSet);
 			}
-			if (ipUsers.isEmpty()) {
-				exist = false;
-				return;
-			}
 		}
-
+		
 		// Load the data related to this entity of each modules
 		final ModulesManager modules = BAT.getInstance().getModules();
 		try {
@@ -120,7 +121,11 @@ public class EntityEntry {
 			if (modules.isLoaded("kick") && ipUsers.isEmpty()) {
 				kicks.addAll(modules.getKickModule().getKickData(entity));
 			}
-		} catch (final InvalidModuleException e) {
+			comments.addAll(Core.getComments(entity));
+		} catch (final InvalidModuleException | UUIDNotFoundException e) {
+			if(e instanceof UUIDNotFoundException){
+				exist = false;
+			}
 		}
 
 	}
@@ -141,6 +146,10 @@ public class EntityEntry {
 		return kicks;
 	}
 
+	public List<Comment> getComments(){
+		return comments;
+	}
+	
 	public boolean exist() {
 		return exist;
 	}

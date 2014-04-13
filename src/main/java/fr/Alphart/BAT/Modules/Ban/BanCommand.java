@@ -137,7 +137,7 @@ public class BanCommand extends CommandHandler {
 			else {
 				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
+							_("operationUnknownPlayer", new String[] { target }));
 					return;
 				}
 				// Set the ip to null to avoid checking if the ip is banned
@@ -263,7 +263,7 @@ public class BanCommand extends CommandHandler {
 				// If ip = 0.0.0.0, it means the player never connects
 				if ("0.0.0.0".equals(ip) && !confirmedCmd) {
 					command.mustConfirmCommand(sender, command.getName() + " " + Joiner.on(' ').join(args),
-							_("OPERATION_UNKNOWN_PLAYER", new String[] { target }));
+							_("operationUnknownPlayer", new String[] { target }));
 					return;
 				}
 				// Set the ip to null to avoid checking if the ip is banned

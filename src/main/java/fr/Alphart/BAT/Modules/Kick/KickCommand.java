@@ -2,14 +2,20 @@ package fr.Alphart.BAT.Modules.Kick;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n._;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.google.common.base.Joiner;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
+import fr.Alphart.BAT.Modules.Core.Comment.Type;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
@@ -84,4 +90,34 @@ public class KickCommand extends CommandHandler {
 		}
 	}
 
+	public static class WarnCmd extends BATCommand {
+		public WarnCmd() { super("warn", "<player> <reason>", "Warn the player", Action.WARN.getPermission());}
+
+		@Override
+		public void onCommand(CommandSender sender, String[] args, boolean confirmedCmd)
+				throws IllegalArgumentException {
+			final ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
+			final String reason = Utils.getFinalArg(args, 1);
+			if(target == null){
+				if(!confirmedCmd && Core.getPlayerIP(args[0]).equals("0.0.0.0")){
+					mustConfirmCommand(sender, getName() + " " + Joiner.on(' ').join(args),
+							_("operationUnknownPlayer", new String[] {args[0]}));
+					return;
+				}
+			}
+			else{
+				target.sendMessage(__("WAS_WARNED_NOTIF", new String[] {reason}));
+			}
+			
+			if(sender instanceof ProxiedPlayer){
+				checkArgument(PermissionManager.canExecuteAction(Action.WARN , sender, ((ProxiedPlayer)sender).getServer().getInfo().getName()),
+						_("NO_PERM"));
+			}
+			
+			Core.insertComment(args[0], reason, Type.WARNING, sender.getName());
+			
+			BAT.broadcast(_("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.KICK_BROADCAST.getPermission());
+			return;
+		}
+	}
 }

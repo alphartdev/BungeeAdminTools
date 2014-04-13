@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class Utils {
@@ -124,8 +123,9 @@ public class Utils {
 	 * @return
 	 */
 	public static boolean isServer(final String serverName) {
-		for (final ServerInfo si : ProxyServer.getInstance().getServers().values()) {
-			if (si.getName().equalsIgnoreCase(serverName)) {
+		// We need to loop through and test the server name because the map is case insensitive
+		for(final String serversName : ProxyServer.getInstance().getServers().keySet()){
+			if(serversName.equals(serverName)){
 				return true;
 			}
 		}

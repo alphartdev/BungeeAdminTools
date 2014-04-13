@@ -19,14 +19,17 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.mojang.api.profiles.HttpProfileRepository;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
+import fr.Alphart.BAT.Modules.Core.Comment.Type;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -55,11 +58,15 @@ public class Core implements IModule, Listener {
 		try (Connection conn = BAT.getConnection()) {
 			statement = conn.createStatement();
 			if (DataSourceHandler.isSQLite()) {
-				for (final String query : SQLQueries.Core.SQLite.createTable) {
-					statement.executeUpdate(query);
+				for(final String coreQuery : SQLQueries.Core.SQLite.createTable){
+					statement.executeUpdate(coreQuery);
+				}
+				for(final String commentsQuery : SQLQueries.Comments.SQLite.createTable){
+					statement.executeUpdate(commentsQuery);
 				}
 			} else {
 				statement.executeUpdate(SQLQueries.Core.createTable);
+				statement.executeUpdate(SQLQueries.Comments.createTable);
 			}
 			statement.close();
 		} catch (final SQLException e) {
@@ -70,7 +77,7 @@ public class Core implements IModule, Listener {
 
 		// Register commands
 		cmds = new ArrayList<BATCommand>();
-		cmds.add(new CoreCommand.CommandHandler());
+		cmds.add(new CoreCommand());
 		
 		// Try to hook into BungeePerms
 		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
@@ -220,6 +227,74 @@ public class Core implements IModule, Listener {
 			}
 		}else{
 			return sender.getPermissions();	
+		}
+	}
+	
+	/**
+	 * Get the notes relative to an entity
+	 * @param entity | can be an ip or a player name
+	 * @return
+	 */
+	public static List<Comment> getComments(final String entity){
+		List<Comment> notes = Lists.newArrayList();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite() 
+					? SQLQueries.Comments.SQLite.getEntries
+					: SQLQueries.Comments.getEntries);
+			if(Utils.validIP(entity)){
+				statement.setString(1, entity);
+			}else{
+				statement.setString(1, getUUID(entity));
+			}
+			resultSet = statement.executeQuery();
+			while(resultSet.next()){
+				final long date;
+				if(DataSourceHandler.isSQLite()){
+					date = resultSet.getLong("strftime('%s',date)") * 1000;
+				}else{
+					date = resultSet.getTimestamp("date").getTime();
+				}
+				notes.add(new Comment(resultSet.getInt("id"), entity, resultSet.getString("note"), 
+						resultSet.getString("staff"), Comment.Type.valueOf(resultSet.getString("type")), 
+						date));
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return notes;
+	}
+
+	public static void insertComment(final String entity, final String comment, final Type type, final String author){
+		PreparedStatement statement = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(SQLQueries.Comments.insertEntry);
+			statement.setString(1, (Utils.validIP(entity)) ? entity : getUUID(entity));
+			statement.setString(2, comment);
+			statement.setString(3, type.name());
+			statement.setString(4, author);
+			statement.executeUpdate();
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement);
+		}
+	}
+	
+	public static String clearComments(final String entity){
+		PreparedStatement statement = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(SQLQueries.Comments.clearEntries);
+			statement.setString(1, (Utils.validIP(entity)) ? entity : getUUID(entity));
+			statement.executeUpdate();
+			return I18n._("commentsCleared", new String[] {entity});
+		} catch (final SQLException e) {
+			return DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement);
 		}
 	}
 	

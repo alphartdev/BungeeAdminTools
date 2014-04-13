@@ -1,8 +1,10 @@
 package fr.Alphart.BAT.Modules.Core;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -16,6 +18,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import net.md_5.bungee.api.ChatColor;
@@ -33,77 +36,88 @@ import com.mojang.api.profiles.ProfileCriteria;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
-import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.Ban.BanEntry;
+import fr.Alphart.BAT.Modules.Core.Comment.Type;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
-public class CoreCommand {
+public class CoreCommand extends BATCommand{
 	private final static BaseComponent[] CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
 			'&', "&f||&9Bungee&fAdmin&cTools&f||&e - Developped by &aAlphart"));
 	private final static BaseComponent[] HELP_MSG = TextComponent.fromLegacyText(ChatColor
 			.translateAlternateColorCodes('&', "Type /bat help to get help"));
+	private final Map<List<String>, BATCommand> subCmd;
 
-	public static class CommandHandler extends BATCommand {
-		private final Map<String, BATCommand> subCmd;
+	
+	public CoreCommand() {
+		super("bat", "", "", "");
+		subCmd = new HashMap<List<String>, BATCommand>();
 
-		public CommandHandler() {
-			super("bat", "", "", "");
-			subCmd = new HashMap<String, BATCommand>();
-
-			final LookupCmd lookup = new LookupCmd();
-			subCmd.put(lookup.getName().split(" ")[1], lookup);
-			final HelpCmd help = new HelpCmd();
-			subCmd.put(help.getName().split(" ")[1], help);
-			final ModulesCmd module = new ModulesCmd();
-			subCmd.put(module.getName().split(" ")[1], module);
-			final ConfirmCmd confirm = new ConfirmCmd();
-			subCmd.put(confirm.getName().split(" ")[1], confirm);
-			final ImportCmd importCmd = new ImportCmd();
-			subCmd.put(importCmd.getName().split(" ")[1], importCmd);
-			//			MigrateCmd migrate = new MigrateCmd();
-			//			subCmd.put(confirm.getName().split(" ")[1], migrate);
+		// Dynamic commands load, commands are not configurable as with other modules
+		for (final Class<?> subClass : CoreCommand.this.getClass().getDeclaredClasses()) {
+			try {
+				if(subClass.getAnnotation(BATCommand.Disable.class) != null){
+					continue;
+				}
+				final BATCommand command = (BATCommand) subClass.getConstructors()[0].newInstance();
+				final List<String> aliases = new ArrayList<String>(Arrays.asList(command.getAliases()));
+				aliases.add(command.getName());
+				subCmd.put(aliases, command);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | SecurityException e) {
+				BAT.getInstance()
+				.getLogger()
+				.severe("An error happend during loading of CORE commands please report this :");
+				e.printStackTrace();
+			}
 		}
+	}
 
-		public List<BATCommand> getSubCmd() {
-			return new ArrayList<BATCommand>(subCmd.values());
-		}
+	public List<BATCommand> getSubCmd() {
+		return new ArrayList<BATCommand>(subCmd.values());
+	}
 
-		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
-				throws IllegalArgumentException {
-			if (args.length == 0) {
-				sender.sendMessage(CREDIT);
-				sender.sendMessage(HELP_MSG);
-			} else {
-				final BATCommand cmd = subCmd.get(args[0]);
+	// Route the core subcmd
+	@Override
+	public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+			throws IllegalArgumentException {
+		if (args.length == 0) {
+			sender.sendMessage(CREDIT);
+			sender.sendMessage(HELP_MSG);
+		} else {
+			BATCommand cmd = null;
+			for(final Entry<List<String>, BATCommand> aliasesCommand : subCmd.entrySet()){
+				if(aliasesCommand.getKey().contains(args[0])){
+					cmd = aliasesCommand.getValue();
+					break;
+				}
+			}
 
+			if (cmd != null) {
 				// Reorganize args (remove subcommand)
 				final String[] cleanArgs = new String[args.length - 1];
 				for (int i = 1; i < args.length; i++) {
 					cleanArgs[i - 1] = args[i];
 				}
-
-				if (cmd != null) {
-					if (cmd.getName().equals("bat confirm") || sender.hasPermission(cmd.getBATPermission()) || sender.hasPermission("bat.admin")) {
-						cmd.execute(sender, cleanArgs);
-					} else {
-						sender.sendMessage(__("NO_PERM"));
-					}
+				
+				if (cmd.getBATPermission().isEmpty() || sender.hasPermission(cmd.getBATPermission()) || sender.hasPermission("bat.admin")) {
+					cmd.execute(sender, cleanArgs);
 				} else {
-					sender.sendMessage(__("INVALID_COMMAND"));
+					sender.sendMessage(__("NO_PERM"));
 				}
+			} else {
+				sender.sendMessage(__("INVALID_COMMAND"));
 			}
 		}
 	}
-
+	
 	public static class HelpCmd extends BATCommand {
 		public HelpCmd() {
-			super("bat help", "", "Displays help for core BAT commands.", "bat.help");
+			super("help", "", "Displays help for core BAT commands.", "bat.help");
 		}
 
 		@Override
@@ -111,8 +125,8 @@ public class CoreCommand {
 				throws IllegalArgumentException {
 			final List<BATCommand> cmdsList = new ArrayList<BATCommand>();
 			for (final BATCommand cmd : BAT.getInstance().getModules().getCore().getCommands()) {
-				if (cmd instanceof CommandHandler) {
-					cmdsList.addAll(((CommandHandler) cmd).getSubCmd());
+				if (cmd instanceof CoreCommand) {
+					cmdsList.addAll(((CoreCommand) cmd).getSubCmd());
 				}
 			}
 			FormatUtils.showFormattedHelp(cmdsList, sender, "CORE");
@@ -123,7 +137,7 @@ public class CoreCommand {
 		private final StringBuilder sb = new StringBuilder();
 
 		public ModulesCmd() {
-			super("bat modules", "", "Displays what modules are loaded and commands for those modules.", "bat.modules");
+			super("modules", "", "Displays what modules are loaded and commands for those modules.", "bat.modules");
 		}
 
 		@Override
@@ -158,7 +172,7 @@ public class CoreCommand {
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
 
 		public LookupCmd() {
-			super("bat lookup", "<player/ip>", "Display a player or an ip related information.", "bat.lookup");
+			super("lookup", "<player/ip>", "Display a player or an ip related information.", "bat.lookup");
 		}
 
 		@Override
@@ -334,18 +348,27 @@ public class CoreCommand {
 				}
 			}
 
-			localTime.setTimeInMillis(pDetails.getFirstLogin().getTime());
+			
 			finalMsg.append("\n&eFirst login : &a");
-			finalMsg.append(format.format(localTime.getTime()));
+			if(pDetails.getFirstLogin() != EntityEntry.noDateFound){
+				localTime.setTimeInMillis(pDetails.getFirstLogin().getTime());
+				finalMsg.append(format.format(localTime.getTime()));
+			}else{
+				finalMsg.append("&cNever connected");
+			}
 
-			localTime.setTimeInMillis(pDetails.getLastLogin().getTime());
 			finalMsg.append("\n&eLast login : &a");
-			finalMsg.append(format.format(localTime.getTime()));
+			if(pDetails.getLastLogin() != EntityEntry.noDateFound){
+				localTime.setTimeInMillis(pDetails.getLastLogin().getTime());
+				finalMsg.append(format.format(localTime.getTime()));
+			}else{
+				finalMsg.append("&cNever connected");
+			}
 
 			finalMsg.append("\n&eLast IP : &a");
-			finalMsg.append(pDetails.getLastIP());
+			finalMsg.append(("0.0.0.0".equals(pDetails.getLastIP())) ? "&cNever connected" : pDetails.getLastIP());
 
-			if (bansNumber > 0 || mutesNumber > 0 || kicksNumber > 0) {
+			if (bansNumber > 0 || mutesNumber > 0 || kicksNumber > 0 || pDetails.getComments().size() > 0) {
 				finalMsg.append("\n&eHistory : ");
 				if (bansNumber > 0) {
 					finalMsg.append("&B&l");
@@ -362,6 +385,15 @@ public class CoreCommand {
 					finalMsg.append(kicksNumber);
 					finalMsg.append((kicksNumber > 1) ? "&e kicks" : "&e kick");
 				}
+				if(pDetails.getComments().size() > 0){
+					finalMsg.append("\n&aComments: ");
+					for(final Comment comm : pDetails.getComments()){
+						finalMsg.append("\n");
+						finalMsg.append(_("formatComment", new String[]{String.valueOf(comm.getID()), 
+								(comm.getType() == Type.NOTE) ? "&eComment" : "&cWarning", comm.getContent(),
+								comm.getFormattedDate(), comm.getAuthor()}));
+					}
+				}
 			} else {
 				finalMsg.append("\n&eNo sanctions ever imposed.");
 			}
@@ -376,7 +408,7 @@ public class CoreCommand {
 
 	public static class ConfirmCmd extends BATCommand {
 		public ConfirmCmd() {
-			super("bat confirm", "", "Confirm your queued command.", null);
+			super("confirm", "", "Confirm your queued command.", "");
 		}
 
 		@Override
@@ -392,7 +424,7 @@ public class CoreCommand {
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
 		private final HttpProfileRepository profileRepository = Core.getProfileRepository();
-		public ImportCmd() { super("bat import", "<bungeeSuiteBans/geSuitBans>", "Imports ban data from the specified source.", "bat.import");}
+		public ImportCmd() { super("import", "<bungeeSuiteBans/geSuitBans>", "Imports ban data from the specified source.", "bat.import");}
 
 		public String getUUIDusingMojangAPI(final String pName){
 			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
@@ -619,9 +651,10 @@ public class CoreCommand {
 		}
 	}
 
+	@Disable
 	@RunAsync
 	public static class MigrateCmd extends BATCommand {
-		public MigrateCmd() { super("bat migrate", "<target>", "Migrate from the source to the target datasource (mysql or sqlite)", "bat.migrate");}
+		public MigrateCmd() { super("migrate", "<target>", "Migrate from the source to the target datasource (mysql or sqlite)", "bat.migrate");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -633,6 +666,30 @@ public class CoreCommand {
 				checkArgument(DataSourceHandler.isSQLite(), "MySQL is already used.");
 			}
 			BAT.getInstance().migrate(target);
+		}
+	}
+
+	public static class AddCommentCmd extends BATCommand{
+		public AddCommentCmd() { super("comment", "<entity> <reason>", "Write a comment about this entity", "bat.comment.create", "note");}
+
+		@Override
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			if(!confirmedCmd && Core.getPlayerIP(args[0]).equals("0.0.0.0")){
+				mustConfirmCommand(sender, "bat " + getName() + " " + Joiner.on(' ').join(args),
+						_("operationUnknownPlayer", new String[] {args[0]}));
+				return;
+			}
+			Core.insertComment(args[0], Utils.getFinalArg(args, 1), Type.NOTE, sender.getName());
+			sender.sendMessage(__("commentAdded"));
+		}
+	}
+	
+	public static class ClearCommentCmd extends BATCommand {
+		public ClearCommentCmd() { super("clearcomment", "<entity>", "Clear the comments of this entity", "bat.comment.clear");}
+
+		@Override
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			sender.sendMessage(BAT.__(Core.clearComments(args[0])));
 		}
 	}
 }

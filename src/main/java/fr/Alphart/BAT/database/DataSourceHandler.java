@@ -83,7 +83,7 @@ public class DataSourceHandler {
 	public boolean getSQLite() {
 		return sqlite;
 	}
-
+	
 	public static boolean isSQLite() {
 		return BAT.getInstance().getDsHandler().getSQLite();
 	}
