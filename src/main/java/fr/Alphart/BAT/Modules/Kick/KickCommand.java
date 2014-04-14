@@ -91,7 +91,7 @@ public class KickCommand extends CommandHandler {
 	}
 
 	public static class WarnCmd extends BATCommand {
-		public WarnCmd() { super("warn", "<player> <reason>", "Warn the player", Action.WARN.getPermission());}
+		public WarnCmd() { super("warn", "<player> <reason>", "Warn a player and add warning note on player's info text.", Action.WARN.getPermission());}
 
 		@Override
 		public void onCommand(CommandSender sender, String[] args, boolean confirmedCmd)

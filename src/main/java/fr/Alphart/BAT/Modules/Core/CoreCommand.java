@@ -671,7 +671,7 @@ public class CoreCommand extends BATCommand{
 
 	@RunAsync
 	public static class AddCommentCmd extends BATCommand{
-		public AddCommentCmd() { super("comment", "<entity> <reason>", "Write a comment about this entity", "bat.comment.create", "note");}
+		public AddCommentCmd() { super("comment", "<entity> <reason>", "Write a comment about the player.", "bat.comment.create", "note");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
@@ -685,10 +685,9 @@ public class CoreCommand extends BATCommand{
 		}
 	}
 	
-
 	@RunAsync
 	public static class ClearCommentCmd extends BATCommand {
-		public ClearCommentCmd() { super("clearcomment", "<entity>", "Clear the comments of this entity", "bat.comment.clear");}
+		public ClearCommentCmd() { super("clearcomment", "<entity>", "Clear the comments and warnings of the player.", "bat.comment.clear");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
