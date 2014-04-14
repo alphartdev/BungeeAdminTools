@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.Core.CommandQueue;
 import fr.Alphart.BAT.Modules.Core.Core;
+import fr.Alphart.BAT.Modules.Core.CoreCommand;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 
 public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
@@ -34,6 +35,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	private final String description;
 	private final String permission;
 	private boolean runAsync = false;
+	private boolean coreCommand = false;
 
 	private int minArgs = 0;
 
@@ -68,6 +70,10 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		if (asyncAnnot != null) {
 			runAsync = true;
 		}
+		
+		if(CoreCommand.class.equals(getClass().getEnclosingClass())){
+			coreCommand = true;
+		}
 	}
 
 	public String getDescription() {
@@ -99,7 +105,12 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public void handleCommandException(final CommandSender sender, final Exception exception){
 		if(exception instanceof IllegalArgumentException){
 			if (exception.getMessage() == null) {
-				sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
+				if(coreCommand){
+					// Just need to add the /bat if it's a core command
+					sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/bat " + getFormatUsage() }));
+				}else{
+					sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
+				}
 			} else if (_("NO_PERM").equals(exception.getMessage())) {
 				sender.sendMessage(__("NO_PERM"));
 			} else {
@@ -200,6 +211,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	@Target(ElementType.TYPE)
 	public @interface Disable {
 	}
+	
 	
 	/* Utils for command */
 	/**

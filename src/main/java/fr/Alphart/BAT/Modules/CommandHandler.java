@@ -25,6 +25,9 @@ public abstract class CommandHandler {
 		final List<String> cmdName = new ArrayList<String>();
 		for (final Class<?> subClass : getClass().getDeclaredClasses()) {
 			try {
+				if(subClass.getAnnotation(BATCommand.Disable.class) != null){
+					continue;
+				}
 				final BATCommand command = (BATCommand) subClass.getConstructors()[0].newInstance();
 				commands.add(command);
 				cmdName.add(command.getName());

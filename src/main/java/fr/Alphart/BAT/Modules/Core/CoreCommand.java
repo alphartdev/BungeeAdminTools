@@ -67,7 +67,7 @@ public class CoreCommand extends BATCommand{
 				final List<String> aliases = new ArrayList<String>(Arrays.asList(command.getAliases()));
 				aliases.add(command.getName());
 				subCmd.put(aliases, command);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+			} catch (final InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | SecurityException e) {
 				BAT.getInstance()
 				.getLogger()
@@ -669,6 +669,7 @@ public class CoreCommand extends BATCommand{
 		}
 	}
 
+	@RunAsync
 	public static class AddCommentCmd extends BATCommand{
 		public AddCommentCmd() { super("comment", "<entity> <reason>", "Write a comment about this entity", "bat.comment.create", "note");}
 
@@ -684,6 +685,8 @@ public class CoreCommand extends BATCommand{
 		}
 	}
 	
+
+	@RunAsync
 	public static class ClearCommentCmd extends BATCommand {
 		public ClearCommentCmd() { super("clearcomment", "<entity>", "Clear the comments of this entity", "bat.comment.clear");}
 

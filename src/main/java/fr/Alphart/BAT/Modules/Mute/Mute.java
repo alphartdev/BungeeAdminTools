@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +46,7 @@ public class Mute implements IModule, Listener {
 	private ScheduledTask task;
 	private final MuteConfig config;
 
-	public Mute(){
+	public Mute() {
 		config = new MuteConfig();
 	}
 
@@ -98,7 +97,7 @@ public class Mute implements IModule, Listener {
 		mutedPlayers = new ConcurrentHashMap<String, PlayerMuteData>();
 
 		final MuteTask muteTask = new MuteTask(this);
-		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), muteTask, 0, 10, TimeUnit.SECONDS);	
+		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), muteTask, 0, 10, TimeUnit.SECONDS);
 		return true;
 	}
 
@@ -111,12 +110,14 @@ public class Mute implements IModule, Listener {
 
 	public class MuteConfig extends ModuleConfiguration {
 		public MuteConfig() {
-			super(name);
+			init(name);
 		}
-
+		
 		@Comment("Forbidden commands when a player is mute")
 		@Getter
-		private List<String> forbiddenCmds = new ArrayList<String>(Arrays.asList("msg"));
+		private List<String> forbiddenCmds = new ArrayList<String>(){{
+			add("msg");
+		}};
 	}
 
 	/**
@@ -340,10 +341,10 @@ public class Mute implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Mute.SQLite.unMuteIPServer) : conn
 							.prepareStatement(SQLQueries.Mute.unMuteIPServer);
-							statement.setString(1, reason);
-							statement.setString(2, staff);
-							statement.setString(3, ip);
-							statement.setString(4, server);
+					statement.setString(1, reason);
+					statement.setString(2, staff);
+					statement.setString(3, ip);
+					statement.setString(4, server);
 				}
 				statement.executeUpdate();
 				statement.close();
@@ -364,10 +365,10 @@ public class Mute implements IModule, Listener {
 					statement = (DataSourceHandler.isSQLite()) ? conn
 							.prepareStatement(SQLQueries.Mute.SQLite.unMuteServer) : conn
 							.prepareStatement(SQLQueries.Mute.unMuteServer);
-							statement.setString(1, reason);
-							statement.setString(2, staff);
-							statement.setString(3, Core.getUUID(pName));
-							statement.setString(4, server);
+					statement.setString(1, reason);
+					statement.setString(2, staff);
+					statement.setString(3, Core.getUUID(pName));
+					statement.setString(4, server);
 				}
 				statement.executeUpdate();
 				statement.close();

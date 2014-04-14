@@ -85,7 +85,7 @@ public class Kick implements IModule {
 
 	public class KickConfig extends ModuleConfiguration {
 		public KickConfig() {
-			super(name);
+			init(name);
 		}
 	}
 

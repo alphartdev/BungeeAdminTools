@@ -110,7 +110,7 @@ public class Ban implements IModule, Listener {
 
 	public class BanConfig extends ModuleConfiguration {
 		public BanConfig() {
-			super(name);
+			init(name);
 		}
 	}
 

@@ -3,7 +3,7 @@ package fr.Alphart.BAT.Modules;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,9 +13,10 @@ import net.cubespace.Yamler.Config.Config;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import fr.Alphart.BAT.BAT;
 
-public class ModuleConfiguration extends Config {
-
-	public ModuleConfiguration(final String moduleName) {
+public abstract class ModuleConfiguration extends Config {
+	
+	// We must use an init method because if we use the super constructor, it doesn't work properly (field of children class are overwritten)
+	public void init(final String moduleName){
 		CONFIG_HEADER = new String[] { "BungeeAdminTools - " + moduleName + " configuration file" };
 		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), moduleName + ".yml");
 		try {
@@ -29,7 +30,7 @@ public class ModuleConfiguration extends Config {
 	@Getter
 	private boolean enabled = true;
 
-	private Map<String, Boolean> commands = new LinkedHashMap<String, Boolean>();
+	private Map<String, Boolean> commands = new HashMap<String, Boolean>();
 
 	/**
 	 * Get the names of the enabled commands for this module
@@ -58,11 +59,6 @@ public class ModuleConfiguration extends Config {
 			if (!commands.containsKey(command)) {
 				commands.put(command, true);
 			}
-		}
-		try {
-			save();
-		} catch (InvalidConfigurationException e) {
-			e.printStackTrace();
 		}
 	}
 }
