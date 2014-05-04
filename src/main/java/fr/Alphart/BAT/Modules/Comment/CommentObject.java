@@ -1,10 +1,10 @@
-package fr.Alphart.BAT.Modules.Core;
+package fr.Alphart.BAT.Modules.Comment;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class Comment {
+public class CommentObject {
 	private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy 'at' HH:mm");
 	private Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
 	private final int id;
@@ -13,7 +13,7 @@ public class Comment {
 	private final String author;
 	private final Type type;
 
-	public Comment(final int id, final String entity, final String note, final String author, final Type type, final long date) {
+	public CommentObject(final int id, final String entity, final String note, final String author, final Type type, final long date) {
 		this.id = id;
 		this.entity = entity;
 		this.content = note;
