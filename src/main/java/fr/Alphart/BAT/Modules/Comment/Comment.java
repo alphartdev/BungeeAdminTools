@@ -5,7 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Getter;
+import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.collect.Lists;
 
@@ -41,7 +45,7 @@ public class Comment implements IModule{
 
 	@Override
 	public String getMainCommand() {
-		return "ban";
+		return "comment";
 	}
 
 	@Override
@@ -52,18 +56,21 @@ public class Comment implements IModule{
 	@Override
 	public boolean load() {
 		// Init table
+		Statement statement = null;
 		try (Connection conn = BAT.getConnection()) {
-			final Statement statement = conn.createStatement();
+			statement = conn.createStatement();
 			if (DataSourceHandler.isSQLite()) {
-				for (final String query : SQLQueries.Ban.SQLite.createTable) {
-					statement.executeUpdate(query);
+				for(final String commentsQuery : SQLQueries.Comments.SQLite.createTable){
+					statement.executeUpdate(commentsQuery);
 				}
 			} else {
-				statement.executeUpdate(SQLQueries.Ban.createTable);
+				statement.executeUpdate(SQLQueries.Comments.createTable);
 			}
 			statement.close();
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement);
 		}
 
 		// Register commands
@@ -83,6 +90,12 @@ public class Comment implements IModule{
 		public CommentConfig() {
 			init(name);
 		}
+		
+		@net.cubespace.Yamler.Config.Comment("Sparks which trigger when a specified amount of warn or comment whose reason match the pattern is reached")
+		@Getter
+		private List<Trigger> triggers = new ArrayList<Trigger>(){{
+			add(new Trigger());
+		}};
 	}
 	
 	/**
@@ -132,6 +145,33 @@ public class Comment implements IModule{
 			statement.setString(3, type.name());
 			statement.setString(4, author);
 			statement.executeUpdate();
+			statement.close();
+			
+			// Handle the trigger system
+			if(ProxyServer.getInstance().getPlayer(entity) != null){
+				for(final Trigger trigger : config.triggers){
+					if(trigger.getPattern().isEmpty() || comment.contains(trigger.getPattern())){
+						statement = conn.prepareStatement((trigger.getPattern().isEmpty()) 
+								? SQLQueries.Comments.simpleTriggerCheck
+								: SQLQueries.Comments.patternTriggerCheck);
+						statement.setString(1, Core.getUUID(entity));
+						if(!trigger.getPattern().isEmpty()){
+							statement.setString(2, '%' + trigger.getPattern() + '%');
+						}
+						
+						final ResultSet rs = statement.executeQuery();
+						if(rs.next()){
+							int count = rs.getInt("COUNT(*)");
+							if(trigger.getTriggersNb() == count){
+								trigger.onTrigger(ProxyServer.getInstance().getPlayer(entity));
+							}
+						}
+						
+						rs.close();
+						statement.close();
+					}
+				}
+			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
 		} finally {
@@ -139,12 +179,33 @@ public class Comment implements IModule{
 		}
 	}
 	
-	public String clearComments(final String entity){
+	/**
+	 * Clear all the comments and warning of an entity or the specified one
+	 * @param entity
+	 * @param commentID | use -1 to remove all the comments
+	 * @return
+	 */
+	public String clearComments(final String entity, final int commentID){
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(SQLQueries.Comments.clearEntries);
-			statement.setString(1, (Utils.validIP(entity)) ? entity : Core.getUUID(entity));
-			statement.executeUpdate();
+			if(commentID == -1){
+				statement = conn.prepareStatement(SQLQueries.Comments.clearEntries);
+				statement.setString(1, (Utils.validIP(entity)) ? entity : Core.getUUID(entity));
+			}else{
+				statement = conn.prepareStatement(SQLQueries.Comments.clearByID);
+				statement.setString(1, (Utils.validIP(entity)) ? entity : Core.getUUID(entity));
+				statement.setInt(2, commentID);
+			}
+			// Check if it was successfully deleted, will be used if tried to delete an specific id comment
+			boolean deleted = statement.executeUpdate() > 0;
+			
+			if(commentID != -1){
+				if(!deleted){
+					throw new IllegalArgumentException(I18n._("noCommentIDFound", new String[] {entity}));
+				}
+				return I18n._("commentIDCleared", new String[] {String.valueOf(commentID), entity});
+			}
+			
 			return I18n._("commentsCleared", new String[] {entity});
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);

@@ -13,10 +13,12 @@ import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
+import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Comment.CommentObject.Type;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
+import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 
 public class CommentCommand extends CommandHandler{
@@ -24,14 +26,31 @@ public class CommentCommand extends CommandHandler{
 	
 	protected CommentCommand(final Comment commentModule) {
 		super(commentModule);
+		comment = commentModule;
 	}
 	
 	@RunAsync
 	public static class AddCommentCmd extends BATCommand{
-		public AddCommentCmd() { super("comment", "<entity> <reason>", "Write a comment about the player.", "bat.comment.create", "note");}
+		public AddCommentCmd() { 
+			super("comment", "<entity> <reason>", "Write a comment about the player.", "bat.comment.create", "note");
+			// We need this command to handle the /comment help
+			setMinArgs(1);
+		}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+			if (args[0].equals("help")) {
+				try {
+					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("comment").getCommands(),
+							sender, "COMMENT");
+				} catch (final InvalidModuleException e) {
+					e.printStackTrace();
+				}
+				return;
+			}
+			if(args.length < 2){
+				throw new IllegalArgumentException();
+			}
 			if(!confirmedCmd && Core.getPlayerIP(args[0]).equals("0.0.0.0")){
 				mustConfirmCommand(sender, "bat " + getName() + " " + Joiner.on(' ').join(args),
 						_("operationUnknownPlayer", new String[] {args[0]}));
@@ -44,11 +63,11 @@ public class CommentCommand extends CommandHandler{
 	
 	@RunAsync
 	public static class ClearCommentCmd extends BATCommand {
-		public ClearCommentCmd() { super("clearcomment", "<entity>", "Clear the comments and warnings of the player.", "bat.comment.clear");}
+		public ClearCommentCmd() { super("clearcomment", "<entity> [commentID]", "Clear all the comments and warnings or the specified one of the player.", "bat.comment.clear");}
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
-			sender.sendMessage(BAT.__(comment.clearComments(args[0])));
+			sender.sendMessage(BAT.__(comment.clearComments(args[0], ((args.length == 2) ? Integer.parseInt(args[1]) : -1) )));
 		}
 	}
 	
