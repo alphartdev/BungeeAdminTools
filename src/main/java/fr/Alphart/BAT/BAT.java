@@ -106,7 +106,7 @@ public class BAT extends Plugin {
 		if (!new File(getDataFolder() + File.separator + "lib" + File.separator + "sqlite_driver.jar").exists()) {
 			getLogger().info("The SQLLite driver was not found. It is being downloaded, please wait ...");
 
-			final String driverUrl = "http://cdn.bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.2.jar";
+			final String driverUrl = "http://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.2.jar";
 			FileOutputStream fos = null;
 			try {
 				final ReadableByteChannel rbc = Channels.newChannel(new URL(driverUrl).openStream());
