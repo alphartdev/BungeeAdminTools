@@ -8,11 +8,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -37,6 +39,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	private boolean runAsync = false;
 	private boolean coreCommand = false;
 
+	@Setter
 	private int minArgs = 0;
 
 	/**
@@ -107,21 +110,25 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 			if (exception.getMessage() == null) {
 				if(coreCommand){
 					// Just need to add the /bat if it's a core command
-					sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/bat " + getFormatUsage() }));
+					sender.sendMessage(__("invalidArgsUsage", new String[] { "&e/bat " + getFormatUsage() }));
 				}else{
-					sender.sendMessage(__("INVALID_ARGS_USAGE", new String[] { "&e/" + getFormatUsage() }));
+					sender.sendMessage(__("invalidArgsUsage", new String[] { "&e/" + getFormatUsage() }));
 				}
-			} else if (_("NO_PERM").equals(exception.getMessage())) {
-				sender.sendMessage(__("NO_PERM"));
+			} else if (_("noPerm").equals(exception.getMessage())) {
+				sender.sendMessage(__("noPerm"));
 			} else {
-				sender.sendMessage(__("INVALID_ARGS", new String[] { exception.getMessage() }));
+				sender.sendMessage(__("invalidArgs", new String[] { exception.getMessage() }));
 			}
 		}
 		else if(exception instanceof UUIDNotFoundException){
-			sender.sendMessage(__("INVALID_ARGS", new String[] { _("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
+			sender.sendMessage(__("invalidArgs", new String[] { _("cannotGetUUID", new String[] { ((UUIDNotFoundException)exception).getInvolvedPlayer() }) }));
 		}
 		else if(exception instanceof MissingResourceException){
 			sender.sendMessage(BAT.__("&cAn error occured with the translation. Key involved : &a" + ((MissingResourceException)exception).getKey()));
+		}else{
+			sender.sendMessage(BAT.__("A command errror happens ! Please check the console."));
+			BAT.getInstance().getLogger().severe("A command errror happens ! Please report this stacktrace :");
+			exception.printStackTrace();
 		}
 	}
 	
@@ -131,16 +138,35 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		// Example : in this plugin, if the sender has "bat.ban.server1", he also has "bat.ban"
 		if(!(permission == null || sender.hasPermission(permission) || sender.hasPermission("bat.admin"))){
 			boolean hasPerm = false;
-			for(final String perm : Core.getCommandSenderPermission(sender)){
+			Collection<String> senderPerm = Core.getCommandSenderPermission(sender);
+			for(final String perm : senderPerm){
 				// The grantall give acces to all command (used when command is executed, but the plugin check in the command if the sender can execute this action)
 				// except the /bat ... commands
-				if(perm.toLowerCase().startsWith(permission) || (!name.startsWith("bat") && perm.toLowerCase().startsWith("bat.grantall"))){
+				if(perm.toLowerCase().startsWith(permission)){
 					hasPerm = true;
 					break;
 				}
+				if (!coreCommand && perm.toLowerCase().startsWith("bat.grantall")) {
+					// We're going to check if there is no perm to cancel (using -)
+					final String searchedPattern = "-" + permission;
+					boolean permFound = false;
+					for(final String perm2 : senderPerm){
+						if(perm2.toLowerCase().startsWith(searchedPattern)){
+							permFound = true;
+							break;
+						}
+					}
+					if(permFound){
+						hasPerm = false;
+					}
+					else{
+						hasPerm = true;
+						break;
+					}
+				}
 			}
 			if(!hasPerm){
-				sender.sendMessage(__("NO_PERM"));
+				sender.sendMessage(__("noPerm"));
 				return;
 			}
 		}
@@ -212,7 +238,6 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	public @interface Disable {
 	}
 	
-	
 	/* Utils for command */
 	/**
 	 * Check if the sender is a player <br>
@@ -229,11 +254,12 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	}
 
 	public void mustConfirmCommand(final CommandSender sender, final String command, final String message) {
+		final String cmdToConfirm = (BAT.getInstance().getConfiguration().isSimpleAliases()) ? "confirm" : "bat confirm";
 		if (!CommandQueue.isExecutingQueueCommand(sender)) {
 			if ("".equals(message)) {
-				sender.sendMessage(__("MUST_CONFIRM", new String[] { "" }));
+				sender.sendMessage(__("mustConfirm", new String[] { "", cmdToConfirm }));
 			} else {
-				sender.sendMessage(__("MUST_CONFIRM", new String[] { "&e"+message }));
+				sender.sendMessage(__("mustConfirm", new String[] { "&e"+message, cmdToConfirm }));
 			}
 			CommandQueue.queueCommand(sender, command);
 		}

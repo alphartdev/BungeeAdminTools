@@ -15,7 +15,9 @@ public class PermissionManager {
 		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
 				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
-		KICK("kick"), WARN("warn"), KICK_BROADCAST("kick.broadcast");
+		KICK("kick"), WARN("warn"), KICK_BROADCAST("kick.broadcast"),
+		
+		LOOKUP("lookup");
 
 		String permission;
 
@@ -42,7 +44,7 @@ public class PermissionManager {
 	 * @return true if he can otherwise false
 	 */
 	public static boolean canExecuteAction(final Action action, final CommandSender executor, final String server) {
-		if(executor.hasPermission("bat.admin")){
+		if(executor.hasPermission("bat.admin") || executor.hasPermission(permPrefix + "grantall.global")){
 			return true;
 		}
 		// If the user has global perm, check if he has some perm which negates this

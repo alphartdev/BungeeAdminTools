@@ -5,8 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import net.alpenblock.bungeeperms.BungeePerms;
@@ -19,7 +23,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.mojang.api.profiles.HttpProfileRepository;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
@@ -29,7 +32,6 @@ import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
-import fr.Alphart.BAT.Modules.Core.Comment.Type;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -40,6 +42,7 @@ public class Core implements IModule, Listener {
 	private List<BATCommand> cmds;
 	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
 	private static BungeePerms bungeePerms;
+	public static EnhancedDateFormat defaultDF = new EnhancedDateFormat(false);
 
 	@Override
 	public String getName() {
@@ -61,12 +64,8 @@ public class Core implements IModule, Listener {
 				for(final String coreQuery : SQLQueries.Core.SQLite.createTable){
 					statement.executeUpdate(coreQuery);
 				}
-				for(final String commentsQuery : SQLQueries.Comments.SQLite.createTable){
-					statement.executeUpdate(commentsQuery);
-				}
 			} else {
 				statement.executeUpdate(SQLQueries.Core.createTable);
-				statement.executeUpdate(SQLQueries.Comments.createTable);
 			}
 			statement.close();
 		} catch (final SQLException e) {
@@ -77,12 +76,19 @@ public class Core implements IModule, Listener {
 
 		// Register commands
 		cmds = new ArrayList<BATCommand>();
-		cmds.add(new CoreCommand());
+		final CoreCommand cCmd = new CoreCommand(BAT.getInstance().getConfiguration().isSimpleAliases());
+		cmds.add(cCmd);
+		if(BAT.getInstance().getConfiguration().isSimpleAliases()){
+			cmds.addAll(cCmd.getSubCmd());
+		}
 		
 		// Try to hook into BungeePerms
 		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
 			bungeePerms = (BungeePerms) ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms");
 		}
+		
+		// Update the date format (if translation has been changed)
+		defaultDF = new EnhancedDateFormat(BAT.getInstance().getConfiguration().isLitteralDate());
 		
 		return true;
 	}
@@ -109,6 +115,7 @@ public class Core implements IModule, Listener {
 	 * @throws UUIDNotFoundException
 	 * @return String which is the UUID
 	 */
+	@SuppressWarnings("deprecation")
 	public static String getUUID(final String pName){
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 		if (player != null) {
@@ -117,7 +124,7 @@ public class Core implements IModule, Listener {
 			// function java.util.UUID.nameUUIDFromBytes, however it's an
 			// prenium or cracked account
 			// Online server : bungee handle great the UUID
-			return player.getUUID();
+			return player.getUniqueId().toString().replaceAll("-","");
 		}
 
 		PreparedStatement statement = null;
@@ -134,7 +141,7 @@ public class Core implements IModule, Listener {
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
 		} finally {
-			DataSourceHandler.close(statement);
+			DataSourceHandler.close(statement, resultSet);
 		}
 		
 		// If online server, retrieve the UUID from the mojang server
@@ -149,12 +156,35 @@ public class Core implements IModule, Listener {
 		}
 		// If offline server, generate the UUID
 		else if(UUID.isEmpty()){
-			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString();
+			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
 		}
 
 		return UUID;
 	}
 
+	/**
+	 * Get the player name from a UUID using the BAT database
+	 * @param UUID
+	 * @return player name with this UUID or "unknowName"
+	 */
+	public static String getPlayerName(final String UUID){
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(SQLQueries.Core.getPlayerName);
+			statement.setString(1, UUID);
+			resultSet = statement.executeQuery();
+			if (resultSet.next()) {
+				return resultSet.getString("BAT_player");
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return null;
+	}
+	
 	public static HttpProfileRepository getProfileRepository() {
 		return profileRepository;
 	}
@@ -168,7 +198,7 @@ public class Core implements IModule, Listener {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			final String ip = Utils.getPlayerIP(player);
-			final String UUID = player.getUUID();
+			final String UUID = player.getUniqueId().toString().replaceAll("-","");
 			statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
 					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 			statement.setString(1, player.getName());
@@ -230,74 +260,6 @@ public class Core implements IModule, Listener {
 		}
 	}
 	
-	/**
-	 * Get the notes relative to an entity
-	 * @param entity | can be an ip or a player name
-	 * @return
-	 */
-	public static List<Comment> getComments(final String entity){
-		List<Comment> notes = Lists.newArrayList();
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(DataSourceHandler.isSQLite() 
-					? SQLQueries.Comments.SQLite.getEntries
-					: SQLQueries.Comments.getEntries);
-			if(Utils.validIP(entity)){
-				statement.setString(1, entity);
-			}else{
-				statement.setString(1, getUUID(entity));
-			}
-			resultSet = statement.executeQuery();
-			while(resultSet.next()){
-				final long date;
-				if(DataSourceHandler.isSQLite()){
-					date = resultSet.getLong("strftime('%s',date)") * 1000;
-				}else{
-					date = resultSet.getTimestamp("date").getTime();
-				}
-				notes.add(new Comment(resultSet.getInt("id"), entity, resultSet.getString("note"), 
-						resultSet.getString("staff"), Comment.Type.valueOf(resultSet.getString("type")), 
-						date));
-			}
-		} catch (final SQLException e) {
-			DataSourceHandler.handleException(e);
-		} finally {
-			DataSourceHandler.close(statement, resultSet);
-		}
-		return notes;
-	}
-
-	public static void insertComment(final String entity, final String comment, final Type type, final String author){
-		PreparedStatement statement = null;
-		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(SQLQueries.Comments.insertEntry);
-			statement.setString(1, (Utils.validIP(entity)) ? entity : getUUID(entity));
-			statement.setString(2, comment);
-			statement.setString(3, type.name());
-			statement.setString(4, author);
-			statement.executeUpdate();
-		} catch (final SQLException e) {
-			DataSourceHandler.handleException(e);
-		} finally {
-			DataSourceHandler.close(statement);
-		}
-	}
-	
-	public static String clearComments(final String entity){
-		PreparedStatement statement = null;
-		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(SQLQueries.Comments.clearEntries);
-			statement.setString(1, (Utils.validIP(entity)) ? entity : getUUID(entity));
-			statement.executeUpdate();
-			return I18n._("commentsCleared", new String[] {entity});
-		} catch (final SQLException e) {
-			return DataSourceHandler.handleException(e);
-		} finally {
-			DataSourceHandler.close(statement);
-		}
-	}
-	
 	// Event listener
 	@EventHandler
 	public void onPlayerJoin(final PostLoginEvent ev) {
@@ -312,5 +274,49 @@ public class Core implements IModule, Listener {
 	@EventHandler
 	public void onPlayerLeft(final PlayerDisconnectEvent ev) {
 		CommandQueue.clearQueuedCommand(ev.getPlayer());
+	}
+
+	public static class EnhancedDateFormat{
+		private final Calendar currDate = Calendar.getInstance();
+		private final boolean litteralDate;
+		private final DateFormat defaultDF;
+		private DateFormat tdaDF;
+		private DateFormat tmwDF;
+		private DateFormat ydaDF;
+		
+		/**
+		 * @param litteralDate if it's true, use tda, tmw or yda instead of the defautl date format
+		 */
+		public EnhancedDateFormat(final boolean litteralDate){
+			this.litteralDate = litteralDate;
+			final String at = I18n._("at");
+			defaultDF = new SimpleDateFormat("dd-MM-yyyy '" + at + "' HH:mm");
+			if(litteralDate){
+				tdaDF = new SimpleDateFormat("'" + I18n._("today").replace("'", "''") + " " + at + "' HH:mm");
+				tmwDF = new SimpleDateFormat("'" + I18n._("tomorrow").replace("'", "''") + " " + at + "' HH:mm");
+				ydaDF = new SimpleDateFormat("'" + I18n._("yesterday").replace("'", "''") + " " + at + "' HH:mm");
+			}
+		}
+		
+		public String format(final Date date){
+			if(litteralDate){
+				final Calendar calDate = Calendar.getInstance();
+				calDate.setTime(date);
+				final int dateDoY = calDate.get(Calendar.DAY_OF_YEAR);
+				final int currDoY = currDate.get(Calendar.DAY_OF_YEAR);
+				
+				if(calDate.get(Calendar.YEAR) == currDate.get(Calendar.YEAR)){
+					if(dateDoY == currDoY){
+						return tdaDF.format(date);
+					}else if(dateDoY == currDoY - 1){
+						return ydaDF.format(date);
+					}else if(dateDoY == currDoY + 1){
+						return tmwDF.format(date);
+					}
+				}
+			}
+
+			return defaultDF.format(date);
+		}
 	}
 }

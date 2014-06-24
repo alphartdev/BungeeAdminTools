@@ -1,0 +1,78 @@
+# BungeeAdminTools NL language file - Realized by spellegrom
+# Ban module
+alreadyBan=&cDeze speler is al verbannen van deze server.
+banBroadcast=&a{0}&e is &6permanent verbannen&e door &a{1}&e van de server &a{2}&e. Reden: {3}
+banTempBroadcast=&a{0}&e is &6verbannen&e voor &a{1}&e door &a{2}&e van de server &a{3}&e. Reden: {4}
+isBanned=Je bent op {1} verbannen van deze server door {2}. Reden: {0}
+isBannedTemp=Je bent op {2} tijdelijk verbannen van deze server door {3}. Reden: {0} Deze ban loopt af op: {1}
+notBanned=&c{0} is niet verbannen van deze server.
+notBannedAny=&c{0} is van geen enkele server verbannen.
+notBannedIP=&c{0} is geen van deze server verbannen IP-adres.
+unbanBroadcast=&a{0}&e is &7geunbanned &edoor &a{1}&e van de server &a{2}&e. Reden: {3}
+wasBannedNotif=Je bent verbannen. Reden: {0}
+# Mute module
+alreadyMute=&cDeze speler is al gemute op deze server.
+isMute=Je bent gemute op {1} door {2} op deze server. Reden: {0}
+isMuteTemp=Je bent tijdelijk gemute op {2} door {3} op deze server. Reden: {0} Deze mute loopt af op: {1}
+muteBroadcast=&a{0}&e is &6permanent gemute&e door &a{1}&e op de server &a{2}&e. Reden: {3}
+muteTempBroadcast=&a{0}&e is &6gemute &evoor &a{1}&e door &a{2}&e op de server &a{3}&e. Reden: {4}
+notMuted=&c{0} is niet gemute op deze server.
+notMutedAny=&c{0} is op geen enkele server gemute.
+notMutedIP=&c{0} is geen op deze server gemute IP-adres.
+unmuteBroadcast=&a{0}&e is &6geunmute &edoor &a{1}&e van de server &a{2}&e. Reden: {3}
+wasMutedNotif=Je bent gemute. Reden: {0}
+wasUnmutedNotif=Je bent geunmute. Reden: {0}
+loadingMutedata=De data wordt geladen, je kunt over enkele ogenblikken praten.
+# Kick module
+kickBroadcast=&a{0}&e is &6gekickt&e door &a{1}&e van de server &a{2}&e. Reden: {3}
+gKickBroadcast=&a{0}&e is &6gekickt&e van het netwerk door &a{1}&e. Reden: {2}
+wasKickedNotif=Je bent gekickt van deze server. Reden: {0}
+cantKickDefaultServer=&cJe kunt {0} niet kicken omdat hij al zich al op de standaard server bevindt.
+# Comment module
+warnBroadcast=&a{0}&e is &6gewaarschuwd&e door &a{1}&e. Reden: {2}
+wasWarnedNotif=Je bent gewaarschuwd. Reden: {0}
+commentsCleared=&a{0}''s&e opmerkingen zijn verwijderd.
+commentAdded=&eDe opmerking is succesvol toegevoegd.
+noCommentIDFound={0} heeft geen opmerking met dit ID.
+commentIDCleared=De opmerking &b#{0}&e van &a{1}&e is verwijderd.
+# Command related message
+invalidArgs=Ongeldige argumenten. {0}
+invalidArgsUsage=Ongeldige argumenten. Gebruik: {0}
+invalidCommand=Ongeldig commando.
+noPerm=&cJe hebt geen permissies om dit commando te gebruiken.
+mustConfirm=Je moet dit commando &abevestigen&e middels &6/{1} {0}
+noQueuedCommand=Er staat geen commando in de wachtrij.
+# Per module lookup translation
+# Player lookup
+activeBanLookupRow=&6* &eBegin:&a {0} &eServer:&a {1} &eReden:&a {2} &eStaf:&a {3} &eEinde:&a {4}
+archiveBanLookupRow=&6* &eBegin:&a {0} &eServer:&a {1} &eReden:&a {2} &eStaf:&a {3}\
+\n&6Unban datum:&a {4} &6Unban reden:&a {5} &6Unban staf:&a {6}
+activeMuteLookupRow=&6* &eBegin:&a {0} &eServer:&a {1} &eReden:&a {2} &eStaf:&a {3} &eEinde:&a {4}
+archiveMuteLookupRow=&6* &eBegin:&a {0} &eServer:&a {1} &eReden:&a {2} &eStaf:&a {3}\
+\n&6Unmute datum:&a {4} &6Unmute reden:&a {5} &6Unmute staf:&a {6}
+kickLookupRow=&6* &eDatum:&a {0} &eServer:&a {1} &eReden:&a {2} &eStaf:&a {3}
+commentRow=&a#{0}&e {1}&f Opmerking: &a{2} &fDatum: &6{3} &fStaf: &B{4}
+# Staff lookup
+activeStaffBanLookupRow=&6* &eEntity:&a {0} &eBegin:&a {1} &eServer:&a {2} &eReden:&a {3} &eEinde:&a {4}
+archiveStaffBanLookupRow=&6* &eEntity:&a {0} &eBegin:&a {1} &eServer:&a {2} &eReden:&a {3}\
+\n&6Unban datum:&a {4} &6Unban reden:&a {5} &6Unban staf:&a {6}
+activeStaffMuteLookupRow=&6* &eEntity:&a {0} &eBegin:&a {1} &eServer:&a {2} &eReden:&a {3} &eEinde:&a {4}
+archiveStaffMuteLookupRow=&6* &eEntity:&a {0} &eBegin:&a {1} &eServer:&a {2} &eReden:&a {3}\
+\n&6Unmute datum:&a {4} &6Unmute reden:&a {5} &6Unmute staf:&a {6}
+kickStaffLookupRow=&6* &eEntity:&a {0} &eDate:&a {1} &eServer:&a {2} &eReden:&a {3}
+commentStaffRow=&a#{0}&e {1}&f Opmerking: &a{2} &fDatum: &6{3} &fStaf: &B{4}
+# Miscellaneous related to BAT
+playerNotFound=Speler niet gevonden
+noReason=Er is geen reden opgegeven.
+operationUnknownPlayer=Je voert momenteel een actie uit op speler {0} welke nooit verbonden is geweest.
+specifyServer=Geef een specifieke server op.
+cannotGetUUID={0}''s UUID kan niet worden gevonden.
+global=globaal
+invalidServer=De opgegeven server is ongeldig.
+ipUnknownPlayer=Je kunt geen acties uitvoeren op dit IP-adres omdat deze nog nooit verbonden is geweest.
+isExempt=&cJe kunt dit commando niet uitvoeren op deze speler.
+# Miscellaneous related to language : some words that need to be translated
+today=vandaag
+tomorrow=morgen
+yesterday=gisteren
+at=op

@@ -1,45 +1,96 @@
 package fr.Alphart.BAT.I18n;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-
-import com.google.common.collect.Maps;
-
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.IModule;
 
 public class I18n {
-	private static Map<String, String> argsReplacer = Maps.newHashMap();
-	private ResourceBundle bundle;
+	private static Map<String, String> argsReplacer = new HashMap<String, String>(){
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String put(final String key, final String value) {
+			return super.put(key, ChatColor.translateAlternateColorCodes('&', value));
+		};
+	};
+	private ResourceBundle enBundle;
+	private ResourceBundle localeBundle;
+	private ResourceBundle customBundle;
 
 	private I18n() {
 		final Locale locale = BAT.getInstance().getConfiguration().getLocale();
+		enBundle = ResourceBundle.getBundle("messages", new Locale("en"), new UTF8_Control());
 		try {
-			bundle = ResourceBundle.getBundle("messages", locale, new UTF8_Control());
-			bundle.getString("GLOBAL");
+			localeBundle = ResourceBundle.getBundle("messages", locale, new UTF8_Control());
 		} catch (final MissingResourceException e) {
 			BAT.getInstance()
 			.getLogger()
 			.severe("The language file " + locale.toLanguageTag()
-					+ " was not found or is incorrect. The language was set to english.");
-			bundle = ResourceBundle.getBundle("messages", new Locale("en"), new UTF8_Control());
+					+ " was not found or is incorrect.");
+			localeBundle = enBundle;
+		}
+		// Try to load a custom bundle
+		File pFile = null;
+		try {
+			for(final File file : BAT.getInstance().getDataFolder().listFiles()){
+				if(file.getName().endsWith("language")){
+					pFile = file;
+					if(pFile.getName().toLowerCase().contains(locale.getLanguage().toLowerCase())){
+						break;
+					}
+				}
+			}
+			if(pFile != null){
+				customBundle = new PropertyResourceBundle(new FileReader(pFile));
+			}
+		} catch (final IOException e) {
+			BAT.getInstance().getLogger().severe("The custom language file cannot be loaded.");
+			e.printStackTrace();
+		}
+		if(customBundle == null){
+			customBundle = localeBundle;
+		}
+		
+		try{
+			try{
+				argsReplacer.put(IModule.ANY_SERVER, customBundle.getString("global"));
+				argsReplacer
+				.put(IModule.GLOBAL_SERVER, customBundle.getString("global"));
+				argsReplacer.put(IModule.NO_REASON, customBundle.getString("noReason"));
+			}catch(final MissingResourceException e){
+				argsReplacer.put(IModule.ANY_SERVER, localeBundle.getString("global"));
+				argsReplacer
+				.put(IModule.GLOBAL_SERVER, localeBundle.getString("global"));
+				argsReplacer.put(IModule.NO_REASON, localeBundle.getString("noReason"));
+			}
+		}catch(final MissingResourceException e){
+			argsReplacer.put(IModule.ANY_SERVER, enBundle.getString("global"));
+			argsReplacer
+			.put(IModule.GLOBAL_SERVER, enBundle.getString("global"));
+			argsReplacer.put(IModule.NO_REASON, enBundle.getString("noReason"));
 		}
 
-		argsReplacer.put(IModule.ANY_SERVER, ChatColor.translateAlternateColorCodes('&', bundle.getString("GLOBAL")));
-		argsReplacer
-		.put(IModule.GLOBAL_SERVER, ChatColor.translateAlternateColorCodes('&', bundle.getString("GLOBAL")));
-		argsReplacer.put(IModule.NO_REASON, ChatColor.translateAlternateColorCodes('&', bundle.getString("NO_REASON")));
 	}
 
 	private static class I18nHolder {
-		private final static I18n instance = new I18n();
+		private static I18n instance = new I18n();
+		
+		private static void reload(){
+			instance = new I18n();
+		}
 	}
 
 	private static I18n getInstance() {
@@ -47,11 +98,25 @@ public class I18n {
 	}
 
 	public static String getString(final String key) throws IllegalArgumentException {
-		final String message = getInstance().bundle.getString(key);
-		if (message != null) {
-			return message;
+		String message;
+		try{
+			try{
+				message = getInstance().customBundle.getString(key);
+			}catch(final MissingResourceException e){
+				message = getInstance().localeBundle.getString(key);
+			}
+		}catch(final MissingResourceException e){
+			BAT.getInstance().getLogger().info("Incorrect translation key : " + key + ". Locale: " 
+					+ getInstance().localeBundle.getLocale().getLanguage());
+			try{
+				message = getInstance().localeBundle.getString(key);
+			}catch(final MissingResourceException subE){
+				BAT.getInstance().getLogger().warning("Incorrect translation key in default bundle."
+						+ "Key : " + key);
+				throw new IllegalArgumentException("Incorrect translation key, please check the log.");
+			}
 		}
-		throw new IllegalArgumentException("Invalid translation key message ...");
+		return message;
 	}
 
 	/**
@@ -132,5 +197,9 @@ public class I18n {
 			}
 		}
 		return formatArgs;
+	}
+
+	public static void reload(){
+		I18nHolder.reload();
 	}
 }

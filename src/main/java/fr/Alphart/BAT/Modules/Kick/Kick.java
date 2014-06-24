@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,9 +114,9 @@ public class Kick implements IModule {
 
 			player.connect(ProxyServer.getInstance().getServerInfo(
 					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(TextComponent.fromLegacyText(_("WAS_KICKED_NOTIF", new String[] { reason })));
+			player.sendMessage(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
 
-			return _("KICK_BROADCAST", new String[] { player.getName(), staff, server, reason });
+			return _("kickBroadcast", new String[] { player.getName(), staff, server, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
@@ -144,7 +145,7 @@ public class Kick implements IModule {
 			statement.executeUpdate();
 			statement.close();
 
-			player.disconnect(TextComponent.fromLegacyText(_("WAS_KICKED_NOTIF", new String[] { reason })));
+			player.disconnect(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
 
 			return _("gKickBroadcast", new String[] { player.getName(), staff, reason });
 		} catch (final SQLException e) {
@@ -167,15 +168,62 @@ public class Kick implements IModule {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(SQLQueries.Kick.getKick);
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite()
+					? SQLQueries.Kick.SQLite.getKick
+					: SQLQueries.Kick.getKick);
 			statement.setString(1, Core.getUUID(pName));
 			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
 				final String server = resultSet.getString("kick_server");
-				final String reason = resultSet.getString("kick_reason");
+				String reason = resultSet.getString("kick_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
 				final String staff = resultSet.getString("kick_staff");
-				final int date = resultSet.getInt("kick_date");
+				final Timestamp date;
+				if(DataSourceHandler.isSQLite()){
+					date = new Timestamp(resultSet.getLong("strftime('%s',kick_date)") * 1000);
+				}else{
+					date = resultSet.getTimestamp("kick_date");
+				}
+				kickList.add(new KickEntry(pName, server, reason, staff, date));
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return kickList;
+	}
+	
+	public List<KickEntry> getManagedKick(final String staff) {
+		final List<KickEntry> kickList = new ArrayList<KickEntry>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite()
+					? SQLQueries.Kick.SQLite.getManagedKick
+					: SQLQueries.Kick.getManagedKick);
+			statement.setString(1, staff);
+			resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+				final String server = resultSet.getString("kick_server");
+				String reason = resultSet.getString("kick_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
+				String pName = Core.getPlayerName(resultSet.getString("UUID"));
+				if(pName == null){
+					pName = "UUID:" + resultSet.getString("UUID");
+				}
+				final Timestamp date;
+				if(DataSourceHandler.isSQLite()){
+					date = new Timestamp(resultSet.getLong("strftime('%s',kick_date)") * 1000);
+				}else{
+					date = resultSet.getTimestamp("kick_date");
+				}
 				kickList.add(new KickEntry(pName, server, reason, staff, date));
 			}
 		} catch (final SQLException e) {

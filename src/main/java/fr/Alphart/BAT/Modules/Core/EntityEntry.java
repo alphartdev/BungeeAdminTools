@@ -14,6 +14,7 @@ import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Ban.BanEntry;
+import fr.Alphart.BAT.Modules.Comment.CommentEntry;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
@@ -34,7 +35,7 @@ public class EntityEntry {
 	private final List<BanEntry> bans = new ArrayList<BanEntry>();
 	private final List<MuteEntry> mutes = new ArrayList<MuteEntry>();
 	private final List<KickEntry> kicks = new ArrayList<KickEntry>();
-	private final List<Comment> comments = new ArrayList<Comment>();
+	private final List<CommentEntry> comments = new ArrayList<CommentEntry>();
 
 	private Timestamp firstLogin;
 	private Timestamp lastLogin;
@@ -121,7 +122,9 @@ public class EntityEntry {
 			if (modules.isLoaded("kick") && ipUsers.isEmpty()) {
 				kicks.addAll(modules.getKickModule().getKickData(entity));
 			}
-			comments.addAll(Core.getComments(entity));
+			if(modules.isLoaded("comment")){
+				comments.addAll(modules.getCommentModule().getComments(entity));
+			}		
 		} catch (final InvalidModuleException | UUIDNotFoundException e) {
 			if(e instanceof UUIDNotFoundException){
 				exist = false;
@@ -146,7 +149,7 @@ public class EntityEntry {
 		return kicks;
 	}
 
-	public List<Comment> getComments(){
+	public List<CommentEntry> getComments(){
 		return comments;
 	}
 	

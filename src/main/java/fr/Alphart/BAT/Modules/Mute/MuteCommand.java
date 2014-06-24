@@ -122,7 +122,7 @@ public class MuteCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[1]), _("invalidServer"));
@@ -150,10 +150,10 @@ public class MuteCommand extends CommandHandler {
 
 		if (!global) {
 			checkArgument(PermissionManager.canExecuteAction((ipMute) ? Action.MUTEIP : Action.MUTE, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
-		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
+		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("isExempt"));
 
 		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("alreadyMute"));
 
@@ -250,7 +250,7 @@ public class MuteCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 2) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[2]), _("invalidServer"));
@@ -279,10 +279,10 @@ public class MuteCommand extends CommandHandler {
 		if (!global) {
 			checkArgument(
 					PermissionManager.canExecuteAction((ipMute) ? Action.TEMPMUTEIP : Action.TEMPMUTE, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
-		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("IS_EXEMPT"));
+		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("isExempt"));
 
 		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("alreadyMute"));
 
@@ -370,7 +370,7 @@ public class MuteCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[1]), _("invalidServer"));
@@ -388,15 +388,15 @@ public class MuteCommand extends CommandHandler {
 		if (!global) {
 			checkArgument(
 					PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
 		final String[] formatArgs = { args[0] };
 
 		checkArgument(
 				mute.isMute((ip == null) ? target : ip, server, true),
-				(IModule.ANY_SERVER.equals(server) ? _("NOT_MUTE_ANY", formatArgs) : ((ipUnmute) ? _("NOT_MUTEIP",
-						formatArgs) : _("NOT_MUTE", formatArgs))));
+				(IModule.ANY_SERVER.equals(server) ? _("notMutedAny", formatArgs) : ((ipUnmute) ? _("notMutedIP",
+						formatArgs) : _("notMuted", formatArgs))));
 
 		if (ipUnmute) {
 			returnedMsg = mute.unMuteIP(target, server, staff, reason);

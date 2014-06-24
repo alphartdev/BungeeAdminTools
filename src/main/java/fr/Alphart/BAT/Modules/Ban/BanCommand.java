@@ -118,7 +118,7 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[1]), _("invalidServer"));
@@ -147,12 +147,12 @@ public class BanCommand extends CommandHandler {
 
 		if (!global) {
 			checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
 		// We just check if the target is exempt from the ban, which means he's
 		// exempt from the full module command
-		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("IS_EXEMPT"));
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("isExempt"));
 
 		checkArgument(!ban.isBan((ip == null) ? target : ip, server), _("alreadyBan"));
 
@@ -245,7 +245,7 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 2) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[2]), _("invalidServer"));
@@ -274,10 +274,10 @@ public class BanCommand extends CommandHandler {
 		if (!global) {
 			checkArgument(
 					PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
-		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("IS_EXEMPT"));
+		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("isExempt"));
 
 		checkArgument(!ban.isBan((ip == null) ? target : ip, server), _("alreadyBan"));
 
@@ -366,7 +366,7 @@ public class BanCommand extends CommandHandler {
 			}
 		} else {
 			if (args.length == 1) {
-				checkArgument(sender instanceof ProxiedPlayer, _("SPECIFY_SERVER"));
+				checkArgument(sender instanceof ProxiedPlayer, _("specifyServer"));
 				server = ((ProxiedPlayer) sender).getServer().getInfo().getName();
 			} else {
 				checkArgument(Utils.isServer(args[1]), _("invalidServer"));
@@ -384,15 +384,15 @@ public class BanCommand extends CommandHandler {
 		if (!global) {
 			checkArgument(
 					PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server),
-					_("NO_PERM"));
+					_("noPerm"));
 		}
 
 		final String[] formatArgs = { args[0] };
 
 		checkArgument(
 				ban.isBan((ip == null) ? target : ip, server),
-				(IModule.ANY_SERVER.equals(server) ? _("NOT_BAN_ANY", formatArgs) : ((ipUnban) ? _("NOT_BANIP",
-						formatArgs) : _("NOT_BAN", formatArgs))));
+				(IModule.ANY_SERVER.equals(server) ? _("notBannedAny", formatArgs) : ((ipUnban) ? _("notBannedIP",
+						formatArgs) : _("notBanned", formatArgs))));
 
 		if (ipUnban) {
 			returnedMsg = ban.unBanIP(target, server, staff, reason);

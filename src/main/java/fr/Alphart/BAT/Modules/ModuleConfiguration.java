@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,11 +54,19 @@ public abstract class ModuleConfiguration extends Config {
 	 * @param commands
 	 *            list
 	 */
-	public void addDefaultCmds(final List<String> cmds) {
+	public void setProvidedCmds(final List<String> cmds) {
 		Collections.sort(cmds);
-		for (final String command : cmds) {
-			if (!commands.containsKey(command)) {
-				commands.put(command, true);
+		// Add new commands if there are
+		for (final String cmdName : cmds) {
+			if (!commands.containsKey(cmdName)) {
+				commands.put(cmdName, true);
+			}
+		}
+		// Iterate through the commands map and remove the ones who don't exist (e.g because of an update)
+		for(final Iterator<Map.Entry<String, Boolean>> it = commands.entrySet().iterator(); it.hasNext();){
+			final Map.Entry<String, Boolean> cmdEntry = it.next();
+			if(!cmds.contains(cmdEntry.getKey())){
+				it.remove();
 			}
 		}
 	}

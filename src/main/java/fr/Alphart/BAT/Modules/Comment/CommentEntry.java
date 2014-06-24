@@ -1,11 +1,11 @@
 package fr.Alphart.BAT.Modules.Comment;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import fr.Alphart.BAT.Modules.Core.Core;
+
 public class CommentEntry {
-	private final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy 'at' HH:mm");
 	private Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
 	private final int id;
 	private final String entity;
@@ -47,7 +47,7 @@ public class CommentEntry {
 	}
 
 	public String getFormattedDate(){
-		return format.format(localTime.getTime());
+		return Core.defaultDF.format(localTime.getTime());
 	}
 	
 	public enum Type{

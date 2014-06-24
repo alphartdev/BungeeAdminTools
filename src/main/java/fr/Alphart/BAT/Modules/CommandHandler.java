@@ -42,7 +42,7 @@ public abstract class CommandHandler {
 		}
 
 		// Add as default in the config file
-		module.getConfig().addDefaultCmds(cmdName);
+		module.getConfig().setProvidedCmds(cmdName);
 
 		// Sort the commands list and remove unused command
 		final List<String> enabledCmds = module.getConfig().getEnabledCmds();

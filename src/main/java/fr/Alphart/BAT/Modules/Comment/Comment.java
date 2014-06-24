@@ -5,11 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
-import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.collect.Lists;
 
@@ -18,7 +18,7 @@ import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
-import fr.Alphart.BAT.Modules.Comment.CommentObject.Type;
+import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -91,10 +91,16 @@ public class Comment implements IModule{
 			init(name);
 		}
 		
-		@net.cubespace.Yamler.Config.Comment("Sparks which trigger when a specified amount of warn or comment whose reason match the pattern is reached")
+		@net.cubespace.Yamler.Config.Comments({"Triggers list",
+			"Trigger name:",
+			"  pattern: reason which must be provided to trigger this",
+			"  commands: list of commands that should be executed when it triggers, you can use {player} variable",
+			"  triggerNumber: the number at which this triggers"})
 		@Getter
-		private List<Trigger> triggers = new ArrayList<Trigger>(){{
-			add(new Trigger());
+		private Map<String, Trigger> triggers = new HashMap<String, Trigger>(){
+			private static final long serialVersionUID = 1L;
+		{
+			put("example", new Trigger());
 		}};
 	}
 	
@@ -103,8 +109,8 @@ public class Comment implements IModule{
 	 * @param entity | can be an ip or a player name
 	 * @return
 	 */
-	public List<CommentObject> getComments(final String entity){
-		List<CommentObject> notes = Lists.newArrayList();
+	public List<CommentEntry> getComments(final String entity){
+		List<CommentEntry> notes = Lists.newArrayList();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
@@ -124,8 +130,42 @@ public class Comment implements IModule{
 				}else{
 					date = resultSet.getTimestamp("date").getTime();
 				}
-				notes.add(new CommentObject(resultSet.getInt("id"), entity, resultSet.getString("note"), 
-						resultSet.getString("staff"), CommentObject.Type.valueOf(resultSet.getString("type")), 
+				notes.add(new CommentEntry(resultSet.getInt("id"), entity, resultSet.getString("note"), 
+						resultSet.getString("staff"), CommentEntry.Type.valueOf(resultSet.getString("type")), 
+						date));
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return notes;
+	}
+	
+	public List<CommentEntry> getManagedComments(final String staff){
+		List<CommentEntry> notes = Lists.newArrayList();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite() 
+					? SQLQueries.Comments.SQLite.getManagedEntries
+					: SQLQueries.Comments.getManagedEntries);
+			statement.setString(1, staff);
+			resultSet = statement.executeQuery();
+			
+			while(resultSet.next()){
+				final long date;
+				if(DataSourceHandler.isSQLite()){
+					date = resultSet.getLong("strftime('%s',date)") * 1000;
+				}else{
+					date = resultSet.getTimestamp("date").getTime();
+				}
+				String entity = Core.getPlayerName(resultSet.getString("entity"));
+				if(entity ==  null){
+					entity = "UUID:" + resultSet.getString("entity");
+				}
+				notes.add(new CommentEntry(resultSet.getInt("id"), entity, resultSet.getString("note"), 
+						staff, CommentEntry.Type.valueOf(resultSet.getString("type")), 
 						date));
 			}
 		} catch (final SQLException e) {
@@ -148,28 +188,26 @@ public class Comment implements IModule{
 			statement.close();
 			
 			// Handle the trigger system
-			if(ProxyServer.getInstance().getPlayer(entity) != null){
-				for(final Trigger trigger : config.triggers){
-					if(trigger.getPattern().isEmpty() || comment.contains(trigger.getPattern())){
-						statement = conn.prepareStatement((trigger.getPattern().isEmpty()) 
-								? SQLQueries.Comments.simpleTriggerCheck
-								: SQLQueries.Comments.patternTriggerCheck);
-						statement.setString(1, Core.getUUID(entity));
-						if(!trigger.getPattern().isEmpty()){
-							statement.setString(2, '%' + trigger.getPattern() + '%');
-						}
-						
-						final ResultSet rs = statement.executeQuery();
-						if(rs.next()){
-							int count = rs.getInt("COUNT(*)");
-							if(trigger.getTriggersNb() == count){
-								trigger.onTrigger(ProxyServer.getInstance().getPlayer(entity));
-							}
-						}
-						
-						rs.close();
-						statement.close();
+			for(final Trigger trigger : config.getTriggers().values()){
+				if(trigger.getPattern().isEmpty() || comment.contains(trigger.getPattern())){
+					statement = conn.prepareStatement((trigger.getPattern().isEmpty()) 
+							? SQLQueries.Comments.simpleTriggerCheck
+							: SQLQueries.Comments.patternTriggerCheck);
+					statement.setString(1, Core.getUUID(entity));
+					if(!trigger.getPattern().isEmpty()){
+						statement.setString(2, '%' + trigger.getPattern() + '%');
 					}
+					
+					final ResultSet rs = statement.executeQuery();
+					if(rs.next()){
+						int count = rs.getInt("COUNT(*)");
+						if(trigger.getTriggerNumber() == count){
+							trigger.onTrigger(entity);
+						}
+					}
+					
+					rs.close();
+					statement.close();
 				}
 			}
 		} catch (final SQLException e) {

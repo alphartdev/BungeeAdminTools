@@ -124,12 +124,7 @@ public class Utils {
 	 */
 	public static boolean isServer(final String serverName) {
 		// We need to loop through and test the server name because the map is case insensitive
-		for(final String serversName : ProxyServer.getInstance().getServers().keySet()){
-			if(serversName.equals(serverName)){
-				return true;
-			}
-		}
-		return false;
+		return ProxyServer.getInstance().getServers().containsKey(serverName);
 	}
 
 	public static String getPlayerIP(final ProxiedPlayer player) {

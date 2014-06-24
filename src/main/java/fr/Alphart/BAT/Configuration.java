@@ -16,6 +16,7 @@ public class Configuration extends Config{
 		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), "config.yml");
 		try {
 			init();
+			save();
 		} catch (final InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -26,6 +27,11 @@ public class Configuration extends Config{
 	
 	@Comment("Enable /bat confirm, to confirm command such as action on unknown player.")
 	private boolean confirmCommand = true;
+	@Comment("Enable simple aliases to bypass the /bat prefix to core commands")
+	private boolean simpleAliases = false;
+	@Comment("Make the date more readable."
+			+ "If the date correspond to today, tmw or yda, it will replace the date by the corresponding word")
+	private boolean litteralDate = true;
 	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter

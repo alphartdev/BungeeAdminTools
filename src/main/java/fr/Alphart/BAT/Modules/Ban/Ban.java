@@ -10,17 +10,22 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
+
+import com.google.common.base.Charsets;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
@@ -85,16 +90,17 @@ public class Ban implements IModule, Listener {
 
 		// Launch tempban task
 		final BanTask banTask = new BanTask();
-		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banTask, 10, 10, TimeUnit.SECONDS);
+		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banTask, 0, 10, TimeUnit.SECONDS);
 
 		// Check if the online players are banned (if the module has been reloaded)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
-			if(isBan(player, GLOBAL_SERVER) || isBan(player, player.getServer().getInfo().getName())){
+			final String server = player.getServer().getInfo().getName();
+			if(isBan(player, GLOBAL_SERVER) || isBan(player, server)){
 				if (player.getServer().getInfo().getName().equals(player.getPendingConnection().getListener().getDefaultServer())) {
-					player.disconnect(getBanMessage(player.getName()));
+					player.disconnect(getBanMessage(player.getPendingConnection(), server));
 					continue;
 				}
-				player.sendMessage(getBanMessage(player.getName()));
+				player.sendMessage(getBanMessage(player.getPendingConnection(), server));
 				player.connect(ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()));
 			}
 		}
@@ -114,26 +120,46 @@ public class Ban implements IModule, Listener {
 		}
 	}
 
-	public BaseComponent[] getBanMessage(final String pName){
+	public BaseComponent[] getBanMessage(final PendingConnection pConn, final String server){
 		String reason = "";
 		Timestamp expiration = null;
+		Timestamp begin = null;
+		String staff = null;
 		
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement("SELECT ban_reason, ban_end FROM `" + SQLQueries.Ban.table + "` WHERE (UUID = ? OR ban_ip = ?) AND ban_state = 1;");
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite()
+					? SQLQueries.Ban.SQLite.getBanMessage
+					: SQLQueries.Ban.getBanMessage);
 			try{
-				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, Core.getPlayerIP(pName));
-			}catch(final UUIDNotFoundException exception){
-				BAT.getInstance().getLogger().severe("Error during retrieving of the UUID of " + pName + ". Please report this error :");
-				System.out.println(exception.getStackTrace());
+				final UUID pUUID;
+	        	if(pConn.getUniqueId() != null){
+	        		pUUID = pConn.getUniqueId();
+	        	}
+	        	else{
+	        		pUUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pConn.getName() ).getBytes(Charsets.UTF_8));
+	        	}
+				statement.setString(1, pUUID.toString().replace("-", ""));
+				statement.setString(2, pConn.getAddress().getAddress().getHostAddress());
+				statement.setString(3, server);
+			}catch(final UUIDNotFoundException e){
+				BAT.getInstance().getLogger().severe("Error during retrieving of the UUID of " + pConn.getName() + ". Please report this error :");
+				e.printStackTrace();
 			}
 			resultSet = statement.executeQuery();
-	
+			
 			if(resultSet.next()) {
+				if(DataSourceHandler.isSQLite()){
+					begin = new Timestamp(resultSet.getLong("strftime('%s',ban_begin)") * 1000);
+					String endStr = resultSet.getString("ban_end"); // SQLite see this row as null but it doesn't seem to make the same with ban message though it's almost the same code ...
+					expiration = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+				}else{
+					begin = resultSet.getTimestamp("ban_begin");
+					expiration = resultSet.getTimestamp("ban_end");
+				}
 				reason = (resultSet.getString("ban_reason") != null) ? resultSet.getString("ban_reason") : IModule.NO_REASON;
-				expiration = resultSet.getTimestamp("ban_end");
+				staff = resultSet.getString("ban_staff");
 			}else{
 				throw new SQLException("No active ban found.");
 			}
@@ -143,9 +169,11 @@ public class Ban implements IModule, Listener {
 			DataSourceHandler.close(statement, resultSet);
 		}
 		if(expiration != null){
-			return TextComponent.fromLegacyText(_("isBannedTemp", new String[]{ reason, FormatUtils.getDuration(expiration.getTime()) }));
+			return TextComponent.fromLegacyText(_("isBannedTemp", 
+					new String[]{ reason, (expiration.getTime() < System.currentTimeMillis()) ? "a few moments" : FormatUtils.getDuration(expiration.getTime()),
+							Core.defaultDF.format(begin), staff }));
 		}else{
-			return TextComponent.fromLegacyText(_("isBanned", new String[]{ reason }));
+			return TextComponent.fromLegacyText(_("isBanned", new String[]{ reason, Core.defaultDF.format(begin), staff }));
 		}
 	}
 	
@@ -245,8 +273,8 @@ public class Ban implements IModule, Listener {
 				statement.close();
 
 				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-					if (Utils.getPlayerIP(player).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equals(player.getServer().getInfo().getName())) ) {
-						BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { reason }));
+					if (Utils.getPlayerIP(player).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(player.getServer().getInfo().getName())) ) {
+						BAT.kick(player, _("wasBannedNotif", new String[] { reason }));
 					}
 				}
 
@@ -275,8 +303,8 @@ public class Ban implements IModule, Listener {
 				// Kick player if he's online and on the server where he's
 				// banned
 				if (player != null
-						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server))) {
-					BAT.kick(player, _("WAS_BANNED_NOTIF", new String[] { reason }));
+						&& (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server))) {
+					BAT.kick(player, _("wasBannedNotif", new String[] { reason }));
 				}
 
 				if (expirationTimestamp > 0) {
@@ -344,7 +372,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return _("UNbanBroadcast", new String[] { ip, staff, server, reason });
+				return _("unbanBroadcast", new String[] { ip, staff, server, reason });
 			}
 
 			// Otherwise it's a player
@@ -368,7 +396,7 @@ public class Ban implements IModule, Listener {
 				}
 				statement.executeUpdate();
 
-				return _("UNbanBroadcast", new String[] { pName, staff, server, reason });
+				return _("unbanBroadcast", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -396,7 +424,7 @@ public class Ban implements IModule, Listener {
 			return unBan(entity, server, staff, reason);
 		} else {
 			unBan(Core.getPlayerIP(entity), server, staff, reason);
-			return _("UNbanBroadcast", new String[] { entity + "'s IP", staff, server, reason });
+			return _("unbanBroadcast", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
 
@@ -414,38 +442,52 @@ public class Ban implements IModule, Listener {
 		try (Connection conn = BAT.getConnection()) {
 			// If the entity is an ip
 			if (Utils.validIP(entity)) {
-				final String ip = entity;
-				statement = conn.prepareStatement(SQLQueries.Ban.getBanIP);
-				statement.setString(1, ip);
+				statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+						? SQLQueries.Ban.SQLite.getBanIP
+						: SQLQueries.Ban.getBanIP);
+				statement.setString(1, entity);
 				resultSet = statement.executeQuery();
-
-				while (resultSet.next()) {
-					final String server = resultSet.getString("ban_server");
-					final String reason = resultSet.getString("ban_reason");
-					final String staff = resultSet.getString("ban_staff");
-					final int begin_date = resultSet.getInt("ban_begin");
-					final int end_date = resultSet.getInt("ban_end");
-					final boolean active = resultSet.getBoolean("ban_state");
-					banList.add(new BanEntry(ip, server, reason, staff, begin_date, end_date, active));
-				}
 			}
-
 			// Otherwise if it's a player
 			else {
-				final String pName = entity;
-				statement = conn.prepareStatement(SQLQueries.Ban.getBan);
-				statement.setString(1, Core.getUUID(pName));
+				statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+						? SQLQueries.Ban.SQLite.getBan
+						: SQLQueries.Ban.getBan);
+				statement.setString(1, Core.getUUID(entity));
 				resultSet = statement.executeQuery();
-
-				while (resultSet.next()) {
-					final String server = resultSet.getString("ban_server");
-					final String reason = resultSet.getString("ban_reason");
-					final String staff = resultSet.getString("ban_staff");
-					final int begin_date = resultSet.getInt("ban_begin");
-					final int end_date = resultSet.getInt("ban_end");
-					final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
-					banList.add(new BanEntry(pName, server, reason, staff, begin_date, end_date, active));
+			}
+			
+			while (resultSet.next()) {
+				final Timestamp beginDate;
+				final Timestamp endDate;
+				final Timestamp unbanDate;
+				if(DataSourceHandler.isSQLite()){
+					beginDate = new Timestamp(resultSet.getLong("strftime('%s',ban_begin)") * 1000);
+					String endStr = resultSet.getString("ban_end");
+					endDate = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+					long unbanLong = resultSet.getLong("strftime('%s',ban_unbandate)") * 1000;
+					unbanDate = (unbanLong == 0) ? null : new Timestamp(unbanLong);
+				}else{
+					beginDate = resultSet.getTimestamp("ban_begin");
+					endDate = resultSet.getTimestamp("ban_end");
+					unbanDate = resultSet.getTimestamp("ban_unbandate");
 				}
+
+				
+				// Make it compatible with sqlite (date: get an int with the sfrt and then construct a tiemstamp)
+				final String server = resultSet.getString("ban_server");
+				String reason = resultSet.getString("ban_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
+				final String staff = resultSet.getString("ban_staff");
+				final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+				String unbanReason = resultSet.getString("ban_unbanreason");
+				if(unbanReason == null){
+					unbanReason = NO_REASON;
+				}
+				final String unbanStaff = resultSet.getString("ban_unbanstaff");
+				banList.add(new BanEntry(entity, server, reason, staff, beginDate, endDate, unbanDate, unbanReason, unbanStaff, active));
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
@@ -455,14 +497,73 @@ public class Ban implements IModule, Listener {
 		return banList;
 	}
 
+	public List<BanEntry> getManagedBan(final String staff){
+		final List<BanEntry> banList = new ArrayList<BanEntry>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+					? SQLQueries.Ban.SQLite.getManagedBan
+					: SQLQueries.Ban.getManagedBan);
+			statement.setString(1, staff);
+			statement.setString(2, staff);
+			resultSet = statement.executeQuery();
+			
+			while (resultSet.next()) {
+				final Timestamp beginDate;
+				final Timestamp endDate;
+				final Timestamp unbanDate;
+				if(DataSourceHandler.isSQLite()){
+					beginDate = new Timestamp(resultSet.getLong("strftime('%s',ban_begin)") * 1000);
+					String endStr = resultSet.getString("ban_end");
+					endDate = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+					long unbanLong = resultSet.getLong("strftime('%s',ban_unbandate)") * 1000;
+					unbanDate = (unbanLong == 0) ? null : new Timestamp(unbanLong);
+				}else{
+					beginDate = resultSet.getTimestamp("ban_begin");
+					endDate = resultSet.getTimestamp("ban_end");
+					unbanDate = resultSet.getTimestamp("ban_unbandate");
+				}
+
+				
+				// Make it compatible with sqlite (date: get an int with the sfrt and then construct a tiemstamp)
+				final String server = resultSet.getString("ban_server");
+				String reason = resultSet.getString("ban_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
+				String entity = (resultSet.getString("ban_ip") != null) 
+						? resultSet.getString("ban_ip")
+						: Core.getPlayerName(resultSet.getString("UUID"));
+				// If the UUID search failed
+				if(entity == null){
+					entity = "UUID:" + resultSet.getString("UUID");
+				}
+				final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+				String unbanReason = resultSet.getString("ban_unbanreason");
+				if(unbanReason == null){
+					unbanReason = NO_REASON;
+				}
+				final String unbanStaff = resultSet.getString("ban_unbanstaff");
+				banList.add(new BanEntry(entity, server, reason, staff, beginDate, endDate, unbanDate, unbanReason, unbanStaff, active));
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return banList;
+	}
+	
 	// Event listener
 	
 	@EventHandler
 	public void onServerConnect(final ServerConnectEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
+		final String target = e.getTarget().getName();
 
-		if (isBan(player, e.getTarget().getName())) {
-			if (e.getTarget().getName().equals(player.getPendingConnection().getListener().getDefaultServer())) {
+		if (isBan(player, target)) {
+			if (target.equals(player.getPendingConnection().getListener().getDefaultServer())) {
 				// If it's player's join server kick him
 				if(e.getPlayer().getServer() == null){
 					e.setCancelled(true);
@@ -470,16 +571,16 @@ public class Ban implements IModule, Listener {
 					ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), new Runnable() {
 						@Override
 						public void run() {
-							e.getPlayer().disconnect(getBanMessage(e.getPlayer().getName()));
+							e.getPlayer().disconnect(getBanMessage(player.getPendingConnection(), target));
 						}
 					}, 500, TimeUnit.MILLISECONDS);
 				}else{
 					e.setCancelled(true);
-					e.getPlayer().sendMessage(getBanMessage(e.getPlayer().getName()));
+					e.getPlayer().sendMessage(getBanMessage(player.getPendingConnection(), target));
 				}
 				return;
 			}
-			player.sendMessage(getBanMessage(player.getName()));
+			player.sendMessage(getBanMessage(player.getPendingConnection(), target));
 			if (player.getServer() == null) {
 				player.connect(ProxyServer.getInstance().getServerInfo(
 						player.getPendingConnection().getListener().getDefaultServer()));
@@ -489,23 +590,45 @@ public class Ban implements IModule, Listener {
 	}
 
 	@EventHandler
-	public void onPlayerLogin(final LoginEvent e) {
-		e.registerIntent(BAT.getInstance());
-		BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final String pName = e.getConnection().getName();
-					if (isBan(pName, GLOBAL_SERVER) || isBan(Core.getPlayerIP(pName), GLOBAL_SERVER)) {
-						e.setCancelled(true);
-						BaseComponent[] bM = getBanMessage(pName);
-						e.setCancelReason(TextComponent.toLegacyText(bM));
-					}
+	public void onPlayerLogin(final LoginEvent ev) {
+		ev.registerIntent(BAT.getInstance());
+	    BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable()
+	    {
+	      public void run() {
+	        boolean isBanPlayer = false;
 
-				} finally {
-					e.completeIntent(BAT.getInstance());
-				}
-			}
-		});
+	        PreparedStatement statement = null;
+	        ResultSet resultSet = null;
+	        UUID uuid = null;
+	        try(Connection conn = BAT.getConnection()){ 
+	        	statement = conn.prepareStatement("SELECT ban_id FROM `BAT_ban` WHERE ban_state = 1 AND UUID = ? AND ban_server = '" + GLOBAL_SERVER + "';");
+	        	// If this is an online mode server, the uuid will be already set
+	        	if(ev.getConnection().getUniqueId() != null){
+	        		uuid = ev.getConnection().getUniqueId();
+	        	}
+	        	// Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
+	        	else{
+	        		uuid = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + ev.getConnection().getName() ).getBytes(Charsets.UTF_8));
+	        	}
+	            statement.setString(1, uuid.toString().replaceAll( "-", "" ));
+	        	
+	            resultSet = statement.executeQuery();
+	            if (resultSet.next()){
+	              isBanPlayer = true;
+	            }
+	        } catch (SQLException e) { 
+	        	DataSourceHandler.handleException(e);
+	        } finally {
+	          DataSourceHandler.close(statement, resultSet);
+	        }
+
+	        if ((isBanPlayer) || (isBan(ev.getConnection().getAddress().getAddress().getHostAddress(), GLOBAL_SERVER))) {
+	          ev.setCancelled(true);
+	          BaseComponent[] bM = getBanMessage(ev.getConnection(), GLOBAL_SERVER);
+	          ev.setCancelReason(TextComponent.toLegacyText(bM));
+	        }
+	        ev.completeIntent(BAT.getInstance());
+	      }
+	    });
 	}
 }

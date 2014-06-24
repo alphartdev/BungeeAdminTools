@@ -10,6 +10,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
@@ -26,18 +28,14 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
-//TODO: Enlever la case sensitivity
-
-//TODO: For the note and warning features, add another table which will be named BAT_comments
-// It will have 6 columns : id of the note, uuid or ip of the player which is involved in this note called entity, the note itself, statue : note or warning
-// name of the staff member who wrote this and finally date
-
 /**
  * Main class BungeeAdminTools
  * 
  * @author Alphart
  */
 public class BAT extends Plugin {
+	// This way we can check at runtime if the required BC build (or a higher one) is installed 
+	private final int requiredBCBuild = 878;
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
 	private Configuration config;
@@ -47,6 +45,11 @@ public class BAT extends Plugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+		if(getBCBuild() < requiredBCBuild){
+			getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+			getLogger().severe("BAT is going to shutdown ...");
+			return;
+		}
 		config = new Configuration();
 		prefix = config.getPrefix();
 		if (loadDB()) {
@@ -57,7 +60,21 @@ public class BAT extends Plugin {
 			return;
 		}
 		// Init the I18n module
-		I18n.getString("GLOBAL");
+		I18n.getString("global");
+	}
+	
+	public int getBCBuild(){
+		final Pattern p = Pattern.compile(".*?:(.*?:){3}(\\d*)");
+		final Matcher m = p.matcher(ProxyServer.getInstance().getVersion());
+		final int BCBuild;
+		if (m.find()) {
+		    BCBuild = Integer.parseInt(m.group(2));
+		}else{
+			// We can't determine BC build, just display a message, and set the build so it doesn't trigger the security
+			getLogger().info("BC build can't be detected. If you encounter any problems, please report that message. Otherwise don't take into account");
+			BCBuild = requiredBCBuild;
+		}
+		return BCBuild;
 	}
 
 	@Override
@@ -89,6 +106,8 @@ public class BAT extends Plugin {
 		// Before initialize the connection, we must download the sqlite driver
 		// (if it isn't already in the lib folder) and load it
 		else {
+			getLogger().warning("It is strongly DISRECOMMENDED to use SQLite with BAT,"
+					+ " as the SQLite implementation is less stable and much slower than the MySQL implementation.");
 			if(loadSQLiteDriver()){
 				dsHandler = new DataSourceHandler();
 				return true;
@@ -106,7 +125,7 @@ public class BAT extends Plugin {
 		if (!new File(getDataFolder() + File.separator + "lib" + File.separator + "sqlite_driver.jar").exists()) {
 			getLogger().info("The SQLLite driver was not found. It is being downloaded, please wait ...");
 
-			final String driverUrl = "http://cdn.bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.2.jar";
+			final String driverUrl = "https://www.dropbox.com/s/ls7qoddx9m6t4vh/sqlite_driver.jar?dl=1";
 			FileOutputStream fos = null;
 			try {
 				final ReadableByteChannel rbc = Channels.newChannel(new URL(driverUrl).openStream());

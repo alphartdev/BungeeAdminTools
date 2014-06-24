@@ -2,6 +2,7 @@ package fr.Alphart.BAT.Modules;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -15,6 +16,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Listener;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.Ban.Ban;
+import fr.Alphart.BAT.Modules.Comment.Comment;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Kick.Kick;
 import fr.Alphart.BAT.Modules.Mute.Mute;
@@ -30,14 +32,8 @@ public class ModulesManager {
 	public ModulesManager() {
 		log = BAT.getInstance().getLogger();
 		sb = new StringBuilder();
-		modules = new HashMap<IModule, Integer>();
+		modules = new LinkedHashMap<IModule, Integer>();
 		modulesNames = new HashMap<String, IModule>();
-
-		// The core module MUST NOT be disabled.
-		modules.put(new Core(), IModule.OFF_STATE);
-		modules.put(new Ban(), IModule.OFF_STATE);
-		modules.put(new Mute(), IModule.OFF_STATE);
-		modules.put(new Kick(), IModule.OFF_STATE);
 	}
 
 	public void showHelp(final CommandSender sender) {
@@ -67,6 +63,12 @@ public class ModulesManager {
 	}
 
 	public void loadModules() {
+		// The core module MUST NOT be disabled.
+		modules.put(new Core(), IModule.OFF_STATE);
+		modules.put(new Ban(), IModule.OFF_STATE);
+		modules.put(new Mute(), IModule.OFF_STATE);
+		modules.put(new Kick(), IModule.OFF_STATE);
+		modules.put(new Comment(), IModule.OFF_STATE);
 		cmdsModules = new HashMap<String, IModule>();
 		for (final IModule module : modules.keySet()) {
 			// The core doesn't have settings to enable or disable it
@@ -102,18 +104,15 @@ public class ModulesManager {
 	}
 
 	public void unloadModules() {
-		//TODO: Check each unload and load
 		for (final IModule module : getLoadedModules()) {
 			module.unload();
 			if(module instanceof Listener){
 				ProxyServer.getInstance().getPluginManager().unregisterListener((Listener) module);
 			}
-			if(!(module instanceof Core)){
-				for(final BATCommand cmd : module.getCommands()){
-					ProxyServer.getInstance().getPluginManager().unregisterCommands(BAT.getInstance());
-				}
-			}
+			modules.put(module, IModule.OFF_STATE);
 		}
+		ProxyServer.getInstance().getPluginManager().unregisterCommands(BAT.getInstance());
+		modules.clear();
 	}
 
 	public Set<IModule> getLoadedModules() {
@@ -174,11 +173,19 @@ public class ModulesManager {
 		return null;
 	}
 
+	public Comment getCommentModule() throws InvalidModuleException {
+		final IModule module = getModule("comment");
+		if (module != null) {
+			return (Comment) module;
+		}
+		return null;
+	}
+	
 	public IModule getModule(final String name) throws InvalidModuleException {
 		final IModule module = modulesNames.get(name);
-		if (module != null) {
+		if (module != null && modules.get(module) == IModule.ON_STATE) {
 			return module;
 		}
-		throw new InvalidModuleException();
+		throw new InvalidModuleException("Module not found or invalid");
 	}
 }

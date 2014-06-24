@@ -3,12 +3,24 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.Alphart</groupId>
 	<artifactId>bungeeadmintools</artifactId>
-	<version>1.1</version>
 	<name>BungeeAdminTools</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<profiles>
+		<profile>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
@@ -45,7 +57,7 @@
 			<artifactId>BungeePerms</artifactId>
 			<version>2.1.1</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/BungeePerms-2.1.1.jar</systemPath>
+			<systemPath>${basedir}/lib/BungeePerms-2.3.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -131,4 +143,5 @@
 		</plugins>
 	</build>
 	<description>Bungee plugin which handles ban, mute and kick management</description>
+	<version>1.2.1</version>
 </project>

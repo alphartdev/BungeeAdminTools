@@ -1,46 +1,78 @@
-# BungeeAdminTools language FR file
-alreadyBan=&cCe joueur est deja banni de ce serveur!
-alreadyMute=&cCe joueur est déjà mute de ce serveur!
+# BungeeAdminTools French language file
+# Ban module
+alreadyBan=&cCe joueur est déjà banni de ce serveur !
 banBroadcast=&a{0}&e a été &6banni définitivement&e par &a{1}&e du serveur &a{2}&e. Raison : {3}
 banTempBroadcast=&a{0}&e a été &6banni&e pendant &a{1}&e par &a{2}&e du serveur &a{3}&e. Raison : {4}
+isBanned=Vous êtes banni de ce serveur le {1} par {2}. Raison: {0}
+isBannedTemp=Vous êtes banni de ce serveur le {2} par {3}. Raison: {0} Temps restant : {1}
+notBanned=&c{0} n''est pas banni de ce serveur.
+notBannedAny=&c{0} n''est banni d''aucun serveur !
+notBannedIP=&c{0} n''est pas banni IP de ce serveur.
+unbanBroadcast=&a{0}&e a été &6débanni &epar &a{1}&e du serveur &a{2}&e. Raison : {3}
+wasBannedNotif=Vous avez été banni de ce serveur. Raison : {0}
+# Mute module
+alreadyMute=&cCe joueur est déjà mute de ce serveur !
+isMute=Vous ne pouvez pas parler car vous avez été muté le {1} par {2} de ce serveur. Raison : {0}
+isMuteTemp=Vous avez été temporairement muté le {2} par {3} de ce serveur. Raison: {0} Ce mute prendra fin dans {1}
+muteBroadcast=&a{0}&e a été &6mute definitivement&e par &a{1}&e du serveur &a{2}&e. Raison : {3}
+muteTempBroadcast=&a{0}&e a été &6mute &ependant &a{1}&e par &a{2}&e du serveur &a{3}&e. Raison : {4}
+notMuted=&c{0} n''est pas mute de ce serveur.
+notMutedAny=&c{0} n''est mute d''aucun serveur !
+notMutedIP=&c{0} n''est pas mute IP de ce serveur.
+unmuteBroadcast=&a{0}&e a été &6démute &epar &a{1}&e du serveur &a{2}&e. Raison : {3}
+wasMutedNotif=Vous avez été mute de ce serveur. Raison : {0}
+wasUnmutedNotif=Vous avez retrouvé la parole. Raison : {0}
+loadingMutedata=Chargement des données de mute en cours : vous pourrez parlez dans quelques instants.
+# Kick module
+kickBroadcast=&a{0}&e a été &6expulsé&e par &a{1}&e du serveur &a{2}&e. Raison : {3}
 gKickBroadcast=&a{0}&e a été &6kické&e par &a{1}&e du proxy. Raison : {2}
+wasKickedNotif=Vous avez été kické de ce serveur ! Raison : {0}
+cantKickDefaultServer=&cVous ne pouvez pas expulser {0} car il est déjà sur le serveur par défaut.
+# Comment module
 warnBroadcast=&a{0}&e a été &6averti&e par &a{1}&e. Raison : {2}
-GLOBAL=global
+wasWarnedNotif=Vous avez été averti. Raison : {0}
+commentsCleared=Les commentaires de &a{0}&e ont été supprimés.
+commentIDCleared=Le commentaire &b#{0}&e de &a{1}&e a été supprimé.
+commentAdded=&eLe commentaire a été ajouté.
+noCommentIDFound=&a{0}&e n''a pas de commentaire avec un tel ID.
+# Command related message
+invalidArgs=Arguments invalides. {0}
+invalidArgsUsage=Arguments invalides. Usage: {0}
+invalidCommand=Commande invalide.
+noPerm=&cVous n''avez pas la permission d''éxecuter cette commande !
+mustConfirm=Vous devez &aconfirmez&e votre commande en utilisant &6/{1} {0}
+noQueuedCommand=Vous n''avez pas de commande à confirmer.
+# Per module lookup translation
+# Player lookup
+activeBanLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+archiveBanLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
+\n&6Date unban:&a {4} &6Raison unban:&a {5} &6Staff unban:&a {6}
+activeMuteLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+archiveMuteLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
+\n&6Date unmute:&a {4} &6Raison unmute:&a {5} &6Staff unmute:&a {6}
+kickLookupRow=&6* &eDate:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}
+commentRow=&a#{0}&e {1}&f Contenu: &a{2} &fDate: &6{3} &fStaff: &B{4}
+# Staff lookup
+activeStaffBanLookupRow=&6* &eEntité:&a {0} &eDébut:&a {1} &eServeur:&a {2} &eRaison:&a {3} &eFin:&a {4}
+archiveStaffBanLookupRow=&6* &eEntité:&a {0} &eDébut:&a {1} &eServeur:&a {2} &eRaison:&a {3}\
+\n&6Unban date:&a {4} &6Unban raison:&a {5} &6Unban staff:&a {6}
+activeStaffMuteLookupRow=&6* &eEntité:&a {0} &eDébut:&a {1} &eServeur:&a {2} &eRaison:&a {3} &eFin:&a {4}
+archiveStaffMuteLookupRow=&6* &eEntité:&a {0} &eDébut:&a {1} &eServeur:&a {2} &eRaison:&a {3}\
+\n&6Unmute date:&a {4} &6Unmute raison:&a {5} &6Unmute staff:&a {6}
+kickStaffLookupRow=&6* &eEntité:&a {0} &eDate:&a {1} &eServeur:&a {2} &eRaison:&a {3}
+commentStaffRow=&a#{0}&e {1}&f &eEntité:&a {2} Contenu: &a{3} &fDate: &6{4}
+# Miscellaneous related to BAT
+playerNotFound=Joueur introuvable
+noReason=raison non specifiée
+operationUnknownPlayer=Vous êtes en train d''effectuer une opération sur le joueur {0} qui ne s''est jamais connecté
+specifyServer=Vous devez specifiez un serveur !
+cannotGetUUID=L''UUID de {0} ne peut pas être récuperé.
+global=global
 invalidServer=Le serveur specifié est invalide!
 ipUnknownPlayer=Vous ne pouvez pas effectuez d''opérations relatives à l''IP de ce joueur car il ne s''est jamais connecté.
-isBanned=Vous êtes banni de ce serveur. Raison: {0}
-isBannedTemp=Vous êtes banni de ce serveur. Raison: {0} Temps restant : {1}
-IS_EXEMPT=&cCette commande ne peut pas être executée sur ce joueur!
-IS_MUTE=Vous êtes muet, vous ne pouvez pas parlez.
-INVALID_ARGS=Arguments invalides. {0}
-INVALID_ARGS_USAGE=Arguments invalides. Usage : {0}
-INVALID_COMMAND=Commande invalide.
-KICK_BROADCAST=&a{0}&e a été &6expulsé&e par &a{1}&e du serveur &a{2}&e. Raison : {3}
-LOADING_MUTEDATA=Chargement des données de mute en cours : vous pourrez parlez dans quelques instants.
-MUTE_BROADCAST=&a{0}&e a été &6mute definitivement&e par &a{1}&e du serveur &a{2}&e. Raison : {3}
-MUTETEMP_BROADCAST=&a{0}&e a été &6mute &ependant &a{1}&e par &a{2}&e du serveur &a{3}&e. Raison : {4}
-NO_PERM=&cVous n''avez pas la permission d''éxecuter cette commande!
-NO_REASON=raison non specifiée
-NOT_BAN=&c{0} n''est pas banni de ce serveur.
-NOT_BAN_ANY=&c{0} n''est banni d''aucun serveur!
-NOT_BANIP=&c{0} n''est pas banni IP de ce serveur.
-NOT_MUTE=&c{0} n''est pas mute de ce serveur.
-NOT_MUTE_ANY=&c{0} n''est mute d''aucun serveur !
-NOT_MUTEIP=&c{0} n''est pas mute IP de ce serveur.
-playerNotFound=Le joueur est introuvable.
-operationUnknownPlayer=Vous êtes en train d''effectuer une action sur le joueur {0} qui ne s''est jamais connecté.
-SPECIFY_SERVER=Vous devez specifiez un serveur!
-UNbanBroadcast=&a{0}&e a été &6débanni &epar &a{1}&e du serveur &a{2}&e. Raison : {3}
-UNMUTE_BROADCAST=&a{0}&e a été &6démute &epar &a{1}&e du serveur &a{2}&e. Raison : {3}
-WAS_BANNED_NOTIF=Vous avez été banni de ce serveur. Raison : {0}
-WAS_KICKED_NOTIF=Vous avez été kické de ce serveur ! Raison : {0}
-WAS_MUTED_NOTIF=Vous avez été mute de ce serveur. Raison : {0}
-WAS_UNMUTED_NOTIF=Vous avez retrouvez la parole. Raison : {0}
-WAS_WARNED_NOTIF=Vous avez été averti. Raison : {0}
-MUST_CONFIRM=Vous devez &aconfirmez&e votre commande en utilisant &6/bat confirm {0}
-CANT_KICK_DEFAULT_SERVER=&cVous ne pouvez pas expulsez {0} car il est déjà sur le serveur par défaut.
-cannotGetUUID=L''UUID de {0} ne peut pas être récuperer.
-noQueuedCommand=Vous n''avez pas de commande à confirmer.
-formatComment=&a#{0}&e {1}&f Content: &a{2} &fDate: &6{3} &fStaff: &B{4}
-commentsCleared=Les commentaires de &a{0}&e ont été supprimés.
-commentAdded=&eLe commentaire a été ajouté.
+isExempt=&cCette commande ne peut pas être executée sur ce joueur !
+# Miscellaneous related to language : some words that need to be translated
+today=aujourd''hui
+tomorrow=demain
+yesterday=hier
+at=à

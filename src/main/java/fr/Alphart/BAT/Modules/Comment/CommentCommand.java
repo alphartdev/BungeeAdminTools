@@ -14,7 +14,7 @@ import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
-import fr.Alphart.BAT.Modules.Comment.CommentObject.Type;
+import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
@@ -87,12 +87,12 @@ public class CommentCommand extends CommandHandler{
 				}
 			}
 			else{
-				target.sendMessage(__("WAS_WARNED_NOTIF", new String[] {reason}));
+				target.sendMessage(__("wasWarnedNotif", new String[] {reason}));
 			}
 			
 			if(sender instanceof ProxiedPlayer){
 				checkArgument(PermissionManager.canExecuteAction(Action.WARN , sender, ((ProxiedPlayer)sender).getServer().getInfo().getName()),
-						_("NO_PERM"));
+						_("noPerm"));
 			}
 			
 			comment.insertComment(args[0], reason, Type.WARNING, sender.getName());

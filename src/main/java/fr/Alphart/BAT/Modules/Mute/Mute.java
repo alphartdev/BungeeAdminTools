@@ -9,14 +9,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import net.cubespace.Yamler.Config.Comment;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -24,6 +27,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -31,6 +35,7 @@ import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.FormatUtils;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -41,7 +46,7 @@ import fr.Alphart.BAT.database.SQLQueries;
  */
 public class Mute implements IModule, Listener {
 	private final String name = "mute";
-	private static ConcurrentHashMap<String, PlayerMuteData> mutedPlayers;
+	private ConcurrentHashMap<String, PlayerMuteData> mutedPlayers;
 	private CommandHandler commandHandler;
 	private ScheduledTask task;
 	private final MuteConfig config;
@@ -115,11 +120,67 @@ public class Mute implements IModule, Listener {
 		
 		@Comment("Forbidden commands when a player is mute")
 		@Getter
-		private List<String> forbiddenCmds = new ArrayList<String>(){{
+		private List<String> forbiddenCmds = new ArrayList<String>(){
+			private static final long serialVersionUID = 1L;
+
+		{
 			add("msg");
 		}};
 	}
 
+	public void loadMuteMessage(final String pName, final String server){
+		if(!mutedPlayers.containsKey(pName)){
+			return;
+		}
+		String reason = "";
+		Timestamp expiration = null;
+		Timestamp begin = null;
+		String staff = null;
+		
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement(DataSourceHandler.isSQLite()
+					? SQLQueries.Mute.SQLite.getMuteMessage
+					: SQLQueries.Mute.getMuteMessage);
+			try{
+				statement.setString(1, Core.getUUID(pName));
+				statement.setString(2, Core.getPlayerIP(pName));
+				statement.setString(3, server);
+			}catch(final UUIDNotFoundException e){
+				BAT.getInstance().getLogger().severe("Error during retrieving of the UUID of " + pName + ". Please report this error :");
+				e.printStackTrace();
+			}
+			resultSet = statement.executeQuery();
+	
+			if(resultSet.next()) {
+				if(DataSourceHandler.isSQLite()){
+					begin = new Timestamp(resultSet.getLong("strftime('%s',mute_begin)") * 1000);
+					String endStr = resultSet.getString("mute_end");
+					expiration = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+				}else{
+					begin = resultSet.getTimestamp("mute_begin");
+					expiration = resultSet.getTimestamp("mute_end");
+				}
+				reason = (resultSet.getString("mute_reason") != null) ? resultSet.getString("mute_reason") : IModule.NO_REASON;
+				staff = resultSet.getString("mute_staff");
+			}else{
+				throw new SQLException("No active mute found.");
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		if(expiration != null){
+			mutedPlayers.get(pName).setMuteMessage(_("isMuteTemp", 
+					new String[]{ reason , "{expiration}", Core.defaultDF.format(begin), staff }), expiration);
+		}else{
+			mutedPlayers.get(pName).setMuteMessage(_("isMute", 
+					new String[]{ reason, Core.defaultDF.format(begin), staff }), null);
+		}
+	}
+	
 	/**
 	 * Check if both ip and name of this player are muted<br>
 	 * Use <b>cached data</b>
@@ -245,15 +306,17 @@ public class Mute implements IModule, Listener {
 						} else {
 							mutedPlayers.get(player.getName()).addServer(server);
 						}
-						player.sendMessage(__("WAS_MUTED_NOTIF", new String[] { reason }));
+						if(server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
+							player.sendMessage(__("wasMutedNotif", new String[] { reason }));
+						}
 					}
 				}
 
 				if (expirationTimestamp > 0) {
-					return _("MUTETEMP_BROADCAST", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
+					return _("muteTempBroadcast", new String[] { ip, FormatUtils.getDuration(expirationTimestamp),
 							staff, server, reason });
 				} else {
-					return _("MUTE_BROADCAST", new String[] { ip, staff, server, reason });
+					return _("muteBroadcast", new String[] { ip, staff, server, reason });
 				}
 			}
 
@@ -271,21 +334,18 @@ public class Mute implements IModule, Listener {
 				statement.close();
 
 				// Update the cached data
-				if (player != null
-						&& ((server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equals(server)))) {
-					if (server.equals(GLOBAL_SERVER)) {
-						mutedPlayers.get(player.getName()).setGlobal();
-					} else {
-						mutedPlayers.get(player.getName()).addServer(server);
+				if (player != null) {
+					updateMuteData(player.getName());
+					if(server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
+						player.sendMessage(__("wasMutedNotif", new String[] { reason }));
 					}
-					player.sendMessage(__("WAS_MUTED_NOTIF", new String[] { reason }));
 				}
 
 				if (expirationTimestamp > 0) {
-					return _("MUTETEMP_BROADCAST", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
+					return _("muteTempBroadcast", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
 							staff, server, reason });
 				} else {
-					return _("MUTE_BROADCAST", new String[] { pName, staff, server, reason });
+					return _("muteBroadcast", new String[] { pName, staff, server, reason });
 				}
 			}
 		} catch (final SQLException e) {
@@ -310,7 +370,7 @@ public class Mute implements IModule, Listener {
 	public String muteIP(final ProxiedPlayer player, final String server, final String staff,
 			final long expirationTimestamp, final String reason) {
 		mute(Utils.getPlayerIP(player), server, staff, expirationTimestamp, reason);
-		return _("MUTE_BROADCAST", new String[] { player.getName() + "'s IP", staff, server, reason });
+		return _("muteBroadcast", new String[] { player.getName() + "'s IP", staff, server, reason });
 	}
 
 	/**
@@ -349,7 +409,7 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				return _("UNMUTE_BROADCAST", new String[] { ip, staff, server, reason });
+				return _("unmuteBroadcast", new String[] { ip, staff, server, reason });
 			}
 
 			// Otherwise it's a player
@@ -375,19 +435,23 @@ public class Mute implements IModule, Listener {
 
 				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				if (player != null) {
-					if (ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server)) {
-						final PlayerMuteData pMuteData = mutedPlayers.get(player.getName());
-						pMuteData.clearServers();
-					} else {
-						final PlayerMuteData pma = (mutedPlayers.get(player.getName()));
-						if (pma != null) {
-							pma.removeServer(server);
-						}
+					updateMuteData(player.getName());
+//					if (ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server)) {
+//						final PlayerMuteData pMuteData = mutedPlayers.get(player.getName());
+//						pMuteData.clearServers();
+//						pMuteData.unsetGlobal();
+//					} else {
+//						final PlayerMuteData pma = (mutedPlayers.get(player.getName()));
+//						if (pma != null) {
+//							pma.removeServer(server);
+//						}
+//					}
+					if(ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
+						player.sendMessage(__("wasUnmutedNotif", new String[] { reason }));
 					}
-					player.sendMessage(__("WAS_UNMUTED_NOTIF", new String[] { reason }));
 				}
 
-				return _("UNMUTE_BROADCAST", new String[] { pName, staff, server, reason });
+				return _("unmuteBroadcast", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -415,7 +479,7 @@ public class Mute implements IModule, Listener {
 		} else {
 			unMute(Core.getPlayerIP(entity), server, staff, reason);
 			updateMuteData(entity);
-			return _("UNMUTE_BROADCAST", new String[] { entity + "'s IP", staff, server, reason });
+			return _("unmuteBroadcast", new String[] { entity + "'s IP", staff, server, reason });
 		}
 	}
 
@@ -428,61 +492,76 @@ public class Mute implements IModule, Listener {
 	 * @return List of MuteEntry of the entity
 	 */
 	public List<MuteEntry> getMuteData(final String entity) {
-		final List<MuteEntry> banList = new ArrayList<MuteEntry>();
+		final List<MuteEntry> muteList = new ArrayList<MuteEntry>();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
-			// If the mutedEntity is an ip
+			// If the entity is an ip
 			if (Utils.validIP(entity)) {
-				final String ip = entity;
-				statement = conn.prepareStatement(SQLQueries.Mute.getMuteIP);
-				statement.setString(1, ip);
+				statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+						? SQLQueries.Mute.SQLite.getMuteIP
+						: SQLQueries.Mute.getMuteIP);
+				statement.setString(1, entity);
 				resultSet = statement.executeQuery();
-
-				while (resultSet.next()) {
-					final String server = resultSet.getString("mute_server");
-					final String reason = resultSet.getString("mute_reason");
-					final String staff = resultSet.getString("mute_staff");
-					final int begin_date = resultSet.getInt("mute_begin");
-					final int end_date = resultSet.getInt("mute_end");
-					final boolean active = (resultSet.getBoolean("mute_state") ? true : false);
-					banList.add(new MuteEntry(ip, server, reason, staff, begin_date, end_date, active));
-				}
 			}
-
 			// Otherwise if it's a player
 			else {
-				final String pName = entity;
-				statement = conn.prepareStatement(SQLQueries.Mute.getMute);
-				statement.setString(1, Core.getUUID(pName));
+				statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+						? SQLQueries.Mute.SQLite.getMute
+						: SQLQueries.Mute.getMute);
+				statement.setString(1, Core.getUUID(entity));
 				resultSet = statement.executeQuery();
-
-				while (resultSet.next()) {
-					final String server = resultSet.getString("mute_server");
-					final String reason = resultSet.getString("mute_reason");
-					final String staff = resultSet.getString("mute_staff");
-					final int begin_date = resultSet.getInt("mute_begin");
-					final int end_date = resultSet.getInt("mute_end");
-					final boolean active = (resultSet.getBoolean("mute_state") ? true : false);
-					banList.add(new MuteEntry(pName, server, reason, staff, begin_date, end_date, active));
+			}
+			
+			while (resultSet.next()) {
+				final Timestamp beginDate;
+				final Timestamp endDate;
+				final Timestamp unmuteDate;
+				if(DataSourceHandler.isSQLite()){
+					beginDate = new Timestamp(resultSet.getLong("strftime('%s',mute_begin)") * 1000);
+					final String endStr = resultSet.getString("mute_end");
+					endDate = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+					final long unbanLong = resultSet.getLong("strftime('%s',mute_unmutedate)") * 1000;
+					unmuteDate = (unbanLong == 0) ? null : new Timestamp(unbanLong);
+				}else{
+					beginDate = resultSet.getTimestamp("mute_begin");
+					endDate = resultSet.getTimestamp("mute_end");
+					unmuteDate = resultSet.getTimestamp("mute_unmutedate");
 				}
+				
+				final String server = resultSet.getString("mute_server");
+				String reason = resultSet.getString("mute_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
+				final String staff = resultSet.getString("mute_staff");
+				final boolean active = (resultSet.getBoolean("mute_state") ? true : false);
+				String unmuteReason = resultSet.getString("mute_unmutereason");
+				if(unmuteReason == null){
+					unmuteReason = NO_REASON;
+				}
+				final String unmuteStaff = resultSet.getString("mute_unmutestaff");
+				muteList.add(new MuteEntry(entity, server, reason, staff, beginDate, endDate, unmuteDate, unmuteReason, unmuteStaff, active));
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
 		} finally {
 			DataSourceHandler.close(statement, resultSet);
 		}
-		return banList;
+		return muteList;
 	}
 
 	/**
 	 * This class is used to cache the mute data of a player.
 	 */
 	public static class PlayerMuteData {
+		private final String pName;
 		private final List<String> servers;
 		private boolean globalMute = false;
+		private Map.Entry<String, Timestamp> muteMessage;
 
 		public PlayerMuteData(final String pName, final List<String> servers) {
+			this.pName = pName;
 			this.servers = new ArrayList<String>(servers);
 		}
 
@@ -509,10 +588,49 @@ public class Mute implements IModule, Listener {
 		}
 
 		public boolean isMute(final String server) {
-			if (globalMute || (ANY_SERVER.equals(server) && !servers.isEmpty()) || servers.contains(server)) {
+			if (globalMute) {
+				return true;
+			}else if( (ANY_SERVER.equals(server) && !servers.isEmpty()) ){
+				return true;
+			}else if(servers.contains(server)){
 				return true;
 			}
 			return false;
+		}
+	
+		public BaseComponent[] getMuteMessage(final Mute module){
+			if(muteMessage != null){
+				if(muteMessage.getValue() != null){
+					if(muteMessage.getValue().getTime() >= System.currentTimeMillis()){
+						return BAT.__(muteMessage.getKey().replace("{expiration}", FormatUtils.getDuration(muteMessage.getValue().getTime())));
+					}
+					// If it's not synchronized with the db, force the update of mute data
+					else{
+						Statement statement = null;
+						try (Connection conn = BAT.getConnection()) {
+							statement = conn.createStatement();
+							if (DataSourceHandler.isSQLite()) {
+								statement.executeUpdate(SQLQueries.Mute.SQLite.updateExpiredMute);
+							} else {
+								statement.executeUpdate(SQLQueries.Mute.updateExpiredMute);
+							}
+						} catch (final SQLException e) {
+							DataSourceHandler.handleException(e);
+						} finally {
+							DataSourceHandler.close(statement);
+						}
+						module.updateMuteData(pName);
+					}
+				}
+				else{
+					return BAT.__(muteMessage.getKey());
+				}
+			}
+			return __("wasUnmutedNotif", new String[]{ NO_REASON });
+		}
+		
+		public void setMuteMessage(final String messagePattern, final Timestamp expiration){
+			muteMessage = new AbstractMap.SimpleEntry<String, Timestamp>(messagePattern, expiration);
 		}
 	}
 
@@ -532,7 +650,7 @@ public class Mute implements IModule, Listener {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND UUID = ?;");
+			statement = conn.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE UUID = ? AND mute_state = 1;");
 			statement.setString(1, Core.getUUID(pName));
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -547,7 +665,7 @@ public class Mute implements IModule, Listener {
 			statement.close();
 
 			statement = conn
-					.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_state = 1 AND mute_ip = ?;");
+					.prepareStatement("SELECT mute_server FROM `BAT_mute` WHERE mute_ip = ? AND mute_state = 1;");
 			statement.setString(1, Core.getPlayerIP(pName));
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -564,6 +682,69 @@ public class Mute implements IModule, Listener {
 			DataSourceHandler.close(statement, resultSet);
 		}
 		mutedPlayers.put(pName, pMuteData);
+		if(pMuteData.isMute(GLOBAL_SERVER)){
+			loadMuteMessage(pName, GLOBAL_SERVER);
+		}else if(player.getServer() != null && pMuteData.isMute(player.getServer().getInfo().getName())){
+			loadMuteMessage(pName, player.getServer().getInfo().getName());
+		}
+	}
+	
+	public List<MuteEntry> getManagedMute(final String staff){
+		final List<MuteEntry> muteList = new ArrayList<MuteEntry>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		try (Connection conn = BAT.getConnection()) {
+			statement = conn.prepareStatement((DataSourceHandler.isSQLite())
+					? SQLQueries.Mute.SQLite.getManagedMute
+					: SQLQueries.Mute.getManagedMute);
+			statement.setString(1, staff);
+			statement.setString(2, staff);
+			resultSet = statement.executeQuery();
+			
+			while (resultSet.next()) {
+				final Timestamp beginDate;
+				final Timestamp endDate;
+				final Timestamp unmuteDate;
+				if(DataSourceHandler.isSQLite()){
+					beginDate = new Timestamp(resultSet.getLong("strftime('%s',mute_begin)") * 1000);
+					String endStr = resultSet.getString("mute_end");
+					endDate = (endStr == null) ? null : new Timestamp(Long.parseLong(endStr));
+					long unmuteLong = resultSet.getLong("strftime('%s',mute_unmutedate)") * 1000;
+					unmuteDate = (unmuteLong == 0) ? null : new Timestamp(unmuteLong);
+				}else{
+					beginDate = resultSet.getTimestamp("mute_begin");
+					endDate = resultSet.getTimestamp("mute_end");
+					unmuteDate = resultSet.getTimestamp("mute_unmutedate");
+				}
+
+				
+				// Make it compatible with sqlite (date: get an int with the sfrt and then construct a tiemstamp)
+				final String server = resultSet.getString("mute_server");
+				String reason = resultSet.getString("mute_reason");
+				if(reason == null){
+					reason = NO_REASON;
+				}
+				String entity = (resultSet.getString("mute_ip") != null) 
+						? resultSet.getString("mute_ip")
+						: Core.getPlayerName(resultSet.getString("UUID"));
+				// If the UUID search failed
+				if(entity == null){
+					entity = "UUID:" + resultSet.getString("UUID");
+				}
+				final boolean active = (resultSet.getBoolean("mute_state") ? true : false);
+				String unmuteReason = resultSet.getString("mute_unmutereason");
+				if(unmuteReason == null){
+					unmuteReason = NO_REASON;
+				}
+				final String unmuteStaff = resultSet.getString("mute_unmutestaff");
+				muteList.add(new MuteEntry(entity, server, reason, staff, beginDate, endDate, unmuteDate, unmuteReason, unmuteStaff, active));
+			}
+		} catch (final SQLException e) {
+			DataSourceHandler.handleException(e);
+		} finally {
+			DataSourceHandler.close(statement, resultSet);
+		}
+		return muteList;
 	}
 
 	public void unloadMuteData(final ProxiedPlayer player) {
@@ -574,19 +755,24 @@ public class Mute implements IModule, Listener {
 	@EventHandler
 	public void onServerConnect(final ServerConnectedEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
-
 		final String pName = player.getName();
 		final int muteState = isMute(player, e.getServer().getInfo().getName());
 		if (muteState == -1) {
-			// Load mute data
-			BAT.getInstance().getProxy().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
+			// Load mute data with a little bit of delay to handle server switching operations which may take some time
+			BAT.getInstance().getProxy().getScheduler().schedule(BAT.getInstance(), new Runnable() {
 				@Override
 				public void run() {
 					updateMuteData(pName);
 				}
-			});
+			}, 250, TimeUnit.MILLISECONDS);
 		} else if (muteState == 1) {
-			player.sendMessage(__("IS_MUTE"));
+			PlayerMuteData pMuteData = mutedPlayers.get(pName);
+			if(pMuteData.isMute(GLOBAL_SERVER)){
+				loadMuteMessage(pName, GLOBAL_SERVER);
+			}else if(pMuteData.isMute(e.getServer().getInfo().getName())){
+				loadMuteMessage(pName, e.getServer().getInfo().getName());
+			}
+			player.sendMessage(pMuteData.getMuteMessage(this));
 		}
 	}
 
@@ -595,8 +781,11 @@ public class Mute implements IModule, Listener {
 		unloadMuteData(e.getPlayer());
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerChat(final ChatEvent e) {
+		if(!(e.getSender() instanceof ProxiedPlayer)){
+			return;
+		}
 		final ProxiedPlayer player = (ProxiedPlayer) e.getSender();
 		final int muteState = isMute(player, player.getServer().getInfo().getName());
 		if (muteState == 0) {
@@ -609,10 +798,10 @@ public class Mute implements IModule, Listener {
 			}
 		}
 		if (muteState == 1) {
-			player.sendMessage(__("IS_MUTE"));
+			player.sendMessage(mutedPlayers.get(player.getName()).getMuteMessage(this));
 			e.setCancelled(true);
 		} else if (muteState == -1) {
-			player.sendMessage(__("LOADING_MUTEDATA"));
+			player.sendMessage(__("loadingMutedata"));
 			e.setCancelled(true);
 		}
 	}
