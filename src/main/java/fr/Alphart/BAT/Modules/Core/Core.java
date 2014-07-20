@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import net.alpenblock.bungeeperms.BungeePerms;
 import net.md_5.bungee.api.CommandSender;
@@ -23,6 +24,9 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import com.google.common.base.Charsets;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mojang.api.profiles.HttpProfileRepository;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
@@ -38,6 +42,57 @@ import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
 public class Core implements IModule, Listener {
+	private static LoadingCache<String, String> uuidCache = CacheBuilder.newBuilder()
+	       .maximumSize(10000)
+	       .expireAfterAccess(30, TimeUnit.MINUTES)
+	       .build(
+	           new CacheLoader<String, String>() {
+	             public String load(final String pName) throws UUIDNotFoundException{
+	            	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
+	         		if (player != null) {
+	         			// Note: if it's an offline server, the UUID will be generated using
+	         			// this
+	         			// function java.util.UUID.nameUUIDFromBytes, however it's an
+	         			// prenium or cracked account
+	         			// Online server : bungee handle great the UUID
+	         			return player.getUniqueId().toString().replaceAll("-","");
+	         		}
+
+	         		PreparedStatement statement = null;
+	         		ResultSet resultSet = null;
+	         		String UUID = "";
+	         		// Try to get the UUID from the BAT db
+	         		try (Connection conn = BAT.getConnection()) {
+	         			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
+	         			statement.setString(1, pName);
+	         			resultSet = statement.executeQuery();
+	         			if (resultSet.next()) {
+	         				UUID = resultSet.getString("UUID");
+	         			}
+	         		} catch (final SQLException e) {
+	         			DataSourceHandler.handleException(e);
+	         		} finally {
+	         			DataSourceHandler.close(statement, resultSet);
+	         		}
+	         		
+	         		// If online server, retrieve the UUID from the mojang server
+	         		if(UUID.isEmpty() && ProxyServer.getInstance().getConfig().isOnlineMode()){
+	         			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
+
+	         			if (profiles.length > 0) {
+	         				UUID = profiles[0].getId();
+	         			} else{
+	         				throw new UUIDNotFoundException(pName);
+	         			}
+	         		}
+	         		// If offline server, generate the UUID
+	         		else if(UUID.isEmpty()){
+	         			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
+	         		}
+
+	         		return UUID;
+	             }
+	           });
 	private final String name = "core";
 	private List<BATCommand> cmds;
 	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
@@ -117,49 +172,14 @@ public class Core implements IModule, Listener {
 	 */
 	@SuppressWarnings("deprecation")
 	public static String getUUID(final String pName){
-		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-		if (player != null) {
-			// Note: if it's an offline server, the UUID will be generated using
-			// this
-			// function java.util.UUID.nameUUIDFromBytes, however it's an
-			// prenium or cracked account
-			// Online server : bungee handle great the UUID
-			return player.getUniqueId().toString().replaceAll("-","");
-		}
-
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		String UUID = "";
-		// Try to get the UUID from the BAT db
-		try (Connection conn = BAT.getConnection()) {
-			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
-			statement.setString(1, pName);
-			resultSet = statement.executeQuery();
-			if (resultSet.next()) {
-				UUID = resultSet.getString("UUID");
-			}
-		} catch (final SQLException e) {
-			DataSourceHandler.handleException(e);
-		} finally {
-			DataSourceHandler.close(statement, resultSet);
-		}
-		
-		// If online server, retrieve the UUID from the mojang server
-		if(UUID.isEmpty() && ProxyServer.getInstance().getConfig().isOnlineMode()){
-			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
-
-			if (profiles.length > 0) {
-				UUID = profiles[0].getId();
-			} else{
-				throw new UUIDNotFoundException(pName);
+		try {
+			return uuidCache.get(pName);
+		} catch (final Exception e) {
+			if(e.getCause() instanceof UUIDNotFoundException){
+				throw (UUIDNotFoundException)e.getCause();
 			}
 		}
-		// If offline server, generate the UUID
-		else if(UUID.isEmpty()){
-			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
-		}
-
-		return UUID;
+		return null;
 	}
 
 	/**

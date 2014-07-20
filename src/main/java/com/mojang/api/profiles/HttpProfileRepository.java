@@ -1,17 +1,21 @@
 package com.mojang.api.profiles;
 
-import com.google.gson.Gson;
-import com.mojang.api.http.BasicHttpClient;
-import com.mojang.api.http.HttpBody;
-import com.mojang.api.http.HttpClient;
-import com.mojang.api.http.HttpHeader;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.mojang.api.http.BasicHttpClient;
+import com.mojang.api.http.HttpBody;
+import com.mojang.api.http.HttpClient;
+import com.mojang.api.http.HttpHeader;
+
+/**
+ * Little modification to avoid checking hundred of time the same profile.
+ * @author Mojang
+ */
 public class HttpProfileRepository implements ProfileRepository {
 
 	private static final int MAX_PAGES_TO_CHECK = 100;
@@ -39,6 +43,11 @@ public class HttpProfileRepository implements ProfileRepository {
 					break;
 				}
 				profiles.addAll(Arrays.asList(result.getProfiles()));
+				// Begin: BAT modification
+				if(profiles.size() >= criteria.length){
+					break;
+				}
+				// End: BAT modification
 			}
 			return profiles.toArray(new Profile[profiles.size()]);
 		} catch (final Exception e) {
