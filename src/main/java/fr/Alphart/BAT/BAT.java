@@ -26,6 +26,7 @@ import com.google.common.base.Preconditions;
 import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
+import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
 /**
@@ -52,15 +53,20 @@ public class BAT extends Plugin {
 		}
 		config = new Configuration();
 		prefix = config.getPrefix();
-		if (loadDB()) {
-			modules = new ModulesManager();
-			modules.loadModules();
-		} else {
-			getLogger().severe("BAT is gonna shutdown because it can't connect to the database.");
-			return;
-		}
-		// Init the I18n module
-		I18n.getString("global");
+		loadDB(new Callback<Boolean>(){
+			@Override
+			public void done(final Boolean dbState) {
+				if (dbState) {
+					modules = new ModulesManager();
+					modules.loadModules();
+				} else {
+					getLogger().severe("BAT is gonna shutdown because it can't connect to the database.");
+					return;
+				}
+				// Init the I18n module
+				I18n.getString("global");
+			}
+		});
 	}
 	
 	public int getBCBuild(){
@@ -82,7 +88,7 @@ public class BAT extends Plugin {
 		instance = null;
 	}
 
-	public boolean loadDB() {
+	public void loadDB(final Callback<Boolean> dbState) {
 		if (config.isMysql_enabled()) {
 			final String username = config.getMysql_user();
 			final String password = config.getMysql_password();
@@ -91,16 +97,23 @@ public class BAT extends Plugin {
 			final String host = config.getMysql_host();
 			// BoneCP can accept no database and we want to avoid that
 			Preconditions.checkArgument(!"".equals(database), "You must set the database.");
-			dsHandler = new DataSourceHandler(host, port, database, username, password);
-			final Connection c = dsHandler.getConnection();
-			if (c != null) {
-				try {
-					c.close();
-					return true;
-				} catch (final SQLException e) {
-					return false;
+			ProxyServer.getInstance().getScheduler().runAsync(this, new Runnable() {
+				@Override
+				public void run() {
+					dsHandler = new DataSourceHandler(host, port, database, username, password);
+					final Connection c = dsHandler.getConnection();
+					if (c != null) {
+						try {
+							c.createStatement().executeQuery("SELECT 1;");
+							c.close();
+							dbState.done(true);
+						} catch (final SQLException e) {
+							dbState.done(false);
+						}
+					}
 				}
-			}
+			});
+			return;
 		}
 		// If MySQL is disabled, we are gonna use SQLite
 		// Before initialize the connection, we must download the sqlite driver
@@ -110,10 +123,11 @@ public class BAT extends Plugin {
 					+ " as the SQLite implementation is less stable and much slower than the MySQL implementation.");
 			if(loadSQLiteDriver()){
 				dsHandler = new DataSourceHandler();
-				return true;
+				dbState.done(true);
+			}else{
+				dbState.done(false);
 			}
 		}
-		return false;
 	}
 
 	public boolean loadSQLiteDriver(){
@@ -177,9 +191,9 @@ public class BAT extends Plugin {
 			} catch (final InvalidConfigurationException e) {
 				e.printStackTrace();
 			}
-			if(!loadDB()){
-				throw new IllegalArgumentException("BAT can't connect to the MySQL database. Please check your login details.");
-			}
+//			if(!loadDB()){
+//				throw new IllegalArgumentException("BAT can't connect to the MySQL database. Please check your login details.");
+//			}
 
 			// Load and unload all modules to generate the table in the new DB
 			modules.loadModules();
