@@ -104,8 +104,6 @@
                         <groupId>com.imaginarycode.minecraft</groupId>
  			<artifactId>RedisBungee</artifactId>
 			<version>0.3.3-SNAPSHOT</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/RedisBungee-0.3.3-SNAPSHOT.jar</systemPath>
                 </dependency>
 	</dependencies>
 
