@@ -13,13 +13,18 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import lombok.Getter;
 import net.cubespace.Yamler.Config.Comment;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -299,15 +304,31 @@ public class Mute implements IModule, Listener {
 				statement.executeUpdate();
 				statement.close();
 
-				for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-					if (Utils.getPlayerIP(player).equals(ip)) {
-						if (server.equals(GLOBAL_SERVER)) {
-							mutedPlayers.get(player.getName()).setGlobal();
-						} else {
-							mutedPlayers.get(player.getName()).addServer(server);
-						}
-						if(server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
-							player.sendMessage(__("wasMutedNotif", new String[] { reason }));
+				if (BAT.getInstance().getRedis().isRedisEnabled()) {
+				    	for (UUID pUUID : RedisBungee.getApi().getPlayersOnline()) {
+				    	    	if (RedisBungee.getApi().getPlayerIp(pUUID).equals(ip)) {
+				    	    	    	// The mute task timer will add the player to the bungeecord instance's cache if needed.
+				    	    	    	if(server.equals(GLOBAL_SERVER) || RedisBungee.getApi().getServerFor(pUUID).getName().equalsIgnoreCase(server)) {
+				    	    	    	    	ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pUUID);
+				    	    	    	    	if (player != null) {
+				    	    	    	    	    	player.sendMessage(__("wasMutedNotif", new String[] { reason }));
+				    	    	    	    	} else {
+					    	    	    	    	BAT.getInstance().getRedis().sendMessagePlayer(pUUID, TextComponent.toLegacyText(__("wasMutedNotif", new String[] { reason })));
+				    	    	    	    	}
+				    	    	    	}
+				    	    	}
+				    	}
+				} else {
+				    	for (final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+						if (Utils.getPlayerIP(player).equals(ip)) {
+							if (server.equals(GLOBAL_SERVER)) {
+								mutedPlayers.get(player.getName()).setGlobal();
+							} else {
+								mutedPlayers.get(player.getName()).addServer(server);
+							}
+							if (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)) {
+								player.sendMessage(__("wasMutedNotif", new String[] { reason }));
+							}
 						}
 					}
 				}
@@ -322,31 +343,33 @@ public class Mute implements IModule, Listener {
 
 			// Otherwise it's a player
 			else {
-				final String pName = mutedEntity;
-				final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-				statement = conn.prepareStatement(SQLQueries.Mute.createMute);
-				statement.setString(1, Core.getUUID(pName));
-				statement.setString(2, staff);
-				statement.setString(3, server);
-				statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
-				statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
-				statement.executeUpdate();
-				statement.close();
-
-				// Update the cached data
-				if (player != null) {
+			    	final String pName = mutedEntity;
+			    	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
+			    	statement = conn.prepareStatement(SQLQueries.Mute.createMute);
+		    	    	statement.setString(1, Core.getUUID(pName));
+		    	    	statement.setString(2, staff);
+		    	    	statement.setString(3, server);
+		    	    	statement.setTimestamp(4, (expirationTimestamp > 0) ? new Timestamp(expirationTimestamp) : null);
+		    	    	statement.setString(5, (NO_REASON.equals(reason)) ? null : reason);
+		    	    	statement.executeUpdate();
+		    	    	statement.close();
+			    
+			    	if (player != null) {
 					updateMuteData(player.getName());
 					if(server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
 						player.sendMessage(__("wasMutedNotif", new String[] { reason }));
 					}
+				} else if (BAT.getInstance().getRedis().isRedisEnabled()) {					    
+				    	BAT.getInstance().getRedis().sendMessagePlayer(RedisBungee.getApi().getUuidFromName(pName, true), TextComponent.toLegacyText(__("wasMutedNotif", new String[] { reason })));
 				}
-
-				if (expirationTimestamp > 0) {
+				
+			    	if (expirationTimestamp > 0) {
 					return _("muteTempBroadcast", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
-							staff, server, reason });
+						staff, server, reason });
 				} else {
 					return _("muteBroadcast", new String[] { pName, staff, server, reason });
 				}
+
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
@@ -449,6 +472,11 @@ public class Mute implements IModule, Listener {
 					if(ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
 						player.sendMessage(__("wasUnmutedNotif", new String[] { reason }));
 					}
+				} else if (BAT.getInstance().getRedis().isRedisEnabled()) {
+				    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
+				    	ServerInfo pServer = RedisBungee.getApi().getServerFor(pUUID);
+				    	if (ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server) || (pServer != null && pServer.getName().equalsIgnoreCase(server)))
+				    	BAT.getInstance().getRedis().sendMessagePlayer(pUUID, TextComponent.toLegacyText(__("wasUnmutedNotif", new String[] { reason })));
 				}
 
 				return _("unmuteBroadcast", new String[] { pName, staff, server, reason });
@@ -485,7 +513,7 @@ public class Mute implements IModule, Listener {
 
 	/**
 	 * Get all mute data of an entity <br>
-	 * <b>Should be runned async to optimize performance</b>
+	 * <b>Should be run async to optimize performance</b>
 	 * 
 	 * @param entity
 	 *            | can be an ip or a player name

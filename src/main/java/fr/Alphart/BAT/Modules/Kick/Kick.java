@@ -10,6 +10,9 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -131,6 +134,10 @@ public class Kick implements IModule {
 	 * @param reason
 	 */
 	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
+		player.disconnect(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
+		return gKickSQL(player.getUniqueId(), staff, reason);
+	}
+	public String gKickSQL(final UUID pUUID, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			if (DataSourceHandler.isSQLite()) {
@@ -138,16 +145,18 @@ public class Kick implements IModule {
 			} else {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
-			statement.setString(1, Core.getUUID(player.getName()));
+			statement.setString(1, pUUID.toString());
 			statement.setString(2, staff);
 			statement.setString(3, reason);
 			statement.setString(4, GLOBAL_SERVER);
 			statement.executeUpdate();
 			statement.close();
 
-			player.disconnect(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
-
-			return _("gKickBroadcast", new String[] { player.getName(), staff, reason });
+			if (BAT.getInstance().getRedis().isRedisEnabled()) {
+			    	return _("gKickBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(pUUID), staff, reason });
+			} else {
+				return _("gKickBroadcast", new String[] { BAT.getInstance().getProxy().getPlayer(pUUID).getName(), staff, reason });
+			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {

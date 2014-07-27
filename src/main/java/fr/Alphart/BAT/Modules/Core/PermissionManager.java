@@ -33,6 +33,22 @@ public class PermissionManager {
 		public String toString() {
 			return getPermission();
 		}
+		
+		public String getText() {
+		    	return this.permission;
+		}
+		
+		public static Action fromText(String text) {
+		    	if (text != null) {
+		    	    	for (Action b : Action.values()) {
+		    	    	    	if (text.equalsIgnoreCase(b.permission)) {
+		    	    	    	    	return b;
+		    	    	    	}
+		    	    	}
+		      }
+		      return null;
+		}
+		
 	}
 
 	/**

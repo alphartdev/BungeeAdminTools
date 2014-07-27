@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.alpenblock.bungeeperms.BungeePerms;
@@ -27,6 +28,7 @@ import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.mojang.api.profiles.HttpProfileRepository;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
@@ -238,10 +240,18 @@ public class Core implements IModule, Listener {
 	}
 
 	public static String getPlayerIP(final String pName) {
-		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
-		if (player != null) {
-			return Utils.getPlayerIP(player);
-		}
+	        if (BAT.getInstance().getRedis().isRedisEnabled()) {
+	            try {
+	            	final UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
+	            	if (pUUID != null && RedisBungee.getApi().isPlayerOnline(pUUID))
+	            	    return RedisBungee.getApi().getPlayerIp(pUUID).getHostAddress();
+	            } catch (Exception exp) {
+	        	exp.printStackTrace();
+	            }
+	        } else {
+	            	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
+	            	if (player != null) return Utils.getPlayerIP(player);
+	        }
 
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
