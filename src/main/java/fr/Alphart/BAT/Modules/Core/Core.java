@@ -183,6 +183,17 @@ public class Core implements IModule, Listener {
 		}
 		return null;
 	}
+	
+	/**
+	 * Convert an string uuid into an UUID object
+	 * @param strUUID
+	 * @return UUID
+	 */
+	public static UUID getUUIDfromString(final String strUUID){
+		final String dashesUUID = strUUID.replaceFirst(
+				"([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]+)", "$1-$2-$3-$4-$5");
+		return UUID.fromString(dashesUUID);
+	}
 
 	/**
 	 * Get the player name from a UUID using the BAT database

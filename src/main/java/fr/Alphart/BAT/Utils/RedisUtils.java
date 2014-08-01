@@ -2,14 +2,16 @@ package fr.Alphart.BAT.Utils;
 
 import java.util.UUID;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungee;
-import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
-
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
+
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Modules.InvalidModuleException;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 
 public class RedisUtils implements Listener {
@@ -50,6 +52,9 @@ public class RedisUtils implements Listener {
 	case "broadcast":
 	    recieveBroadcast(message[2], message[3]);
 	    break;
+	case "muteupdate":
+		recieveMuteUpdatePlayer(message[2], message[3]);
+		break;
 	default:
 	    BAT.getInstance().getLogger().warning("Undeclared BungeeAdminTool redis message recieved: " + messageType);
 	    break;
@@ -72,14 +77,19 @@ public class RedisUtils implements Listener {
     }
     
     public void sendGKickPlayer(UUID pUUID, String reason) {
-	if (!redis) return;
-	sendMessage("gkick", pUUID.toString() + split + reason);
+		if (!redis) return;
+		sendMessage("gkick", pUUID.toString() + split + reason);
     }
     private void recieveGKickPlayer(String sUUID, String reason) {
-	ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
-	if (player != null) {
-	    BAT.kick(player, reason);
-	}
+    	if(BAT.getInstance().getModules().isLoaded("ban") || BAT.getInstance().getModules().isLoaded("kick")){
+    		ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
+    		if (player != null) {
+    		    BAT.kick(player, reason);
+    		}
+    	}
+    	else{
+    		throw new IllegalStateException("Neither the ban nor the kick module are enabled. The gkick message can't be handled.");
+    	}
     }
     
     public void sendBroadcast(Action action, String broadcast) {
@@ -90,6 +100,24 @@ public class RedisUtils implements Listener {
 	BAT.broadcast(broadcast, Action.fromText(action).getPermission());
     }
     
+    public void sendMuteUpdatePlayer(UUID pUUID, String server) {
+		if (!redis) return;
+		sendMessage("muteupdate", pUUID.toString() + split + server);
+    }
+    private void recieveMuteUpdatePlayer(String sUUID, String server) {
+    	if(BAT.getInstance().getModules().isLoaded("mute")){
+    		ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
+    		if (player != null) {
+    		    try {
+					BAT.getInstance().getModules().getMuteModule().updateMuteData(player.getName());
+				} catch (InvalidModuleException ignored) {
+				}
+    		}
+    	}
+    	else{
+    		throw new IllegalStateException("The mute module isn't enabled. The mute message can't be handled.");
+    	}
+    }
     
     void sendMessage(String messageType, String messageBody) {
 	if (!redis) return;
