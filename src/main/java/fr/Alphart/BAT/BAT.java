@@ -220,7 +220,21 @@ public class BAT extends Plugin {
 		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', prefix + message));
 	}
 
+	/**
+	 * Send a broadcast message to everyone with the given perm <br>
+	 * Also broadcast through Redis if it's installed that's why this method <strong>should not be called
+	 * from a Redis call</strong> otherwise it will broadcast it again and again
+	 * @param message
+	 * @param perm
+	 */
 	public static void broadcast(final String message, final String perm) {
+		noRedisBroadcast(message, perm);
+		if(BAT.getInstance().getRedis().isRedisEnabled()){
+			BAT.getInstance().getRedis().sendBroadcast(perm, message);
+		}
+	}
+	
+	public static void noRedisBroadcast(final String message, final String perm) {
 		final BaseComponent[] bsMsg = __(message);
 		for (final ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
 			if (p.hasPermission(perm) || p.hasPermission("bat.admin")) {

@@ -176,7 +176,6 @@ public class BanCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.banBroadcast, returnedMsg);
 	}
 
 	@RunAsync
@@ -310,7 +309,6 @@ public class BanCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.banBroadcast, returnedMsg);
 	}
 
 	@RunAsync
@@ -424,6 +422,5 @@ public class BanCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.banBroadcast, returnedMsg);
 	}
 }

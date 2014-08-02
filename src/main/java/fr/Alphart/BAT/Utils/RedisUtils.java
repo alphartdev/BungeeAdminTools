@@ -2,6 +2,7 @@ package fr.Alphart.BAT.Utils;
 
 import java.util.UUID;
 
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
@@ -55,6 +56,9 @@ public class RedisUtils implements Listener {
 	case "muteupdate":
 		recieveMuteUpdatePlayer(message[2], message[3]);
 		break;
+	case "movedefaultserver":
+		recieveMoveDefaultServerPlayer(message[2]);
+		break;
 	default:
 	    BAT.getInstance().getLogger().warning("Undeclared BungeeAdminTool redis message recieved: " + messageType);
 	    break;
@@ -92,12 +96,12 @@ public class RedisUtils implements Listener {
     	}
     }
     
-    public void sendBroadcast(Action action, String broadcast) {
-	if (!redis) return;
-	sendMessage("broadcast", action.getText() + split + broadcast);
+    public void sendBroadcast(String permission, String broadcast) {
+		if (!redis) return;
+		sendMessage("broadcast", permission + split + broadcast);
     }
-    private void recieveBroadcast(String action, String broadcast) {
-	BAT.broadcast(broadcast, Action.fromText(action).getPermission());
+    private void recieveBroadcast(String permission, String broadcast) {
+    	BAT.noRedisBroadcast(broadcast, permission);
     }
     
     public void sendMuteUpdatePlayer(UUID pUUID, String server) {
@@ -117,6 +121,18 @@ public class RedisUtils implements Listener {
     	else{
     		throw new IllegalStateException("The mute module isn't enabled. The mute message can't be handled.");
     	}
+    }
+    
+    public void sendMoveDefaultServerPlayer(UUID pUUID) {
+		if (!redis) return;
+		sendMessage("movedefaultserver", pUUID.toString());
+    }
+    private void recieveMoveDefaultServerPlayer(String sUUID) {
+		ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
+		if (player != null) {
+			player.connect(ProxyServer.getInstance().getServerInfo(
+					player.getPendingConnection().getListener().getDefaultServer()));
+		}
     }
     
     void sendMessage(String messageType, String messageBody) {
@@ -140,4 +156,5 @@ public class RedisUtils implements Listener {
 	BAT.getInstance().getProxy().getPluginManager()
 		.unregisterListener(this);
     }
+
 }

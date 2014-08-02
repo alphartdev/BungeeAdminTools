@@ -164,7 +164,6 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.MUTE_BROADCAST, returnedMsg);
 	}
 
 	@RunAsync
@@ -294,7 +293,6 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.MUTE_BROADCAST, returnedMsg);
 	}
 
 	@RunAsync
@@ -407,6 +405,5 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
-		if (BAT.getInstance().getRedis().isRedisEnabled()) BAT.getInstance().getRedis().sendBroadcast(Action.MUTE_BROADCAST, returnedMsg);
 	}
 }
