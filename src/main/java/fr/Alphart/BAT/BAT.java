@@ -110,7 +110,7 @@ public class BAT extends Plugin {
 							c.createStatement().executeQuery("SELECT 1;");
 							c.close();
 							// Try enabling redis support.
-							redis = new RedisUtils();
+							redis = new RedisUtils(config.isRedisSupport());
 							dbState.done(true);
 						} catch (final SQLException e) {
 							dbState.done(false);
