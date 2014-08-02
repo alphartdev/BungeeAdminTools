@@ -27,6 +27,7 @@ import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
+import fr.Alphart.BAT.Utils.RedisUtils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
 /**
@@ -42,6 +43,7 @@ public class BAT extends Plugin {
 	private Configuration config;
 	private static String prefix;
 	private ModulesManager modules;
+	private RedisUtils redis;
 
 	@Override
 	public void onEnable() {
@@ -57,7 +59,7 @@ public class BAT extends Plugin {
 			@Override
 			public void done(final Boolean dbState) {
 				if (dbState) {
-					modules = new ModulesManager();
+				        modules = new ModulesManager();
 					modules.loadModules();
 				} else {
 					getLogger().severe("BAT is gonna shutdown because it can't connect to the database.");
@@ -85,6 +87,7 @@ public class BAT extends Plugin {
 
 	@Override
 	public void onDisable() {
+	        getRedis().destroy();
 		instance = null;
 	}
 
@@ -106,6 +109,8 @@ public class BAT extends Plugin {
 						try {
 							c.createStatement().executeQuery("SELECT 1;");
 							c.close();
+							// Try enabling redis support.
+							redis = new RedisUtils(config.isRedisSupport());
 							dbState.done(true);
 						} catch (final SQLException e) {
 							dbState.done(false);
@@ -215,7 +220,21 @@ public class BAT extends Plugin {
 		return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', prefix + message));
 	}
 
+	/**
+	 * Send a broadcast message to everyone with the given perm <br>
+	 * Also broadcast through Redis if it's installed that's why this method <strong>should not be called
+	 * from a Redis call</strong> otherwise it will broadcast it again and again
+	 * @param message
+	 * @param perm
+	 */
 	public static void broadcast(final String message, final String perm) {
+		noRedisBroadcast(message, perm);
+		if(BAT.getInstance().getRedis().isRedisEnabled()){
+			BAT.getInstance().getRedis().sendBroadcast(perm, message);
+		}
+	}
+	
+	public static void noRedisBroadcast(final String message, final String perm) {
 		final BaseComponent[] bsMsg = __(message);
 		for (final ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
 			if (p.hasPermission(perm) || p.hasPermission("bat.admin")) {
@@ -250,6 +269,10 @@ public class BAT extends Plugin {
 		return dsHandler;
 	}
 
+	public RedisUtils getRedis() {
+	    return redis;
+	}
+
 	/**
 	 * Kick a player from the proxy for a specified reason
 	 * 
@@ -263,4 +286,5 @@ public class BAT extends Plugin {
 			player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
 		}
 	}
+
 }

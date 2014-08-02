@@ -157,7 +157,7 @@ public class MuteCommand extends CommandHandler {
 
 		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("alreadyMute"));
 
-		if (ipMute && player != null) {
+		if (ipMute && !BAT.getInstance().getRedis().isRedisEnabled() && player != null) {
 			returnedMsg = mute.muteIP(player, server, staff, 0, reason);
 		} else {
 			returnedMsg = mute.mute(target, server, staff, 0, reason);
@@ -286,7 +286,7 @@ public class MuteCommand extends CommandHandler {
 
 		checkArgument(!mute.isMute((ip == null) ? target : ip, server, false), _("alreadyMute"));
 
-		if (ipMute && player != null) {
+		if (ipMute && !BAT.getInstance().getRedis().isRedisEnabled() && player != null) {
 			returnedMsg = mute.muteIP(player, server, staff, expirationTimestamp, reason);
 		} else {
 			returnedMsg = mute.mute(target, server, staff, expirationTimestamp, reason);

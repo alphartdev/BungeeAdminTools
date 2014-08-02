@@ -32,6 +32,8 @@ public class Configuration extends Config{
 	@Comment("Make the date more readable."
 			+ "If the date correspond to today, tmw or yda, it will replace the date by the corresponding word")
 	private boolean litteralDate = true;
+	@Comment("Enable BETA (experimental) Redis support, requires RedisBungee")
+	private boolean redisSupport = false;
 	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter

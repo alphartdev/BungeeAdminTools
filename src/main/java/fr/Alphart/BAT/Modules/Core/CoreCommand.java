@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
@@ -31,6 +32,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.mojang.api.profiles.HttpProfileRepository;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
@@ -434,9 +436,15 @@ public class CoreCommand extends BATCommand{
 			kicksNumber = pDetails.getKicks().size();
 
 			// Construction of the message
-			msg.append((ProxyServer.getInstance().getPlayer(pName) != null) ? "&a&lConnected &r&eon the &3"
+			if (BAT.getInstance().getRedis().isRedisEnabled()) {
+			    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
+			    	msg.append((pUUID != null && RedisBungee.getApi().isPlayerOnline(pUUID)) ? "&a&lConnected &r&eon the &3"
+					+ RedisBungee.getApi().getServerFor(pUUID).getName() + " &eserver" : "&8&lOffline");
+			} else {
+			    	msg.append((ProxyServer.getInstance().getPlayer(pName) != null) ? "&a&lConnected &r&eon the &3"
 					+ ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() + " &eserver" : "&8&lOffline");
-
+			}
+			
 			if (isBan || isMute || isBanIP || isMuteIP) {
 				msg.append("\n&eState : ");
 				if (isBan) {

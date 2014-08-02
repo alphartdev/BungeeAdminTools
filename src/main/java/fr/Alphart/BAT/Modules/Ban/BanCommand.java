@@ -2,11 +2,15 @@ package fr.Alphart.BAT.Modules.Ban;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n._;
+
+import java.util.UUID;
+
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import com.google.common.base.Joiner;
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
@@ -107,6 +111,13 @@ public class BanCommand extends CommandHandler {
 		String reason = IModule.NO_REASON;
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+		
+		UUID pUUID = null;
+		if (BAT.getInstance().getRedis().isRedisEnabled()) {
+		    UUID tempUUID = RedisBungee.getApi().getUuidFromName(target, false);
+		    if (tempUUID != null && RedisBungee.getApi().isPlayerOnline(tempUUID)) pUUID = tempUUID;
+		}
+
 
 		String ip = null;
 
@@ -128,7 +139,7 @@ public class BanCommand extends CommandHandler {
 		}
 
 		// Check if the target isn't an ip and the player is offline
-		if (!Utils.validIP(target) && player == null) {
+		if (!Utils.validIP(target) && player == null && pUUID == null) {
 			ip = Core.getPlayerIP(target);
 			if (ipBan) {
 				checkArgument(!"0.0.0.0".equals(ip), _("ipUnknownPlayer"));
@@ -158,6 +169,8 @@ public class BanCommand extends CommandHandler {
 
 		if (ipBan && player != null) {
 			returnedMsg = ban.banIP(player, server, staff, 0, reason);
+		} else if (ipBan && pUUID != null) {
+		        returnedMsg = ban.banRedisIP(pUUID, server, staff, 0, reason);
 		} else {
 			returnedMsg = ban.ban(target, server, staff, 0, reason);
 		}
@@ -234,6 +247,12 @@ public class BanCommand extends CommandHandler {
 		String reason = IModule.NO_REASON;
 
 		final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(target);
+		
+		UUID pUUID = null;
+		if (BAT.getInstance().getRedis().isRedisEnabled()) {
+		    UUID tempUUID = RedisBungee.getApi().getUuidFromName(target, false);
+		    if (tempUUID != null && RedisBungee.getApi().isPlayerOnline(tempUUID)) pUUID = tempUUID;
+		}
 
 		String ip = null;
 
@@ -255,7 +274,7 @@ public class BanCommand extends CommandHandler {
 		}
 
 		// Check if the target isn't an ip and the player is offline
-		if (!Utils.validIP(target) && player == null) {
+		if (!Utils.validIP(target) && player == null && pUUID == null) {
 			ip = Core.getPlayerIP(target);
 			if (ipBan) {
 				checkArgument(!"0.0.0.0".equals(ip), _("ipUnknownPlayer"));
@@ -283,6 +302,8 @@ public class BanCommand extends CommandHandler {
 
 		if (ipBan && player != null) {
 			returnedMsg = ban.banIP(player, server, staff, expirationTimestamp, reason);
+		} else if (ipBan && pUUID != null) {
+		        returnedMsg = ban.banRedisIP(pUUID, server, staff, expirationTimestamp, reason);
 		} else {
 			returnedMsg = ban.ban(target, server, staff, expirationTimestamp, reason);
 		}

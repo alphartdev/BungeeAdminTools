@@ -15,7 +15,7 @@ import fr.Alphart.BAT.database.SQLQueries;
  * - check in the db for every active mute if it is finished if this is the case
  * : set mute_(ip)state to 0<br>
  * - update the PlayerMuteData of every player on the server <br>
- * <b>This task must be runned asynchronously </b>
+ * <b>This task must be run asynchronously </b>
  */
 public class MuteTask implements Runnable {
 	private final Mute mute;
