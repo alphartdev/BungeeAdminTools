@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungee;
-
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
@@ -100,26 +101,27 @@ public class Kick implements IModule {
 	 * @param reason
 	 */
 	public String kick(final ProxiedPlayer player, final String staff, final String reason) {
+		player.connect(ProxyServer.getInstance().getServerInfo(
+				player.getPendingConnection().getListener().getDefaultServer()));
+		player.sendMessage(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
+		return kickSQL(player.getUniqueId(), player.getServer().getInfo().getName(), staff, reason);
+	}
+	public String kickSQL(final UUID pUUID, final String server, final String staff, final String reason) {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
-			final String server = player.getServer().getInfo().getName();
 			if (DataSourceHandler.isSQLite()) {
 				statement = conn.prepareStatement(SQLQueries.Kick.SQLite.kickPlayer);
 			} else {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
-			statement.setString(1, Core.getUUID(player.getName()));
+			statement.setString(1, pUUID.toString().replace("-", ""));
 			statement.setString(2, staff);
 			statement.setString(3, reason);
 			statement.setString(4, server);
 			statement.executeUpdate();
 			statement.close();
 
-			player.connect(ProxyServer.getInstance().getServerInfo(
-					player.getPendingConnection().getListener().getDefaultServer()));
-			player.sendMessage(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
-
-			return _("kickBroadcast", new String[] { player.getName(), staff, server, reason });
+			return _("kickBroadcast", new String[] { Core.getPlayerName(pUUID.toString().replace("-", "")), staff, server, reason });
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
 		} finally {
