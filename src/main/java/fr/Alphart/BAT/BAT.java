@@ -59,7 +59,9 @@ public class BAT extends Plugin {
 			@Override
 			public void done(final Boolean dbState) {
 				if (dbState) {
-				        modules = new ModulesManager();
+					// Try enabling redis support.
+					redis = new RedisUtils(config.isRedisSupport());
+			        modules = new ModulesManager();
 					modules.loadModules();
 				} else {
 					getLogger().severe("BAT is gonna shutdown because it can't connect to the database.");
@@ -74,10 +76,14 @@ public class BAT extends Plugin {
 	public int getBCBuild(){
 		final Pattern p = Pattern.compile(".*?:(.*?:){3}(\\d*)");
 		final Matcher m = p.matcher(ProxyServer.getInstance().getVersion());
-		final int BCBuild;
-		if (m.find()) {
-		    BCBuild = Integer.parseInt(m.group(2));
-		}else{
+		int BCBuild;
+		try{
+			if (m.find()) {
+			    BCBuild = Integer.parseInt(m.group(2));
+			}else{
+				throw new NumberFormatException();
+			}
+		}catch(final NumberFormatException e){
 			// We can't determine BC build, just display a message, and set the build so it doesn't trigger the security
 			getLogger().info("BC build can't be detected. If you encounter any problems, please report that message. Otherwise don't take into account");
 			BCBuild = requiredBCBuild;
@@ -109,8 +115,6 @@ public class BAT extends Plugin {
 						try {
 							c.createStatement().executeQuery("SELECT 1;");
 							c.close();
-							// Try enabling redis support.
-							redis = new RedisUtils(config.isRedisSupport());
 							dbState.done(true);
 						} catch (final SQLException e) {
 							dbState.done(false);

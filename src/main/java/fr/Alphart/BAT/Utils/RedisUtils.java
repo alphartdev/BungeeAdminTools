@@ -22,7 +22,7 @@ public class RedisUtils implements Listener {
 
     public RedisUtils(final boolean enable) {
     	if(enable){
-    		if (BAT.getInstance().getProxy().getPluginManager().getPlugin("RedisBungee") != null) {
+    		if (BAT.getInstance().getProxy().getPluginManager().getPlugin("RedisBungee") != null && RedisBungee.getApi() != null) {
     		    BAT.getInstance().getLogger().info("Detected RedisBungee.  Enabling experimental RedisBungee support.  This currently only supports RedisBungee 0.3.3 or higher (but not 0.4).");
     			BAT.getInstance().getProxy().getPluginManager()
     				.registerListener(BAT.getInstance(), this);
