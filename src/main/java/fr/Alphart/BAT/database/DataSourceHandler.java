@@ -1,20 +1,34 @@
 package fr.Alphart.BAT.database;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import net.md_5.bungee.api.ProxyServer;
+
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.jolbox.bonecp.BoneCPDataSource;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 
 public class DataSourceHandler {
-	// Connexion informations
+	// Connection informations
 	private BoneCPDataSource ds;
+	private String username;
+	private String password;
+	private String database;
+	private String port;
+	private String host;
+	
 	private boolean sqlite = false; // If sqlite is used or not
 	private Connection SQLiteConn;
 
@@ -27,19 +41,19 @@ public class DataSourceHandler {
 	 * @param username
 	 * @param password
 	 */
-
-	public DataSourceHandler(String host, String port, String database, String username, String password) {
+	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) {
 		// Check database's informations and init connection
-		host = Preconditions.checkNotNull(host);
-		port = Preconditions.checkNotNull(port);
-		database = Preconditions.checkNotNull(database);
-		username = Preconditions.checkNotNull(username);
-		password = Preconditions.checkNotNull(password);
+		this.host = Preconditions.checkNotNull(host);
+		this.port = Preconditions.checkNotNull(port);
+		this.database = Preconditions.checkNotNull(database);
+		this.username = Preconditions.checkNotNull(username);
+		this.password = Preconditions.checkNotNull(password);
 
 		ds = new BoneCPDataSource();
-		ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database + "?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
-		ds.setUsername(username);
-		ds.setPassword(password);
+		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
+				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
+		ds.setUsername(this.username);
+		ds.setPassword(this.password);
 		ds.close();
 		ds.setPartitionCount(2);
 		ds.setMinConnectionsPerPartition(3);
@@ -115,8 +129,69 @@ public class DataSourceHandler {
 		return BAT.getInstance().getDsHandler().getSQLite();
 	}
 
+	/**
+	 * Generate a backup of the BAT data in mysql database.
+	 * @param path
+	 * @param onComplete
+	 * @throws RuntimeException if MySQL is not used or if the creation of the backup file failed
+	 */
+	public void generateMysqlBackup(final Callback<String> onComplete) throws RuntimeException{
+		ProxyServer.getInstance().getScheduler().runAsync(BAT.getInstance(), new Runnable(){
+			@Override
+			public void run() {
+				try {
+					Process backupProcess = Runtime.getRuntime().exec("mysqldump");
+					backupProcess.waitFor();
+				} catch (final Exception e) {
+					onComplete.done("The backup can't be achieved because mysqldump is nowhere to be found.");
+					return;
+				}
+				final File backupDirectory = new File(BAT.getInstance().getDataFolder().getAbsolutePath() 
+						+ File.separator + "databaseBackups");
+				backupDirectory.mkdir();
+				File backupFile = new File(backupDirectory.getAbsolutePath() + File.separator + "backup" +
+						new SimpleDateFormat("dd-MMM-yyyy_HH'h'mm").format(Calendar.getInstance().getTime()) + ".sql");
+				for(int i = 0;;i++){
+					if(!backupFile.exists()){
+						break;
+					}else{
+						if(i == 0){
+							backupFile = new File(backupFile.getAbsolutePath().replace(".sql",  "#" + i + ".sql"));
+						}
+						else{
+							backupFile = new File(backupFile.getAbsolutePath().replaceAll("#\\d+\\.sql$", "#" + i + ".sql"));
+						}
+					}
+				}
+				String backupCmd = "mysqldump -u {user} -p --add-drop-database -r \"{path}\" {database} {tables}";
+				final String tables = Joiner.on(' ').join(Arrays.asList(SQLQueries.Ban.table, SQLQueries.Mute.table,
+						SQLQueries.Kick.table, SQLQueries.Comments.table, SQLQueries.Core.table));
+				backupCmd = backupCmd.replace("{user}", username).replace("{database}", database)
+						.replace("{path}", backupFile.getAbsolutePath()).replace("{tables}", tables);
+				if(password.equals("")){
+					backupCmd = backupCmd.replace("-p", "");
+				}else{
+					backupCmd = backupCmd.replace("-p", "-p " + password);
+				}
+				try {
+					Process backupProcess = Runtime.getRuntime().exec(backupCmd);
+					int exitValue = backupProcess.waitFor();
+					if(exitValue == 0){
+						final String[] splittedPath = backupFile.getAbsolutePath().split((File.separator.equals("\\") ? "\\\\" : File.separator));
+						final String fileName = splittedPath[splittedPath.length - 1];
+						onComplete.done(format("The backup file (%s) has been sucessfully generated.", fileName));
+					}else{
+						onComplete.done("An error happens during the creation of the mysql backup.");
+					}
+				} catch (final Exception e) {
+					onComplete.done("An error happens during the creation of the mysql backup.");
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	// Useful methods
-
 	public static String handleException(final SQLException e) {
 		BAT.getInstance()
 		.getLogger()

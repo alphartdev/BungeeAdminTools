@@ -49,6 +49,7 @@ import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
+import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -1189,6 +1190,26 @@ public class CoreCommand extends BATCommand{
 		}
 	}
 
+	public static class BackupCmd extends BATCommand{
+		public BackupCmd() { super("backup", "", "Backup the BAT's data from the mysql database into a file", "bat.backup");}
+
+		@Override
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+				throws IllegalArgumentException {
+			if(DataSourceHandler.isSQLite()){
+				throw new IllegalArgumentException("You can't backup an SQLite database with this command. "
+						+ "To save an SQLite database just copy and paste the file 'bat_database.db'.");
+			}
+			sender.sendMessage(BAT.__("Starting backup of BAT datas ..."));
+			BAT.getInstance().getDsHandler().generateMysqlBackup(new Callback<String>() {
+				@Override
+				public void done(final String result) {
+					sender.sendMessage(BAT.__(result));
+				}
+			});
+		}
+	}
+	
 	@Disable
 	@RunAsync
 	public static class MigrateCmd extends BATCommand {
