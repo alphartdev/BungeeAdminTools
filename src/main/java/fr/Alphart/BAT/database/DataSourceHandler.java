@@ -13,6 +13,9 @@ import java.util.TimeZone;
 
 import net.md_5.bungee.api.ProxyServer;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.varia.NullAppender;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.jolbox.bonecp.BoneCPDataSource;
@@ -29,7 +32,7 @@ public class DataSourceHandler {
 	private String port;
 	private String host;
 	
-	private boolean sqlite = false; // If sqlite is used or not
+	private static boolean sqlite = false; // If sqlite is used or not
 	private Connection SQLiteConn;
 
 	/**
@@ -49,6 +52,7 @@ public class DataSourceHandler {
 		this.username = Preconditions.checkNotNull(username);
 		this.password = Preconditions.checkNotNull(password);
 
+		BasicConfigurator.configure(new NullAppender());
 		ds = new BoneCPDataSource();
 		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
 				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
@@ -73,6 +77,7 @@ public class DataSourceHandler {
 				BAT.getInstance().getLogger().severe("Error message : " + e.getMessage());
 			}
 		}
+		sqlite = false;
 	}
 
 	/**
@@ -126,7 +131,7 @@ public class DataSourceHandler {
 	}
 	
 	public static boolean isSQLite() {
-		return BAT.getInstance().getDsHandler().getSQLite();
+		return sqlite;
 	}
 
 	/**
