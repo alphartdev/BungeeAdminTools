@@ -94,6 +94,7 @@ public class BAT extends Plugin {
 	@Override
 	public void onDisable() {
 	        getRedis().destroy();
+        modules.unloadModules();
 		instance = null;
 	}
 
