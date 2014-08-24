@@ -136,8 +136,9 @@ public class Kick implements IModule {
 	 * @param reason
 	 */
 	public String gKick(final ProxiedPlayer player, final String staff, final String reason) {
+		final String message = gKickSQL(player.getUniqueId(), staff, reason);
 		player.disconnect(TextComponent.fromLegacyText(_("wasKickedNotif", new String[] { reason })));
-		return gKickSQL(player.getUniqueId(), staff, reason);
+		return message;
 	}
 	public String gKickSQL(final UUID pUUID, final String staff, final String reason) {
 		PreparedStatement statement = null;
