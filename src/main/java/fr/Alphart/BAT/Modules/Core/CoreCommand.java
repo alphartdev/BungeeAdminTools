@@ -4,6 +4,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -11,6 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -21,7 +29,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -31,6 +42,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.mojang.api.profiles.HttpProfileRepository;
@@ -51,6 +65,7 @@ import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 import fr.Alphart.BAT.Utils.FormatUtils;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -168,8 +183,12 @@ public class CoreCommand extends BATCommand{
 				sb.setLength(0);
 				sb.append("&f - &9");
 				sb.append(module.getName());
-				sb.append(" &f| &eMain command : &a/");
-				sb.append(module.getMainCommand());
+				if(module.getMainCommand() == null){
+					sb.append(" &f| &eNo main command");
+				}else{
+					sb.append(" &f| &eMain command : &a/");
+					sb.append(module.getMainCommand());
+				}
 				sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
 						sb.toString())));
 			}
@@ -975,8 +994,28 @@ public class CoreCommand extends BATCommand{
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
 		private final HttpProfileRepository profileRepository = Core.getProfileRepository();
-		public ImportCmd() { super("import", "<bungeeSuiteBans/geSuitBans>", "Imports ban data from the specified source.", "bat.import");}
+		public ImportCmd() { super("import", "<bungeeSuiteBans/geSuitBans/MC-Previous1.7>", "Imports ban data from the specified source.", "bat.import");}
+		private final LoadingCache<String, String> uuidCache = CacheBuilder.newBuilder()
+			       .maximumSize(10000)
+			       .expireAfterAccess(30, TimeUnit.MINUTES)
+			       .build(
+			           new CacheLoader<String, String>() {
+			             public String load(final String pName) throws UUIDNotFoundException{
+			            	if(ProxyServer.getInstance().getConfig().isOnlineMode()){
+				            	String uuid = getUUIDusingMojangAPI(pName);
+				            	if(uuid != null){
+				            		return uuid;
+				            	}else{
+				            		throw new UUIDNotFoundException(pName);
+				            	}
+			            	}else{
+			            		return java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName)
+			            				.getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
+			            	}
 
+			             }
+		});
+		
 		public String getUUIDusingMojangAPI(final String pName){
 			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
 
@@ -996,6 +1035,8 @@ public class CoreCommand extends BATCommand{
 				importFromBungeeSuite(sender);
 			}else if("geSuitBans".equalsIgnoreCase(source)){
 				importFromGeSuit(sender);
+			}else if("MC-Previous1.7".equalsIgnoreCase(source)){
+				importFromMinecraft1v6(sender);
 			}else{
 				throw new IllegalArgumentException("The specified source is incorrect. It may be either &abungeeSuiteBans&e or &ageSuitBans");
 			}
@@ -1186,6 +1227,148 @@ public class CoreCommand extends BATCommand{
 				sender.sendMessage(BAT.__(DataSourceHandler.handleException(e)));
 			} finally{
 				DataSourceHandler.close(res);
+			}
+		}
+	
+		/**
+		 * Import from base minecraft 1v6 format (banned-players.txt)
+		 */
+		public void importFromMinecraft1v6(final CommandSender sender){
+			sender.sendMessage(BAT.__("BAT will be disabled during the import ..."));
+			BAT.getInstance().getModules().unloadModules();
+			try (Connection conn = BAT.getConnection()) {
+				// Check if either the banned-players.txt or the banned-ips.txt file exists
+				if(!new File(BAT.getInstance().getDataFolder(), "banned-players.txt").exists() 
+					&& !new File(BAT.getInstance().getDataFolder(), "banned-ips.txt").exists()){
+					throw new IllegalArgumentException("You must put either banned-players.txt or banned-ips.txt file into BAT folder to "
+							+ "import your datas.");
+				}
+
+				int convertedEntries = 0;
+				
+				// Count the totalEntries which need to be converted
+				int totalEntries = 0;
+				final List<File> filesToConvert = new ArrayList<>();
+				if(new File(BAT.getInstance().getDataFolder(), "banned-players.txt").exists()){
+					filesToConvert.add(new File(BAT.getInstance().getDataFolder(), "banned-players.txt"));
+				}
+				if(new File(BAT.getInstance().getDataFolder(), "banned-ips.txt").exists()){
+					filesToConvert.add(new File(BAT.getInstance().getDataFolder(), "banned-ips.txt"));
+				}
+				for(final File file : filesToConvert){
+					final BufferedReader br = new BufferedReader(new FileReader(file));
+					try{
+					while (br.readLine() != null) {
+					    totalEntries++;
+					}
+					totalEntries -= 3; // Number of lines which are comment or blank in default mc ban file
+					} finally{
+						if(br != null){
+							br.close();
+						}
+					}
+				}
+				if(totalEntries <= 0){
+					sender.sendMessage(BAT.__("There is no entry to convert."));
+					return;
+				}
+				
+				// Init the reader and some code
+				final PreparedStatement insertBans = conn.prepareStatement("INSERT INTO `" + SQLQueries.Ban.table
+						+ "`(UUID, ban_ip, ban_staff, ban_server, ban_begin, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?, ?, ?);");
+				BufferedReader brPlayer = null;
+				if(new File(BAT.getInstance().getDataFolder(), "banned-players.txt").exists()){
+					brPlayer = new BufferedReader(new FileReader(new File(BAT.getInstance().getDataFolder(), "banned-players.txt")));
+				}
+				BufferedReader brIPs = null;
+				if(new File(BAT.getInstance().getDataFolder(), "banned-ips.txt").exists()){
+					brIPs = new BufferedReader(new FileReader(new File(BAT.getInstance().getDataFolder(), "banned-ips.txt")));
+				}
+				
+				// Proccess the import
+				String line = null;
+				conn.setAutoCommit(false);
+				while((brPlayer != null && (line = brPlayer.readLine()) != null) 
+						|| (brIPs != null && (line = brIPs.readLine()) != null)){
+					try{
+						Minecraft1v6_BanRecord banRecord = new Minecraft1v6_BanRecord(line);
+						insertBans.setString(1, banRecord.getUuid());
+						insertBans.setString(2, banRecord.getIp());
+						insertBans.setString(3, banRecord.getStaffBan());
+						insertBans.setString(4, IModule.GLOBAL_SERVER);
+						insertBans.setTimestamp(5, banRecord.getBeginBan());
+						insertBans.setTimestamp(6, banRecord.getExpirationBan());
+						insertBans.setString(7, banRecord.getReason());
+						insertBans.executeUpdate();
+						insertBans.clearParameters();
+						convertedEntries++;
+					}catch(final RuntimeException e){
+						if(!"commentline".equals(e.getMessage())){
+							sender.sendMessage(BAT.__(e.getMessage()));
+						}
+					}
+					if(convertedEntries % 100 == 0){
+						conn.commit();
+						if(convertedEntries % 1000 == 0){
+							double percent = (((double)convertedEntries / (double)totalEntries) * 100);
+							sender.sendMessage(BAT.__("&a" + new DecimalFormat("0.00").format(percent) +  "%&e entries converted !&a"
+									+ (totalEntries - convertedEntries) + "&e remaining entries on a total of &6" + totalEntries));
+						}
+					}
+				}
+				conn.commit();
+				sender.sendMessage(BAT.__("Congratulations, the migration is finished. &a" + convertedEntries + " entries&e were converted successfully."));
+			} catch (final SQLException e) {
+				sender.sendMessage(BAT.__(DataSourceHandler.handleException(e)));
+			} catch (final IOException e){
+				sender.sendMessage(BAT.__("An error has occured during the import. Please check the log"));
+				BAT.getInstance().getLogger().severe("An error occured during the import of Minecraft v1.6 ban records :");
+				e.printStackTrace();
+			}
+			BAT.getInstance().getModules().loadModules();
+		}
+		
+		private static final DateFormat dfMc1v6 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+		@Getter
+		private class Minecraft1v6_BanRecord{
+			private String uuid = null;
+			private String ip = null;
+			private String reason;
+			private String staffBan;
+			private Timestamp beginBan;
+			private Timestamp expirationBan;
+			
+			/**
+			 * Parse a line of banned-xx.txt file
+			 * @param line
+			 */
+			public Minecraft1v6_BanRecord(final String line) throws RuntimeException{
+				if(line.startsWith("#") || line.isEmpty()){
+					throw new RuntimeException("commentline");
+				}
+				final String[] splittedLine = line.split("\\|");
+				if(splittedLine.length != 5){
+					throw new RuntimeException("Invalid ban format. The import process will continue ...");
+				}
+				if(Utils.validIP(splittedLine[0])){
+					ip = splittedLine[0];
+				}else{
+					try {
+						uuid = uuidCache.get(splittedLine[0]);
+					} catch (ExecutionException e) {
+						if(e.getCause() instanceof UUIDNotFoundException){
+							throw new RuntimeException("The uuid of " + splittedLine[0] + " wasn't found. The import process will continue...");
+						}
+					}
+				}
+				try {
+					beginBan = new Timestamp(dfMc1v6.parse(splittedLine[1]).getTime());
+					expirationBan = (splittedLine[3].equals("Forever")) ? null : new Timestamp(dfMc1v6.parse(splittedLine[3]).getTime());
+				} catch (final ParseException e) {
+					throw new RuntimeException("Invalid ban format. The import process will continue ...");
+				}
+				staffBan = (splittedLine[2].equals("(Unknown)")) ? "CONSOLE" : splittedLine[2];
+				reason = splittedLine[4];
 			}
 		}
 	}
