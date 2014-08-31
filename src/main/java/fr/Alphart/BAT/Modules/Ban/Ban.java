@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -90,19 +91,21 @@ public class Ban implements IModule, Listener {
 		commandHandler.loadCmds();
 
 		// Launch tempban task
-		final BanTask banTask = new BanTask();
+		final BanTask banTask = new BanTask(this);
 		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banTask, 0, 10, TimeUnit.SECONDS);
 
 		// Check if the online players are banned (if the module has been reloaded)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
-			final String server = player.getServer().getInfo().getName();
-			if(isBan(player, GLOBAL_SERVER) || isBan(player, server)){
-				if (player.getServer().getInfo().getName().equals(player.getPendingConnection().getListener().getDefaultServer())) {
-					player.disconnect(getBanMessage(player.getPendingConnection(), server));
-					continue;
+			final List<String> serversToCheck = Arrays.asList(player.getServer().getInfo().getName(), GLOBAL_SERVER);
+			for(final String server : serversToCheck){
+				if(isBan(player, server)){
+					if (server.equals(player.getPendingConnection().getListener().getDefaultServer()) || server.equals(GLOBAL_SERVER)) {
+						player.disconnect(getBanMessage(player.getPendingConnection(), server));
+						continue;
+					}
+					player.sendMessage(getBanMessage(player.getPendingConnection(), server));
+					player.connect(ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()));
 				}
-				player.sendMessage(getBanMessage(player.getPendingConnection(), server));
-				player.connect(ProxyServer.getInstance().getServerInfo(player.getPendingConnection().getListener().getDefaultServer()));
 			}
 		}
 
@@ -650,9 +653,9 @@ public class Ban implements IModule, Listener {
 	        }
 
 	        if ((isBanPlayer) || (isBan(ev.getConnection().getAddress().getAddress().getHostAddress(), GLOBAL_SERVER))) {
-	          ev.setCancelled(true);
 	          BaseComponent[] bM = getBanMessage(ev.getConnection(), GLOBAL_SERVER);
 	          ev.setCancelReason(TextComponent.toLegacyText(bM));
+	          ev.setCancelled(true);
 	        }
 	        ev.completeIntent(BAT.getInstance());
 	      }
