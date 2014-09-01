@@ -148,7 +148,7 @@ public class Kick implements IModule {
 			} else {
 				statement = conn.prepareStatement(SQLQueries.Kick.kickPlayer);
 			}
-			statement.setString(1, pUUID.toString());
+			statement.setString(1, pUUID.toString().replace("-", ""));
 			statement.setString(2, staff);
 			statement.setString(3, reason);
 			statement.setString(4, GLOBAL_SERVER);
