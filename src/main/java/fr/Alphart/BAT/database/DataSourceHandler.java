@@ -3,12 +3,17 @@ package fr.Alphart.BAT.database;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import net.md_5.bungee.api.ProxyServer;
@@ -18,6 +23,7 @@ import org.apache.log4j.varia.NullAppender;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.io.CharStreams;
 import com.jolbox.bonecp.BoneCPDataSource;
 
 import fr.Alphart.BAT.BAT;
@@ -145,8 +151,13 @@ public class DataSourceHandler {
 			@Override
 			public void run() {
 				try {
-					Process backupProcess = Runtime.getRuntime().exec("mysqldump");
-					backupProcess.waitFor();
+					Process testProcess = Runtime.getRuntime().exec("mysqldump --help");
+					new StreamPumper(testProcess.getErrorStream()).pump();
+					new StreamPumper(testProcess.getInputStream()).pump();
+					int returnValue = testProcess.waitFor();
+					if(returnValue != 0){
+					    throw new Exception();
+					}
 				} catch (final Exception e) {
 					onComplete.done("The backup can't be achieved because mysqldump is nowhere to be found.");
 					return;
@@ -168,25 +179,36 @@ public class DataSourceHandler {
 						}
 					}
 				}
-				String backupCmd = "mysqldump -u {user} -p --add-drop-database -r \"{path}\" {database} {tables}";
+				String backupCmd = "mysqldump -u {user} -p --add-drop-database -r {path} {database} {tables}";
 				final String tables = Joiner.on(' ').join(Arrays.asList(SQLQueries.Ban.table, SQLQueries.Mute.table,
 						SQLQueries.Kick.table, SQLQueries.Comments.table, SQLQueries.Core.table));
+				String backupPath = backupFile.getAbsolutePath();
+				if(backupPath.contains(" ")){
+				    backupPath = "\"" + backupPath + "\"";
+				}
 				backupCmd = backupCmd.replace("{user}", username).replace("{database}", database)
-						.replace("{path}", backupFile.getAbsolutePath()).replace("{tables}", tables);
+						.replace("{path}", backupPath).replace("{tables}", tables);
 				if(password.equals("")){
 					backupCmd = backupCmd.replace("-p", "");
 				}else{
-					backupCmd = backupCmd.replace("-p", "-p " + password);
+					backupCmd = backupCmd.replace("-p", "--password=" + password);
 				}
 				try {
 					Process backupProcess = Runtime.getRuntime().exec(backupCmd);
+	                final StreamPumper errorPumper = new StreamPumper(backupProcess.getErrorStream());
+	                errorPumper.pump();
+	                new StreamPumper(backupProcess.getInputStream()).pump();;
 					int exitValue = backupProcess.waitFor();
 					if(exitValue == 0){
 						final String[] splittedPath = backupFile.getAbsolutePath().split((File.separator.equals("\\") ? "\\\\" : File.separator));
 						final String fileName = splittedPath[splittedPath.length - 1];
 						onComplete.done(format("The backup file (%s) has been sucessfully generated.", fileName));
 					}else{
-						onComplete.done("An error happens during the creation of the mysql backup.");
+						onComplete.done("An error happens during the creation of the mysql backup. Please check the logs");
+						BAT.getInstance().getLogger().severe("An error happens during the creation of the mysql backup. Please report :");
+						for(final String message : errorPumper.getLines()){
+						    BAT.getInstance().getLogger().severe(message);
+						}
 					}
 				} catch (final Exception e) {
 					onComplete.done("An error happens during the creation of the mysql backup.");
@@ -214,5 +236,39 @@ public class DataSourceHandler {
 				}
 			}
 		}
+	}
+	
+	public class StreamPumper{
+	    private final InputStreamReader reader;
+	    private List<String> pumpedLines = null;
+	    
+	    public StreamPumper(final InputStream is){
+	        reader = new InputStreamReader(is);
+	    }
+	    
+	    /**
+	     * Starts a new async task and pump the inputstream
+	     */
+	    public void pump(){
+	        ProxyServer.getInstance().getScheduler().runAsync(BAT.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        pumpedLines = CharStreams.readLines(reader);
+                        reader.close();
+                    } catch (final IOException e) {
+                        BAT.getInstance().getLogger().severe("BAT encounter an error while reading the stream of subprocess. Please report this :");
+                        e.printStackTrace();
+                    }
+                }
+            });
+	    }
+	    
+	    public List<String> getLines(){
+	        if(pumpedLines == null){
+	            return new ArrayList<String>();
+	        }
+	        return pumpedLines;
+	    }
 	}
 }
