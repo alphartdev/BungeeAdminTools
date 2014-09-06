@@ -159,7 +159,7 @@ public class DataSourceHandler {
 					    throw new Exception();
 					}
 				} catch (final Exception e) {
-					onComplete.done("The backup can't be achieved because mysqldump is nowhere to be found.");
+					onComplete.done("The backup can't be achieved because mysqldump is nowhere to be found.", null);
 					return;
 				}
 				final File backupDirectory = new File(BAT.getInstance().getDataFolder().getAbsolutePath() 
@@ -202,16 +202,16 @@ public class DataSourceHandler {
 					if(exitValue == 0){
 						final String[] splittedPath = backupFile.getAbsolutePath().split((File.separator.equals("\\") ? "\\\\" : File.separator));
 						final String fileName = splittedPath[splittedPath.length - 1];
-						onComplete.done(format("The backup file (%s) has been sucessfully generated.", fileName));
+						onComplete.done(format("The backup file (%s) has been sucessfully generated.", fileName), null);
 					}else{
-						onComplete.done("An error happens during the creation of the mysql backup. Please check the logs");
+						onComplete.done("An error happens during the creation of the mysql backup. Please check the logs", null);
 						BAT.getInstance().getLogger().severe("An error happens during the creation of the mysql backup. Please report :");
 						for(final String message : errorPumper.getLines()){
 						    BAT.getInstance().getLogger().severe(message);
 						}
 					}
 				} catch (final Exception e) {
-					onComplete.done("An error happens during the creation of the mysql backup.");
+					onComplete.done("An error happens during the creation of the mysql backup.", e);
 					e.printStackTrace();
 				}
 			}

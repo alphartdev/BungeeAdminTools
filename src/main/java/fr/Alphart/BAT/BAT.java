@@ -57,7 +57,7 @@ public class BAT extends Plugin {
 		prefix = config.getPrefix();
 		loadDB(new Callback<Boolean>(){
 			@Override
-			public void done(final Boolean dbState) {
+			public void done(final Boolean dbState, Throwable throwable) {
 				if (dbState) {
 					// Try enabling redis support.
 					redis = new RedisUtils(config.isRedisSupport());
@@ -116,9 +116,9 @@ public class BAT extends Plugin {
 						try {
 							c.createStatement().executeQuery("SELECT 1;");
 							c.close();
-							dbState.done(true);
+							dbState.done(true, null);
 						} catch (final SQLException e) {
-							dbState.done(false);
+							dbState.done(false, null);
 						}
 					}
 				}
@@ -133,9 +133,9 @@ public class BAT extends Plugin {
 					+ " as the SQLite implementation is less stable and much slower than the MySQL implementation.");
 			if(loadSQLiteDriver()){
 				dsHandler = new DataSourceHandler();
-				dbState.done(true);
+				dbState.done(true, null);
 			}else{
-				dbState.done(false);
+				dbState.done(false, null);
 			}
 		}
 	}
