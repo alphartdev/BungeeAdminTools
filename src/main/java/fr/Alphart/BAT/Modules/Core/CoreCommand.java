@@ -974,9 +974,9 @@ public class CoreCommand extends BATCommand{
 	@RunAsync
 	public static class ImportCmd extends BATCommand{
 	    private final static Map<String, Importer> importers = new HashMap<String, Importer>(){{
-            importers.put("bungeeSuiteBans", new BungeeSuiteImporter());
-            importers.put("geSuitBans", new GeSuiteImporter());
-            importers.put("MC-Previous1.7.8", new MinecraftPreUUIDImporter());
+            put("bungeeSuiteBans", new BungeeSuiteImporter());
+            put("geSuitBans", new GeSuiteImporter());
+            put("MC-Previous1.7.8", new MinecraftPreUUIDImporter());
 	    }};
 	    
 		public ImportCmd() { 

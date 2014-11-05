@@ -42,7 +42,12 @@ public class BanTask implements Runnable {
 		
 		// Check if the online players are banned (if modifications have been made from the WebInterface)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
-			final List<String> serversToCheck = Arrays.asList(player.getServer().getInfo().getName(), IModule.GLOBAL_SERVER);
+			final List<String> serversToCheck;
+			if(player.getServer() != null){
+			    serversToCheck = Arrays.asList(player.getServer().getInfo().getName(), IModule.GLOBAL_SERVER);
+			}else{
+			    serversToCheck = Arrays.asList(IModule.GLOBAL_SERVER);
+			}
 			for(final String server : serversToCheck){
 				if(ban.isBan(player, server)){
 					if (server.equals(player.getPendingConnection().getListener().getDefaultServer()) || server.equals(IModule.GLOBAL_SERVER)) {
