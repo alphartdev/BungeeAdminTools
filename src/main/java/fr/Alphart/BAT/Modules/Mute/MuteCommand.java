@@ -107,11 +107,6 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -137,6 +132,12 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
@@ -239,11 +240,6 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -271,6 +267,12 @@ public class MuteCommand extends CommandHandler {
 			}
 		}
 
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
+                
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
 			ip = Core.getPlayerIP(target);
@@ -367,11 +369,6 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
 		final String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
@@ -395,6 +392,12 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnmute) {

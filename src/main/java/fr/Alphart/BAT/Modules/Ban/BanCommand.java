@@ -107,12 +107,6 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            
-            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -145,6 +139,12 @@ public class BanCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null && pUUID == null) {
@@ -248,11 +248,7 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1  && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
+            
 		final String target = args[0];
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
@@ -286,6 +282,11 @@ public class BanCommand extends CommandHandler {
 			}
 		}
 
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null && pUUID == null) {
 			ip = Core.getPlayerIP(target);
@@ -385,11 +386,6 @@ public class BanCommand extends CommandHandler {
 
 	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
-            {
-                sender.sendMessage(__("noReasonInCommand"));
-                return;
-            }
 		final String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
@@ -413,6 +409,12 @@ public class BanCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnban) {
