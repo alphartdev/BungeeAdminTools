@@ -64,6 +64,7 @@ commentStaffRow=&a#{0}&e {1}&f &eEntity:&a {2} Content: &a{3} &fDate: &6{4}
 # Miscellaneous related to BAT
 playerNotFound=Player not found
 noReason=No reason was specified.
+noReasonInCommand=&cYou must include a reason.
 operationUnknownPlayer=You''re currently perfoming operation on the player {0} who never connected.
 specifyServer=Please specify a specific server!
 cannotGetUUID={0}''s UUID can''t be retrieved.

@@ -130,6 +130,10 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                checkArgument(
+                            reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason(),
+                            _("noReasonInCommand"));
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
@@ -259,6 +263,10 @@ public class MuteCommand extends CommandHandler {
 			}
 		}
 
+                checkArgument(
+                            reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason(),
+                            _("noReasonInCommand"));
+                
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
 			ip = Core.getPlayerIP(target);
@@ -378,6 +386,10 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                checkArgument(
+                            reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason(),
+                            _("noReasonInCommand"));
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnmute) {
