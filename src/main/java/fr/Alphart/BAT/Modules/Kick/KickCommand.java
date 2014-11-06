@@ -50,7 +50,7 @@ public class KickCommand extends CommandHandler {
 			}
                         
                         checkArgument(
-                            args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason(),
+                            args.length != 1 || !BAT.getInstance().getConfiguration().isMustGiveReason(),
                             _("noReasonInCommand"));
                         
 			final String pName = args[0];
@@ -108,7 +108,7 @@ public class KickCommand extends CommandHandler {
 			final String pName = args[0];
                         
                         checkArgument(
-                            args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason(),
+                            args.length != 1 || !BAT.getInstance().getConfiguration().isMustGiveReason(),
                             _("noReasonInCommand"));
 
 			if (BAT.getInstance().getRedis().isRedisEnabled()) {
