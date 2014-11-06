@@ -19,6 +19,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class MuteCommand extends CommandHandler {
 	private static Mute mute;
@@ -105,6 +106,11 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -232,6 +238,11 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -355,6 +366,11 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();

@@ -23,6 +23,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class BanCommand extends CommandHandler {
 	private static Ban ban;
@@ -105,6 +106,12 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -240,6 +247,11 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
@@ -372,6 +384,11 @@ public class BanCommand extends CommandHandler {
 
 	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            if (args.length == 1)
+            {
+                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                return;
+            }
 		final String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();

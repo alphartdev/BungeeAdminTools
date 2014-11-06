@@ -21,6 +21,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class KickCommand extends CommandHandler {
 	private static Kick kick;
@@ -49,6 +50,11 @@ public class KickCommand extends CommandHandler {
 				return;
 			}
 			final String pName = args[0];
+                        if (args.length == 1)
+                        {
+                            sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                            return;
+                        }
 	    	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 	    	// The player is online on the proxy
 	    	if(player != null){
@@ -101,8 +107,13 @@ public class KickCommand extends CommandHandler {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			final String pName = args[0];
-
-			if (BAT.getInstance().getRedis().isRedisEnabled()) {
+                        if (args.length == 1)
+                        {
+                            sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                            return;
+                        }
+                        
+                        if (BAT.getInstance().getRedis().isRedisEnabled()) {
 			    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
 			    	checkArgument(pUUID != null, _("playerNotFound"));
 			    	
