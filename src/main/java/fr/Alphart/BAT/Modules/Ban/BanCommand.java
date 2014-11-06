@@ -13,6 +13,7 @@ import com.google.common.base.Joiner;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -23,6 +24,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class BanCommand extends CommandHandler {
 	private static Ban ban;
@@ -137,6 +139,12 @@ public class BanCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null && pUUID == null) {
@@ -240,6 +248,7 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+            
 		final String target = args[0];
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
@@ -273,6 +282,11 @@ public class BanCommand extends CommandHandler {
 			}
 		}
 
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null && pUUID == null) {
 			ip = Core.getPlayerIP(target);
@@ -395,6 +409,12 @@ public class BanCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnban) {

@@ -9,6 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.google.common.base.Joiner;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -19,6 +20,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class MuteCommand extends CommandHandler {
 	private static Mute mute;
@@ -130,6 +132,12 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
@@ -259,6 +267,12 @@ public class MuteCommand extends CommandHandler {
 			}
 		}
 
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
+                
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null) {
 			ip = Core.getPlayerIP(target);
@@ -378,6 +392,12 @@ public class MuteCommand extends CommandHandler {
 				reason = (args.length > 2) ? Utils.getFinalArg(args, 2) : IModule.NO_REASON;
 			}
 		}
+                
+                if (reason.equalsIgnoreCase(IModule.NO_REASON) && BAT.getInstance().getConfiguration().isMustGiveReason())
+                {
+                    sender.sendMessage(__("noReasonInCommand"));
+                    return;
+                }
 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && ipUnmute) {

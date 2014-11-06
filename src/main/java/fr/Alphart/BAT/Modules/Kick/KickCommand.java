@@ -13,6 +13,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
@@ -21,6 +22,7 @@ import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class KickCommand extends CommandHandler {
 	private static Kick kick;
@@ -48,7 +50,13 @@ public class KickCommand extends CommandHandler {
 				}
 				return;
 			}
+                        if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
+                        {
+                            sender.sendMessage(__("noReasonInCommand"));
+                            return;
+                        }
 			final String pName = args[0];
+                        
 	    	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 	    	// The player is online on the proxy
 	    	if(player != null){
@@ -101,8 +109,13 @@ public class KickCommand extends CommandHandler {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			final String pName = args[0];
-
-			if (BAT.getInstance().getRedis().isRedisEnabled()) {
+                        if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
+                        {
+                            sender.sendMessage(__("noReasonInCommand"));
+                            return;
+                        }
+                        
+                        if (BAT.getInstance().getRedis().isRedisEnabled()) {
 			    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
 			    	checkArgument(pUUID != null, _("playerNotFound"));
 			    	
