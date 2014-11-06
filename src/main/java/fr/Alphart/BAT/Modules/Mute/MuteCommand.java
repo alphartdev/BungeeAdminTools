@@ -9,6 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.google.common.base.Joiner;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -106,9 +107,9 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1)
+            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];
@@ -238,9 +239,9 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1)
+            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];
@@ -366,9 +367,9 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1)
+            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];

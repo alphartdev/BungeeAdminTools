@@ -13,6 +13,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
@@ -49,12 +50,13 @@ public class KickCommand extends CommandHandler {
 				}
 				return;
 			}
-			final String pName = args[0];
-                        if (args.length == 1)
+                        if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
                         {
-                            sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                            sender.sendMessage(__("noReasonInCommand"));
                             return;
                         }
+			final String pName = args[0];
+                        
 	    	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 	    	// The player is online on the proxy
 	    	if(player != null){
@@ -107,9 +109,9 @@ public class KickCommand extends CommandHandler {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			final String pName = args[0];
-                        if (args.length == 1)
+                        if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
                         {
-                            sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                            sender.sendMessage(__("noReasonInCommand"));
                             return;
                         }
                         

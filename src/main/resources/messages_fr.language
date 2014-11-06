@@ -64,6 +64,7 @@ commentStaffRow=&a#{0}&e {1}&f &eEntité:&a {2} Contenu: &a{3} &fDate: &6{4}
 # Miscellaneous related to BAT
 playerNotFound=Joueur introuvable
 noReason=raison non specifiée
+noReasonInCommand=&cVous devez inclure une raison.
 operationUnknownPlayer=Vous êtes en train d''effectuer une opération sur le joueur {0} qui ne s''est jamais connecté
 specifyServer=Vous devez specifiez un serveur !
 cannotGetUUID=L''UUID de {0} ne peut pas être récuperé.

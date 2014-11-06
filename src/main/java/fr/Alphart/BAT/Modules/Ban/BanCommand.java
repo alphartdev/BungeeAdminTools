@@ -13,6 +13,7 @@ import com.google.common.base.Joiner;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
+import static fr.Alphart.BAT.I18n.I18n.__;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
@@ -107,9 +108,9 @@ public class BanCommand extends CommandHandler {
 	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
             
-            if (args.length == 1)
+            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];
@@ -247,9 +248,9 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1)
+            if (args.length == 1  && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];
@@ -384,9 +385,9 @@ public class BanCommand extends CommandHandler {
 
 	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-            if (args.length == 1)
+            if (args.length == 1 && BAT.getInstance().getConfiguration().isMustGiveReason())
             {
-                sender.sendMessage(ChatColor.RED + "You must include a reason.");
+                sender.sendMessage(__("noReasonInCommand"));
                 return;
             }
 		final String target = args[0];
