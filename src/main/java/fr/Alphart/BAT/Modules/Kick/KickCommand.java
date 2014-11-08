@@ -48,6 +48,10 @@ public class KickCommand extends CommandHandler {
 				}
 				return;
 			}
+                        
+            checkArgument(args.length != 1 || !BAT.getInstance().getConfiguration().isMustGiveReason(),
+                _("noReasonInCommand"));
+                        
 			final String pName = args[0];
 	    	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 	    	// The player is online on the proxy
@@ -101,6 +105,9 @@ public class KickCommand extends CommandHandler {
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			final String pName = args[0];
+                        
+            checkArgument(args.length != 1 || !BAT.getInstance().getConfiguration().isMustGiveReason(),
+                    _("noReasonInCommand"));
 
 			if (BAT.getInstance().getRedis().isRedisEnabled()) {
 			    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);

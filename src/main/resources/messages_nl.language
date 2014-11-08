@@ -64,6 +64,7 @@ commentStaffRow=&a#{0}&e {1}&f Opmerking: &a{2} &fDatum: &6{3} &fStaf: &B{4}
 # Miscellaneous related to BAT
 playerNotFound=Speler niet gevonden
 noReason=Er is geen reden opgegeven.
+noReasonInCommand=&cU moet een reden op te nemen.
 operationUnknownPlayer=Je voert momenteel een actie uit op speler {0} welke nooit verbonden is geweest.
 specifyServer=Geef een specifieke server op.
 cannotGetUUID={0}''s UUID kan niet worden gevonden.
