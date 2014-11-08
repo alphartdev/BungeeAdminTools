@@ -139,9 +139,9 @@ public class BanCommand extends CommandHandler {
 		}
                 
                 
-                    checkArgument(
-                            !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
-                            _("noReasonInCommand"));
+        checkArgument(
+                !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
+                _("noReasonInCommand"));
                 
 
 		// Check if the target isn't an ip and the player is offline
@@ -280,9 +280,9 @@ public class BanCommand extends CommandHandler {
 		}
 
                 
-                    checkArgument(
-                            !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
-                            _("noReasonInCommand"));
+        checkArgument(
+                !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
+                _("noReasonInCommand"));
                 
 		// Check if the target isn't an ip and the player is offline
 		if (!Utils.validIP(target) && player == null && pUUID == null) {
@@ -408,9 +408,9 @@ public class BanCommand extends CommandHandler {
 		}
                 
                 
-                    checkArgument(
-                            !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
-                            _("noReasonInCommand"));
+        checkArgument(
+                !reason.equalsIgnoreCase(IModule.NO_REASON) || !BAT.getInstance().getConfiguration().isMustGiveReason(),
+                _("noReasonInCommand"));
                 
 
 		// Check if the target isn't an ip and the player is offline

@@ -25,7 +25,7 @@ public class Configuration extends Config{
 	private String language = "en";
 	private String prefix = "&6[&4BAT&6]&e ";
 	
-        @Comment("force players to give reason when /ban /unban /kick /mute /unmute etc.")
+    @Comment("Force players to give reason when /ban /unban /kick /mute /unmute etc.")
 	private boolean mustGiveReason= false;
 	@Comment("Enable /bat confirm, to confirm command such as action on unknown player.")
 	private boolean confirmCommand = true;
