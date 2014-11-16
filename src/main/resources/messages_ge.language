@@ -1,8 +1,8 @@
-# BungeeAdminTools language DE file - thanks to NilsUSA for his help with the translation
+# BungeeAdminTools language GE file - thanks to NilsUSA for his help with the translation
 # Ban module
 alreadyBan=&cDieser Spieler wurde schon von diesem Server gebannt!
 banBroadcast=&a{0}&e wurde dauerhaft von &a{1}&e vom Server &a{2}&6 gebannt! &eGrund : {3}
-banTempBroadcast=&a{0}&e wurde für &a{1}&e von &a{2}&e vom Server &a{3} &6gebannt! &eGrund : {4}
+banTempBroadcast=&a{0}&e wurde zeitlich &a{1}&e von &a{2}&e vom Server &a{3} &6gebannt! &eGrund : {4}
 isBanned=Du wurdest am {1} von {2} von diesem Server gabannt. Grund: {0}
 isBannedTemp=Du wurdest am {2} von {3} von diesem Server gebannt! Grund: {0} Dein Bann endet in: {1}
 notBanned=&c{0} ist nicht von diesem Server gebannt.
@@ -15,32 +15,32 @@ alreadyMute=&cDieser Spieler wurde schon gemutet!
 isMute=Du wurdest am {1} von {2} auf diesem Server gemutet. Grund: {0}
 isMuteTemp=Du wurdest am {2} von {3} auf diesem Server gemutet! Grund: {0} Dein Mute endet: {1}
 muteBroadcast=&a{0}&e wurde dauerhaft von &a{1}&e vom Server &a{2}&6 gemutet! Grund : {3}
-muteTempBroadcast=&a{0}&e wurde für &a{1}&e von &a{2}&e vom Server &a{3} &6gemutet! Grund : {4}
+muteTempBroadcast=&a{0}&e wurde zeitlich &a{1}&e von &a{2}&e vom Server &a{3} &6gemutet! Grund : {4}
 notMuted=&c{0} ist nicht auf diesem Server gemutet.
 notMutedAny=&c{0} ist nicht gemutet!
 notMutedIP=&c{0} ist nicht IP gemutet.
 unmuteBroadcast=&a{0}&e wurde von &a{1}&e vom Server &a{2}&6 entmutet. &eGrund : {3}
 wasMutedNotif=Du wurdest gemutet. &eGrund : {0}
 wasUnmutedNotif=Du wurdest entmutet. &eGrund : {0}
-loadingMutedata=Loading of data in progress : you may speak in a little while.
+loadingMutedata=Daten werden gerade abgerufen! Bitte versuche es in wenigen Sekunden nochmal!
 # Kick module
 kickBroadcast=&a{0}&e wurde von &a{1}&e vom Server &a{2}&6 gekickt! &eGrund : {3}
-gKickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the network. &eGrund : {2}
+gKickBroadcast=&a{0}&e wurde von &a{1}&e vom Netzwerk gekickt! &eGrund : {2}
 wasKickedNotif=Du wurdest gekickt! Grund : {0}
 cantKickDefaultServer=&cDer Spieler {0} befindet sich bereits auf dem standard Server. Du kannst ihn nicht kicken.
 # Comment module
 warnBroadcast=&a{0}&e wurde von &a{1} &6verwarnt&e. Grund : {2}
 wasWarnedNotif=Du wurdest verwarnt. Grund : {0}
-commentsCleared=&eDie Bemerkungen von &a{0}&e wurden zurückgesetzt.
+commentsCleared=&eDie Bemerkungen von &a{0}&e wurden entfernt.
 commentAdded=&eDie Bemerkung wurde erfolgreich hinzugefügt.
 noCommentIDFound={0} hat keine Bemerkung mit dieser ID.
-commentIDCleared=Die Bemerkung &b#{0}&e von &a{1}&e wurde gelöscht.
+commentIDCleared=Die Bemerkung &b#{0}&e von &a{1}&e wurde entfernt.
 # Command related message
-invalidArgs=Ungültige Eingabe. {0}
-invalidArgsUsage=Ungültige Eingabe. VerwEndete : {0}
-invalidCommand=Ungültiger Befehl.
-noPerm=&cDu hast nicht die benötigten Rechte um diesen Befehl auszuführen!
-mustConfirm=Du musst deinen Befehl &abestätigen!&e VerwEndete: &6/{1} {0}
+invalidArgs=Fehlerhafte Eingabe. {0}
+invalidArgsUsage=Fehlerhafte Eingabe. Verwende : {0}
+invalidCommand=Fehlerhafter Befehl.
+noPerm=&cDu keine Berechtigungen um diesen Befehl zu verwenden!
+mustConfirm=Du musst deinen Befehl &abestätigen!&e Verwende: &6/{1} {0}
 noQueuedCommand=Du hast keinen Befehl in der Warteschlange.
 # Per module lookup translation
 # Player lookup
@@ -65,13 +65,13 @@ commentStaffRow=&a#{0}&e {1}&f &eSpieler:&a {2} Inhalt: &a{3} &fDatum: &6{4}
 playerNotFound=Spieler nicht gefunden!
 noReason=Kein Grund angegeben.
 noReasonInCommand=&cDu musst einen Grund angeben.
-operationUnknownPlayer=Du versuchst einen Befehl bei dem Spieler {0} auszuführen. Dieser Spieler war noch nie auf dem Server.
+operationUnknownPlayer=Du versuchst einen Befehl bei dem Spieler {0} verwenden. Dieser Spieler war noch nie auf dem Server.
 specifyServer=Du musst einen Server angeben!
 cannotGetUUID=Die UUID von {0} konnte nicht abgerufen werden.
 global=global
-invalidServer=Der angebene Server ist ungültig!
-ipUnknownPlayer=Du kannst diese Action bei diesem Spieler nicht ausführen, weil dieser Spieler den Server noch nie betreten hat.
-isExempt=&cDu kannst diesen Befehl an diesem Spieler nicht ausführen!
+invalidServer=Der angebene Server ist fehlerhaft!
+ipUnknownPlayer=Du kannst diese Action bei diesem Spieler nicht verwenden, weil dieser Spieler den Server noch nie betreten hat.
+isExempt=&cDu kannst diesen Befehl an diesem Spieler nicht verwenden!
 # Miscellaneous related to language : some words that need to be translated
 today=heute
 tomorrow=morgen
