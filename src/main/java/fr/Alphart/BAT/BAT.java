@@ -188,35 +188,6 @@ public class BAT extends Plugin {
 		}
 	}
 
-	public void migrate(final String target) throws IllegalArgumentException{
-		//TODO: Finish the migrate function
-		Preconditions.checkArgument("mysql".equalsIgnoreCase(target) || "sqlite".equalsIgnoreCase(target));
-		modules.unloadModules();
-
-		if("mysql".equalsIgnoreCase(target))
-		{
-			config.setMysql_enabled(false);
-			try {
-				config.save();
-			} catch (final InvalidConfigurationException e) {
-				e.printStackTrace();
-			}
-//			if(!loadDB()){
-//				throw new IllegalArgumentException("BAT can't connect to the MySQL database. Please check your login details.");
-//			}
-
-			// Load and unload all modules to generate the table in the new DB
-			modules.loadModules();
-			modules.unloadModules();
-
-			// Move all the data
-		}
-		else
-		{
-
-		}
-	}
-
 	public static BAT getInstance() {
 		return BAT.instance;
 	}

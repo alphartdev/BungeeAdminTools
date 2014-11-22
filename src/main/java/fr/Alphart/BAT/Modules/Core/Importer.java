@@ -6,22 +6,30 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
+import lombok.core.ImportList;
 import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -67,13 +75,13 @@ public abstract class Importer {
         }
     }
     
-    protected abstract void importData(final ProgressCallback<ImportStatus> progressionCallback) throws Exception;
+    protected abstract void importData(final ProgressCallback<ImportStatus> progressionCallback, final String... additionnalsArgs) throws Exception;
     
-    public void startImport(final ProgressCallback<ImportStatus> progressionCallback){
+    public void startImport(final ProgressCallback<ImportStatus> progressionCallback, final String... additionnalsArgs){
         try {
-            importData(progressionCallback);
-        }catch (final Exception e) {
-            progressionCallback.done(null, e);
+            importData(progressionCallback, additionnalsArgs);
+        }catch (final Throwable t) {
+            progressionCallback.done(null, t);
         }
     }
     
@@ -107,7 +115,7 @@ public abstract class Importer {
     public static class BungeeSuiteImporter extends Importer{
 
         @Override
-        protected void importData(final ProgressCallback<ImportStatus> progressionCallback) throws Exception{
+        protected void importData(final ProgressCallback<ImportStatus> progressionCallback, String... additionalsArgs) throws Exception{
             ResultSet res = null;
             try (Connection conn = BAT.getConnection()) {
                 // Check if the bungee suite tables are here
@@ -174,11 +182,13 @@ public abstract class Importer {
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
                         status.incrementConvertedEntries(uncomittedEntries);
+                        uncomittedEntries = 0;
                         progressionCallback.onProgress(status);
                     }
                 }
 
                 conn.commit();
+                status.incrementConvertedEntries(uncomittedEntries);
                 progressionCallback.done(status, null);
             }finally{
                 if(res != null){
@@ -192,7 +202,7 @@ public abstract class Importer {
     public static class GeSuiteImporter extends Importer{
 
         @Override
-        protected void importData(final ProgressCallback<ImportStatus> progressionCallback) throws Exception {
+        protected void importData(final ProgressCallback<ImportStatus> progressionCallback, String... additionalsArgs) throws Exception {
             ResultSet res = null;
             try (Connection conn = BAT.getConnection()) {
                 // Check if the bungee suite tables are here
@@ -254,13 +264,15 @@ public abstract class Importer {
                     uncomittedEntries++;
 
                     if(uncomittedEntries % 100 == 0){
-                        status.incrementConvertedEntries(100);
                         conn.commit();
+                        status.incrementConvertedEntries(uncomittedEntries);
+                        uncomittedEntries = 0;
                         progressionCallback.onProgress(status);
                     }
                 }
 
                 conn.commit();
+                status.incrementConvertedEntries(uncomittedEntries);
                 progressionCallback.done(status, null);
             }finally{
                 if(res != null){
@@ -275,7 +287,7 @@ public abstract class Importer {
         private static final DateFormat dfMc1v6 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
         
         @Override
-        protected void importData(ProgressCallback<ImportStatus> progressionCallback) throws Exception {
+        protected void importData(ProgressCallback<ImportStatus> progressionCallback, final String... additionalsArgs) throws Exception {
             try (Connection conn = BAT.getConnection()) {
                 // Check if either the banned-players.txt or the banned-ips.txt file exists
                 if(!new File(BAT.getInstance().getDataFolder(), "banned-players.txt").exists() 
@@ -346,11 +358,13 @@ public abstract class Importer {
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
                         status.incrementConvertedEntries(uncomittedEntries);
+                        uncomittedEntries = 0;
                         progressionCallback.onProgress(status);
                     }
                 }
                 
                 conn.commit();
+                status.incrementConvertedEntries(uncomittedEntries);
                 progressionCallback.done(status, null);
             }catch (final IOException e){
                 BAT.getInstance().getLogger().severe("An error related to files occured during the import of Minecraft v1.6 ban records :");
@@ -399,6 +413,244 @@ public abstract class Importer {
                 }
                 staffBan = (splittedLine[2].equals("(Unknown)")) ? "CONSOLE" : splittedLine[2];
                 reason = splittedLine[4];
+            }
+        }
+    }
+    
+    public static class BanHammerImporter extends Importer{
+
+        @Override
+        protected void importData(final ProgressCallback<ImportStatus> progressionCallback, String... additionalsArgs) throws Exception {
+            ResultSet res = null;
+            boolean tableFound = true;
+            boolean banHammerOnMysql = true;
+            try (Connection conn = BAT.getConnection()) {
+                // Check if the bungee suite tables are here
+                final DatabaseMetaData dbm = conn.getMetaData();
+                for(final String table : Arrays.asList("banhammer_bans", "banhammer_players")){
+                    final ResultSet tables = dbm.getTables(null, null, table, null);
+                    if (!tables.next()) {
+                        tableFound = false;
+                    }
+                }
+                // If mysql is on and the table weren't found, try to look for a banhammer.db file
+                if(tableFound == false){
+                    banHammerOnMysql = false;
+                    if(new File(BAT.getInstance().getDataFolder(), "banhammer.db").exists()){
+                        progressionCallback.onMinorError("The SQLite Driver must be downloaded. The server may freeze during the download.");
+                        if(BAT.getInstance().loadSQLiteDriver()){
+                            tableFound = true;
+                        }
+                    }else{
+                        throw new RuntimeException("No BanHammer tables was found in the MySQL database. "
+                                + "If you used a .db file with BanHammer, please put your file into BAT folder and rename it 'BanHammer.db'");
+                    }
+                }
+                
+                if(tableFound){
+                    try(Connection connBH = (banHammerOnMysql) 
+                            ? conn
+                            : DriverManager.getConnection("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() + File.separator
+                                    + "banhammer.db");){
+                        // Count the number of entries (use to show the progression)
+                        final ResultSet resCount = connBH.prepareStatement("SELECT  " + (banHammerOnMysql ? "count()" : "COUNT(*)") + " FROM banhammer_bans;"
+                            ).executeQuery();
+                        if(resCount.next()){
+                            status = new ImportStatus(resCount.getInt(banHammerOnMysql ? "count()" : "COUNT(*)"));
+                        }
+
+                        final PreparedStatement insertBans = conn.prepareStatement("INSERT INTO `" + SQLQueries.Ban.table
+                            + "`(UUID, ban_ip, ban_staff, ban_server, ban_begin, ban_end, ban_reason, ban_state,"
+                            + "ban_unbandate, ban_unbanstaff, ban_unbanreason) "
+                            + "VALUES (?, null, ?, ?, ?, ?, ?, ?, ?, "
+                            + "'Unspecified:BanHammer import', 'Unspecified:BanHammer import');");
+
+                        res = banHammerOnMysql 
+                                ? connBH.createStatement().executeQuery("SELECT bans.*, (SELECT players.name FROM banhammer_players players " +
+                                    "WHERE bans.player_id = players.id) as player, (SELECT players.name FROM banhammer_players players " +
+                                    "WHERE bans.creator_id = players.id) as staff FROM banhammer_bans bans;")
+                                : connBH.createStatement().executeQuery("SELECT *, strftime('%s',created_at), strftime('%s',expires_at), " +
+                                    "(SELECT players.name FROM banhammer_players players WHERE bans.player_id = players.id) as player, " +
+                                    "(SELECT players.name FROM banhammer_players players WHERE bans.creator_id = players.id) as staff " +
+                                    " FROM banhammer_bans bans;");
+                        int uncomittedEntries = 0;
+                        conn.setAutoCommit(false);
+                        
+                        while (res.next()) {
+                            final String pName = res.getString("player");
+                            final String server = IModule.GLOBAL_SERVER;
+                            final String staff = res.getString("staff");
+                            final String reason = res.getString("reason");
+                            final Timestamp ban_begin = res.getTimestamp("created_at");
+                            final Timestamp ban_end = res.getTimestamp("expires_at");
+                            final int bhState = res.getInt("state");
+                            
+                            // Sometimes for unknown reason a timestamp get a wrong value (year < 1970)
+                            if(ban_end != null && ban_end.getTime() < 0){
+                                continue;
+                            }
+                            
+                            // Get UUID
+                            String UUID = uuidCache.get(pName);
+
+                            // Insert the ban
+                            insertBans.setString(1, UUID);
+                            insertBans.setString(2, staff);
+                            insertBans.setString(3, server);
+                            insertBans.setTimestamp(4, ban_begin);
+                            insertBans.setTimestamp(5, ban_end);
+                            insertBans.setString(6, reason);
+                            boolean state;
+                            if(ban_end != null){
+                                if(ban_end.getTime() > System.currentTimeMillis() && bhState == 0){
+                                    state = true;
+                                    insertBans.setTimestamp(8, null);
+                                }else{
+                                    state = false;
+                                    insertBans.setTimestamp(8, ban_end);
+                                }
+                            }else{
+                                state = (bhState == 0) ? true : false;
+                                insertBans.setTimestamp(8, null);
+                            }
+                            insertBans.setBoolean(7, state);
+                            insertBans.execute();
+                            insertBans.clearParameters();
+                            uncomittedEntries++;
+
+                            if(uncomittedEntries % 100 == 0){
+                                conn.commit();
+                                status.incrementConvertedEntries(uncomittedEntries);
+                                uncomittedEntries = 0;
+                                progressionCallback.onProgress(status);
+                            }
+                        }
+
+                        conn.commit();
+                        status.incrementConvertedEntries(uncomittedEntries);
+                        progressionCallback.done(status, null);
+                    }finally{
+                        if(res != null){
+                            DataSourceHandler.close(res);
+                        }
+                    }
+            }
+            }
+        }
+        
+    }
+    
+    public static class SQLiteMigrater extends Importer{
+        @Override
+        protected void importData(final ProgressCallback<ImportStatus> progressionCallback, String... additionalsArgs) throws Exception {
+            ResultSet res = null;
+            if(new File(BAT.getInstance().getDataFolder(), "bat_database.db").exists()){
+                progressionCallback.onMinorError("The SQLite Driver must be downloaded. The server may freeze during the download.");
+                if(!BAT.getInstance().loadSQLiteDriver()){
+                    throw new RuntimeException("The SQLite driver can't be loaded, please check the logs.");
+                }
+            }else{
+                throw new RuntimeException("The sqlite BAT database wasn't found ... The bat database must be named 'bat_database.db'");
+            }
+            
+            Connection mysqlConn;
+            try (Connection sqliteConn = DriverManager.getConnection("jdbc:sqlite:" + BAT.getInstance().getDataFolder().getAbsolutePath() 
+                    + File.separator + "bat_database.db");){
+                mysqlConn = BAT.getConnection();
+                // Pattern : TableName, Entry<readInstruction, writeInstruction> 
+                final Map<String, Entry<String, String>> moduleImportQueries = new HashMap<>();
+                moduleImportQueries.put(SQLQueries.Ban.table, new AbstractMap.SimpleEntry<String, String>(
+                        "SELECT * FROM " + SQLQueries.Ban.table + ";", 
+                        "INSERT INTO " + SQLQueries.Ban.table + " VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);"));
+                moduleImportQueries.put(SQLQueries.Mute.table, new AbstractMap.SimpleEntry<String, String>(
+                        "SELECT * FROM " + SQLQueries.Mute.table + ";", 
+                        "INSERT INTO " + SQLQueries.Mute.table + " VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);"));
+                moduleImportQueries.put(SQLQueries.Comments.table, new AbstractMap.SimpleEntry<String, String>(
+                        "SELECT * FROM " + SQLQueries.Comments.table + ";", 
+                        "INSERT INTO " + SQLQueries.Comments.table + " VALUES(NULL,?,?,?,?,?);"));
+                moduleImportQueries.put(SQLQueries.Kick.table, new AbstractMap.SimpleEntry<String, String>(
+                        "SELECT * FROM " + SQLQueries.Kick.table + ";", 
+                        "INSERT INTO " + SQLQueries.Kick.table + " VALUES(NULL,?,?,?,?,?);"));
+                moduleImportQueries.put(SQLQueries.Core.table, new AbstractMap.SimpleEntry<String, String>(
+                        "SELECT * FROM " + SQLQueries.Core.table + ";", 
+                        "INSERT INTO " + SQLQueries.Core.table + " VALUES(?,?,?,?,?);"));
+                
+                // List tables in SQLite db
+                final DatabaseMetaData dbMetadata = sqliteConn.getMetaData();
+                String[] absentTables = new String[5];
+                int i = 0;
+                for(final String table :  Arrays.asList(SQLQueries.Kick.table, SQLQueries.Mute.table, SQLQueries.Ban.table, 
+                        SQLQueries.Core.table, SQLQueries.Comments.table)){
+                    final ResultSet tables = dbMetadata.getTables(null, null, table, null);
+                    if (!tables.next()) {
+                        absentTables[i] = table;
+                    }
+                    i++;
+                }
+                for(final String absentTable : absentTables){
+                    moduleImportQueries.remove(absentTable);
+                }
+                
+                if(!moduleImportQueries.isEmpty()){
+                        // Count the number of entries (use to show the progression)
+                        int entryCount = 0;
+                        for(final String table : moduleImportQueries.keySet()){
+                            final ResultSet resCount = sqliteConn.createStatement().executeQuery("SELECT count() FROM " + table + ";");
+                            if(resCount.next()){
+                                entryCount += resCount.getInt("count()");
+                            }
+                            resCount.close();
+                        }
+                        status = new ImportStatus(entryCount);
+                        
+                        int uncomittedEntries = 0;
+                        mysqlConn.setAutoCommit(false);
+                        for(final String table :  moduleImportQueries.keySet()){
+                            res = sqliteConn.createStatement().executeQuery(moduleImportQueries.get(table).getKey());
+                            final PreparedStatement insertStatement = 
+                                    mysqlConn.prepareStatement(moduleImportQueries.get(table).getValue());
+                            int columnCount = res.getMetaData().getColumnCount();
+                            while (res.next()) {
+                                // If there is an id, we will ignore it (start from columnIndex 2)
+                                boolean ignoreFirstColumn = (moduleImportQueries.get(table).getValue().contains("NULL"))
+                                        ? true : false;
+                                // SOme parameters error "No value specified for parameter 1" need to find the good formula to delimite the start and the end
+                                for(i=(ignoreFirstColumn) ? 2 : 1; i < (columnCount + 1); i++){
+                                    Object obj = res.getObject(i);
+                                    if(obj instanceof Long){
+                                        obj = new Timestamp((Long) obj);
+                                    }
+                                    insertStatement.setObject((ignoreFirstColumn) ? i-1 : i, obj);
+                                }
+                                try{
+                                    insertStatement.execute();
+                                }catch(final SQLException exception){
+                                    // If that's an duplicated entry error, we don't care we continue the import ...
+                                    if(exception.getErrorCode() != 1062){
+                                        throw exception;
+                                    }
+                                }
+                                uncomittedEntries++;
+                                insertStatement.clearParameters();
+                                if(uncomittedEntries % 100 == 0){
+                                    mysqlConn.commit();
+                                    status.incrementConvertedEntries(uncomittedEntries);
+                                    uncomittedEntries = 0;
+                                    progressionCallback.onProgress(status);
+                                }
+                            }
+                            res.close();
+                            insertStatement.close();
+                        }
+        
+                        mysqlConn.commit();
+                        status.incrementConvertedEntries(uncomittedEntries);
+                        progressionCallback.done(status, null);
+                }else{
+                    throw new RuntimeException("No tables of BAT were found in the bat_database.db file, therefore no data were imported ...");
+                }
+        }finally{
+            DataSourceHandler.close(res);
             }
         }
     }
