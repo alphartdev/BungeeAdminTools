@@ -443,7 +443,7 @@ public abstract class Importer {
                         }
                     }else{
                         throw new RuntimeException("No BanHammer tables was found in the MySQL database. "
-                                + "If you used a .db file with BanHammer, please put your file into BAT folder and rename it 'BanHammer.db'");
+                                + "If you used a .db file with BanHammer, please put your file into BAT folder and rename it 'banhammer.db'");
                     }
                 }
                 
@@ -491,7 +491,16 @@ public abstract class Importer {
                             }
                             
                             // Get UUID
-                            String UUID = uuidCache.get(pName);
+                            String UUID;
+                            try{
+                                UUID = uuidCache.get(pName);
+                            }catch (final ExecutionException e) {
+                                if(e.getCause() instanceof UUIDNotFoundException){
+                                    continue;
+                                }else{
+                                    throw e;
+                                }
+                            }
 
                             // Insert the ban
                             insertBans.setString(1, UUID);
