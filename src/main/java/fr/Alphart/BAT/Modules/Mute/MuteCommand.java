@@ -105,7 +105,7 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -156,6 +156,7 @@ public class MuteCommand extends CommandHandler {
 			checkArgument(PermissionManager.canExecuteAction((ipMute) ? Action.MUTEIP : Action.MUTE, sender, server),
 					_("noPerm"));
 		}
+		target = (ip == null) ? target : ip;
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("isExempt"));
 
@@ -236,7 +237,7 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -289,6 +290,7 @@ public class MuteCommand extends CommandHandler {
 					PermissionManager.canExecuteAction((ipMute) ? Action.TEMPMUTEIP : Action.TEMPMUTE, sender, server),
 					_("noPerm"));
 		}
+		target = (ip == null) ? target : ip;
 
 		checkArgument(!PermissionManager.isExemptFrom(Action.MUTE, target), _("isExempt"));
 
@@ -363,7 +365,7 @@ public class MuteCommand extends CommandHandler {
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -402,6 +404,7 @@ public class MuteCommand extends CommandHandler {
 					PermissionManager.canExecuteAction((ipUnmute) ? Action.UNMUTEIP : Action.UNMUTE, sender, server),
 					_("noPerm"));
 		}
+		target = (ip == null) ? target : ip;
 
 		final String[] formatArgs = { args[0] };
 

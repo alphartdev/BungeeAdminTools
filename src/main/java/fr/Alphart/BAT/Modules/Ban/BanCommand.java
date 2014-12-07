@@ -105,7 +105,7 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -166,6 +166,7 @@ public class BanCommand extends CommandHandler {
 			checkArgument(PermissionManager.canExecuteAction((ipBan) ? Action.BANIP : Action.BAN, sender, server),
 					_("noPerm"));
 		}
+		target = (ip == null) ? target : ip;
 
 		// We just check if the target is exempt from the ban, which means he's
 		// exempt from the full module command
@@ -246,7 +247,7 @@ public class BanCommand extends CommandHandler {
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -306,17 +307,17 @@ public class BanCommand extends CommandHandler {
 					PermissionManager.canExecuteAction((ipBan) ? Action.TEMPBANIP : Action.TEMPBAN, sender, server),
 					_("noPerm"));
 		}
-
+		target = (ip == null) ? target : ip;
+		
 		checkArgument(!PermissionManager.isExemptFrom(Action.BAN, target), _("isExempt"));
-
-		checkArgument(!ban.isBan((ip == null) ? target : ip, server), _("alreadyBan"));
+		checkArgument(!ban.isBan(target, server), _("alreadyBan"));
 
 		if (ipBan && player != null) {
 			returnedMsg = ban.banIP(player, server, staff, expirationTimestamp, reason);
 		} else if (ipBan && pUUID != null) {
-		        returnedMsg = ban.banRedisIP(pUUID, server, staff, expirationTimestamp, reason);
+	        returnedMsg = ban.banRedisIP(pUUID, server, staff, expirationTimestamp, reason);
 		} else {
-			returnedMsg = ban.ban(target, server, staff, expirationTimestamp, reason);
+			returnedMsg = ban.ban(target , server, staff, expirationTimestamp, reason);
 		}
 
 		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
@@ -383,7 +384,7 @@ public class BanCommand extends CommandHandler {
 
 	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban,
 			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
-		final String target = args[0];
+		String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
 		String reason = IModule.NO_REASON;
@@ -424,6 +425,7 @@ public class BanCommand extends CommandHandler {
 					PermissionManager.canExecuteAction((ipUnban) ? Action.UNBANIP : Action.UNBAN, sender, server),
 					_("noPerm"));
 		}
+		target = (ip == null) ? target : ip;
 
 		final String[] formatArgs = { args[0] };
 
