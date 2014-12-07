@@ -27,14 +27,14 @@
 			<id>bungeecord-repo</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
-                <repository>
-                        <id>md-5-repo</id>
-                        <url>http://repo.md-5.net/content/groups/public/</url>
-                </repository>
-                <repository>
-                        <id>gunfighterj-repo</id>
-                        <url>http://repo.gunfighterj.com/content/groups/public/</url>
-                </repository>
+        <repository>
+                <id>md-5-repo</id>
+                <url>http://repo.md-5.net/content/groups/public/</url>
+        </repository>
+        <repository>
+                <id>yamler-repo</id>
+                <url>http://nexus.cube-space.net/content/groups/public/</url>
+        </repository>
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -100,11 +100,11 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-                <dependency>
-                        <groupId>com.imaginarycode.minecraft</groupId>
- 			<artifactId>RedisBungee</artifactId>
+		<dependency>
+			<groupId>com.imaginarycode.minecraft</groupId>
+			<artifactId>RedisBungee</artifactId>
 			<version>0.3.3-SNAPSHOT</version>
-                </dependency>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -152,5 +152,5 @@
 		</plugins>
 	</build>
 	<description>Bungee plugin which handles ban, mute and kick management</description>
-	<version>1.2.8</version>
+	<version>1.2.9</version>
 </project>
