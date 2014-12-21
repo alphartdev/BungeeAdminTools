@@ -1,0 +1,79 @@
+# BungeeAdminTools language ES file - thanks to Daglimioux for this translation :D
+# Ban module
+alreadyBan=&c¡El jugador ya está baneado en este servidor!
+banBroadcast=&a{0}&e ha sido &6baneado definitivamente&e ,por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
+banTempBroadcast=&a{0}&e ha sido &6baneado&e durante &a{1}&e, por &a{2}&e, del servidor &a{3}&e. Motivo: {4}
+isBanned=Has sido baneado el {1} por {2} de este servidor por: {0}
+isBannedTemp=Has sido baneado temporalmente el {2} por {3} de este servidor, has sido baneado por: Motivo: {0} El ban finaliza en: {1}
+notBanned=&c{0} no está banedo en este servidor.
+notBannedAny=&c{0} no está baneado en ningún servidor.
+notBannedIP=&cLa IP {0} &cno está baneada en este servidor.
+unbanBroadcast=&a{0}&e ha sido &6desbaneado &e,por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
+wasBannedNotif=Has sido baneado. Motivo: {0}
+# Mute module
+alreadyMute=&c¡El jugador ya ha sido silenciado en este servidor!
+isMute=Has sido silenciado el {1} por {2} de este servidor por: {0}
+isMuteTemp=Has sido silenciado temporalmente el {2} por {3} de este servidor, has sido silenciado por: Motivo: {0} El silencio finaliza en: {1}
+muteBroadcast=&a{0}&e ha sido &6silenciado definitivamente&e, por &a{1}&e, del servidor &a{2}. Motivo: {3}
+muteTempBroadcast=&a{0}&e ha sido &6silenciando &edurante &a{1}&e, por &a{2}&e, del servidor &a{3}&e. Motivo: {4}
+notMuted=&c{0} no está silenciado en este servidor.
+notMutedAny=&c{0} no está silenciado en ningún servidor.
+notMutedIP=&cLa IP {0} no está silenciada en este servidor.
+unmuteBroadcast=&a{0}&e ha sido &6desenmudecido &e,por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
+wasMutedNotif=Has sido silenciado. Motivo: {0}
+wasUnmutedNotif=Has sido desenmudecido. Motivo: {0}
+loadingMutedata=Carga de datos en progreso: podrás hablar en unos momentos.
+# Kick module
+kickBroadcast=&a{0}&e ha sido &6expulsado&e, por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
+gKickBroadcast=&a{0}&e ha sido &6expulsado&e, por &a{1}&e, de la Network. Motivo: {2}
+wasKickedNotif=¡Has sido expulsado del servidor! Motivo: {0}
+cantKickDefaultServer=&cNo puedes expulsar a {0}, porque ya está en el servidor por defecto.
+# Comment module
+warnBroadcast=&a{0}&e ha sido &6avisado&e por &a{1}&e. Motivo: {2}
+wasWarnedNotif=Has sido avisado. Motivo: {0}
+commentsCleared=&eLos comentarios de &a{0}&e han sido limpiados.
+commentAdded=&eEl comentario se ha añadido con éxito.
+noCommentIDFound={0} no tiene un comentario con ese ID.
+commentIDCleared=El comentario &b#{0}&e de &a{1}&e ha sido eliminado.
+# Command related message
+invalidArgs=Argumentos incorrectos. {0}
+invalidArgsUsage=Argumentos incorrectos. Uso: {0}
+invalidCommand=Comando incorrecto.
+noPerm=&c¡No tienes permiso para ejecutar este comando!
+mustConfirm=Debes &aconfirmar&e el comando usando &6/{1} {0}
+noQueuedCommand=No tienes comandos en cola.
+# Per module lookup translation
+# Player lookup
+activeBanLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3} &eFin:&a {4}
+archiveBanLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3}\
+\n&6Fecha desbaneo:&a {4} &6Motivo desbaneo:&a {5} &6Desbaneado por:&a {6}
+activeMuteLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3} &eFin:&a {4}
+archiveMuteLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3}\
+\n&6Fecha desenmudecimiento:&a {4} &6Motivo desenmudecimiento:&a {5} &6Desenmudecido por:&a {6}
+kickLookupRow=&6* &eFecha:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3}
+commentRow=&a#{0}&e {1}&f Contenido: &a{2} &fFecha: &6{3} &fStaff: &b{4}
+# Staff lookup
+activeStaffBanLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3} &eFin:&a {4}
+archiveStaffBanLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3}\
+\n&6Fecha desbaneo:&a {4} &6Motivo desbaneo:&a {5} &6Desbaneado por:&a {6}
+activeStaffMuteLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3} &eFin:&a {4}
+archiveStaffMuteLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3}\
+\n&6Fecha desenmudecimiento:&a {4} &6Motivo desenmudecimiento:&a {5} &6Desenmudecido por:&a {6}
+kickStaffLookupRow=&6* &eEntidad:&a {0} &eFecha:&a {1} &eServidor:&a {2} &eMotivo:&a {3}
+commentStaffRow=&a#{0}&e {1}&f &eEntidad:&a {2} Contenido: &a{3} &fFecha: &6{4}
+# Miscellaneous related to BAT
+playerNotFound=Jugador no encontrado.
+noReason=No se ha especificado ninguna Motivo.
+noReasonInCommand=Debes incluir una Motivo.
+operationUnknownPlayer=Estás ejecutando la acción sobre el jugador {0}, el cual nunca se ha conectado.
+specifyServer=¡Por favor, especifica un servidor!
+cannotGetUUID=La UUID de {0} no puede ser obtenida.
+global=global
+invalidServer=¡El servidor especificado es incorrecto!
+ipUnknownPlayer=No puedes ejecutar la acción sobre la IP de este usuario, porque nunca se ha conectado.
+isExempt=¡&cNo puedes ejecutar este comando sobre este jugador!
+# Miscellaneous related to language : some words that need to be translated
+today=hoy
+tomorrow=mañana
+yesterday=ayer
+at=a las
