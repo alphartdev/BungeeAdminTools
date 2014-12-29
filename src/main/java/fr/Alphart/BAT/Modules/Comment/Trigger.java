@@ -14,13 +14,13 @@ public class Trigger extends Config{
 	private int triggerNumber = 3;
 	@Getter
 	private String pattern = "";
-	private List<String> commands = Arrays.asList("alert {player} sparks a trigger.","gtempmute {player} 30m");
+	private List<String> commands = Arrays.asList("alert {player} sparks a trigger. Reason: {reason}","gtempmute {player} 30m");
 	
-	public void onTrigger(final String pName){
+	public void onTrigger(final String pName, final String reason){
 		final PluginManager pm = ProxyServer.getInstance().getPluginManager();
 		final CommandSender console = ProxyServer.getInstance().getConsole();
 		for (final String command : commands) {
-			pm.dispatchCommand(console, command.replace("{player}", pName));
+			pm.dispatchCommand(console, command.replace("{player}", pName).replace("{reason}", reason));
 		}
 	}
 	

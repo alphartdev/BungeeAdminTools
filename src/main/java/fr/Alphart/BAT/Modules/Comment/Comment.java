@@ -202,7 +202,7 @@ public class Comment implements IModule{
 					if(rs.next()){
 						int count = rs.getInt("COUNT(*)");
 						if(trigger.getTriggerNumber() == count){
-							trigger.onTrigger(entity);
+							trigger.onTrigger(entity, comment);
 						}
 					}
 					
