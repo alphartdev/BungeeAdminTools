@@ -25,14 +25,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
-import lombok.core.ImportList;
 import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.mojang.api.profiles.Profile;
 import com.mojang.api.profiles.ProfileCriteria;
 
@@ -447,6 +446,9 @@ public abstract class Importer {
                     }
                 }
                 
+                progressionCallback.onMinorError("Starting importing data from " 
+                        + ((banHammerOnMysql) ? "mysql" : "sqlite") + " database banhammer.");
+                
                 if(tableFound){
                     try(Connection connBH = (banHammerOnMysql) 
                             ? conn
@@ -494,7 +496,7 @@ public abstract class Importer {
                             String UUID;
                             try{
                                 UUID = uuidCache.get(pName);
-                            }catch (final ExecutionException e) {
+                            }catch (final UncheckedExecutionException e) {
                                 if(e.getCause() instanceof UUIDNotFoundException){
                                     continue;
                                 }else{
