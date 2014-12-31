@@ -96,7 +96,9 @@ public class Ban implements IModule, Listener {
 
 		// Check if the online players are banned (if the module has been reloaded)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
-			final List<String> serversToCheck = Arrays.asList(player.getServer().getInfo().getName(), GLOBAL_SERVER);
+			final List<String> serversToCheck = player.getServer() != null
+			        ? Arrays.asList(player.getServer().getInfo().getName(), GLOBAL_SERVER)
+	                : Arrays.asList(GLOBAL_SERVER);
 			for(final String server : serversToCheck){
 				if(isBan(player, server)){
 					if (server.equals(player.getPendingConnection().getListener().getDefaultServer()) || server.equals(GLOBAL_SERVER)) {
