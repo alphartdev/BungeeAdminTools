@@ -10,10 +10,17 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -21,7 +28,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
 
 import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.ModulesManager;
@@ -53,12 +62,49 @@ public class BAT extends Plugin {
 			getLogger().severe("BAT is going to shutdown ...");
 			return;
 		}
+		getLogger().setLevel(Level.INFO);
 		config = new Configuration();
+		if(config.isDebugMode()){
+		    try{
+		        final File debugFile = new File(getDataFolder(), "debug.log");
+		        if(debugFile.exists()){
+		            debugFile.delete();
+		        }
+		        // Write header into debug log
+                Files.asCharSink(debugFile, Charsets.UTF_8).writeLines(Arrays.asList("BAT log debug file"
+                        + " - If you have an error with BAT, you should post this file on BAT topic on spigotmc",
+                        "Bungee build : " + ProxyServer.getInstance().getVersion(),
+                        "BAT version : " + getDescription().getVersion(),
+                        "Operating System : " + System.getProperty("os.name"),
+                        "Timezone : " + TimeZone.getDefault().getID(),
+                        "------------------------------------------------------------"));
+		        final FileHandler handler = new FileHandler(debugFile.getAbsolutePath(), true);
+		        handler.setFormatter(new Formatter() {
+		            private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		            private final String pattern = "time [level] message\n";
+                    @Override
+                    public String format(LogRecord record) {
+                        return pattern.replace("level", record.getLevel().getName())
+                                    .replace("message", record.getMessage())
+                                    .replace("[BungeeAdminTools]", "")
+                                    .replace("time", sdf.format(Calendar.getInstance().getTime()));
+                    }
+                });
+		        getLogger().addHandler(handler);
+		        getLogger().setLevel(Level.CONFIG);
+		        getLogger().info("The debug mode is now enabled ! Log are available in debug.log file located in BAT folder");
+	            getLogger().config("Debug mode enabled ...");
+	            getLogger().setUseParentHandlers(false);
+		    }catch(final Exception e){
+		        getLogger().log(Level.SEVERE, "An exception occured during the initialization of debug logging file", e);
+		    }
+		}
 		prefix = config.getPrefix();
 		loadDB(new Callback<Boolean>(){
 			@Override
 			public void done(final Boolean dbState, Throwable throwable) {
 				if (dbState) {
+				    getLogger().config("Connection to the database established");
 					// Try enabling redis support.
 					redis = new RedisUtils(config.isRedisSupport());
 			        modules = new ModulesManager();
@@ -100,6 +146,7 @@ public class BAT extends Plugin {
 
 	public void loadDB(final Callback<Boolean> dbState) {
 		if (config.isMysql_enabled()) {
+		    getLogger().config("Starting connection to the mysql database ...");
 			final String username = config.getMysql_user();
 			final String password = config.getMysql_password();
 			final String database = config.getMysql_database();
@@ -110,25 +157,26 @@ public class BAT extends Plugin {
 			ProxyServer.getInstance().getScheduler().runAsync(this, new Runnable() {
 				@Override
 				public void run() {
-					dsHandler = new DataSourceHandler(host, port, database, username, password);
-					final Connection c = dsHandler.getConnection();
-					if (c != null) {
-						try {
-							c.createStatement().executeQuery("SELECT 1;");
-							c.close();
-							dbState.done(true, null);
-						} catch (final SQLException e) {
-							dbState.done(false, null);
-						}
-					}
+				    try{
+				        dsHandler = new DataSourceHandler(host, port, database, username, password);
+	                    final Connection c = dsHandler.getConnection();
+	                    if (c != null) {
+                            c.close();
+                            dbState.done(true, null);
+                            return;
+	                    }
+				    }catch(final SQLException handledByDatasourceHandler){}
+				    getLogger().severe("The connection pool (database connection)"
+                            + " wasn't able to be launched !");
+                    dbState.done(false, null);
 				}
 			});
-			return;
 		}
 		// If MySQL is disabled, we are gonna use SQLite
 		// Before initialize the connection, we must download the sqlite driver
 		// (if it isn't already in the lib folder) and load it
 		else {
+		    getLogger().config("Starting connection to the sqlite database ...");
 			getLogger().warning("It is strongly DISRECOMMENDED to use SQLite with BAT,"
 					+ " as the SQLite implementation is less stable and much slower than the MySQL implementation.");
 			if(loadSQLiteDriver()){

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import net.md_5.bungee.api.ProxyServer;
 
@@ -25,6 +26,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 import com.jolbox.bonecp.BoneCPDataSource;
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
@@ -49,8 +51,9 @@ public class DataSourceHandler {
 	 * @param database
 	 * @param username
 	 * @param password
+	 * @throws SQLException 
 	 */
-	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) {
+	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) throws SQLException{
 		// Check database's informations and init connection
 		this.host = Preconditions.checkNotNull(host);
 		this.port = Preconditions.checkNotNull(port);
@@ -58,6 +61,7 @@ public class DataSourceHandler {
 		this.username = Preconditions.checkNotNull(username);
 		this.password = Preconditions.checkNotNull(password);
 
+		BAT.getInstance().getLogger().config("Initialization of BoneCP in progress ...");
 		BasicConfigurator.configure(new NullAppender());
 		ds = new BoneCPDataSource();
 		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
@@ -76,12 +80,17 @@ public class DataSourceHandler {
 		    offset = (intOffset >= 0 ? "+" : "-") + offset;
 			conn.createStatement().executeQuery("SET time_zone='" + offset + "';");
 			conn.close();
+			BAT.getInstance().getLogger().config("BoneCP is loaded !");
 		} catch (final SQLException e) {
 			BAT.getInstance().getLogger().severe("BAT encounters a problem during the initialization of the database connection."
 					+ " Please check your logins and database configuration.");
-			if(e.getMessage() != null){
-				BAT.getInstance().getLogger().severe("Error message : " + e.getMessage());
+			if(e.getCause() instanceof CommunicationsException){
+			    BAT.getInstance().getLogger().severe(e.getCause().getMessage());
 			}
+			if(BAT.getInstance().getConfiguration().isDebugMode()){
+			    BAT.getInstance().getLogger().log(Level.SEVERE, e.getMessage(), e);
+			}
+			throw e;
 		}
 		sqlite = false;
 	}
@@ -124,10 +133,14 @@ public class DataSourceHandler {
 			}
 			return ds.getConnection();
 		} catch (final SQLException e) {
-			BAT.getInstance()
-			.getLogger()
-			.severe("BAT can't etablish connection with the database. Please report this and include the following lines :");
-			e.printStackTrace();
+			BAT.getInstance().getLogger().severe(
+			        "BAT can't etablish connection with the database. Please report this and include the following lines :");
+			if(e.getCause() instanceof CommunicationsException){
+			    BAT.getInstance().getLogger().severe(e.getCause().getMessage());
+			}
+            if (BAT.getInstance().getConfiguration().isDebugMode()) {
+                e.printStackTrace();
+            }
 			return null;
 		}
 	}
