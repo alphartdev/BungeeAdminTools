@@ -14,6 +14,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
+import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
@@ -30,6 +31,7 @@ public class KickCommand extends CommandHandler {
 		kick = kickModule;
 	}
 
+	@RunAsync
 	public static class KickCmd extends BATCommand {
 		public KickCmd() {
 			super("kick", "<player> [reason]", "Kick the player from his current server to the lobby", Action.KICK
@@ -99,6 +101,7 @@ public class KickCommand extends CommandHandler {
 		}
 	}
 
+	@RunAsync
 	public static class GKickCmd extends BATCommand {
 		public GKickCmd() {
 			super("gkick", "<player> [reason]", "Kick the player from the network", Action.KICK.getPermission()

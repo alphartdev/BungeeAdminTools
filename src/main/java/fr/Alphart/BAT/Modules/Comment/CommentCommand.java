@@ -71,6 +71,7 @@ public class CommentCommand extends CommandHandler{
 		}
 	}
 	
+	@RunAsync
 	public static class WarnCmd extends BATCommand {
 		public WarnCmd() { super("warn", "<player> <reason>", "Warn a player and add warning note on player's info text.", Action.WARN.getPermission());}
 
