@@ -200,7 +200,6 @@ public abstract class Importer {
                     uncomittedEntries++;
                     
                     initPlayerRowInBatPlayer(conn, pName, UUID);
-                    uncomittedEntries++;
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
                         status.incrementConvertedEntries(uncomittedEntries);
@@ -287,7 +286,6 @@ public abstract class Importer {
 
                     if(!ipBan){
                         initPlayerRowInBatPlayer(conn, pName, UUID);
-                        uncomittedEntries++;
                     }
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
@@ -379,7 +377,6 @@ public abstract class Importer {
                         
                         if(banRecord.getUuid() != null){
                             initPlayerRowInBatPlayer(conn, banRecord.getPName(), banRecord.getUuid());
-                            uncomittedEntries++;
                         }
                     }catch(final RuntimeException e){
                         if(!"commentline".equals(e.getMessage())){
@@ -526,7 +523,6 @@ public abstract class Importer {
                         
                         if(UUID != null){
                             initPlayerRowInBatPlayer(conn, banEntry.get("name"), UUID);
-                            uncomittedEntries++;
                         }
                     }catch(final RuntimeException e){
                         progressionCallback.onMinorError(e.getMessage());
@@ -665,7 +661,6 @@ public abstract class Importer {
                             
                             if(UUID != null){
                                 initPlayerRowInBatPlayer(conn, pName, UUID);
-                                uncomittedEntries++;
                             }
                             if(uncomittedEntries % 100 == 0){
                                 conn.commit();
