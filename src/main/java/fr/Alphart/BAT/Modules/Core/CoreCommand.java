@@ -41,6 +41,7 @@ import fr.Alphart.BAT.Modules.Core.Importer.BungeeSuiteImporter;
 import fr.Alphart.BAT.Modules.Core.Importer.GeSuiteImporter;
 import fr.Alphart.BAT.Modules.Core.Importer.ImportStatus;
 import fr.Alphart.BAT.Modules.Core.Importer.MinecraftPreUUIDImporter;
+import fr.Alphart.BAT.Modules.Core.Importer.MinecraftUUIDImporter;
 import fr.Alphart.BAT.Modules.Core.Importer.SQLiteMigrater;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
@@ -1014,10 +1015,11 @@ public class CoreCommand extends BATCommand{
             put("MC-Previous1.7.8", new MinecraftPreUUIDImporter());
             put("BanHammer", new BanHammerImporter());
             put("BATSQLite", new SQLiteMigrater());
+            put("MC-Post1.7.8", new MinecraftUUIDImporter());
 	    }};
 	    
 		public ImportCmd() { 
-		    super("import", "<bungeeSuiteBans/geSuitBans/MC-Previous1.7/BanHammer/BATSQLite>", "Imports ban data from the specified source. Available sources : &a" 
+		    super("import", "<" + Joiner.on('/').join(importers.keySet()) + ">", "Imports ban data from the specified source. Available sources : &a" 
 		            + Joiner.on("&e,&a").join(importers.keySet()), "bat.import");
 		}
 
