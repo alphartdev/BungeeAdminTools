@@ -90,6 +90,21 @@ public abstract class Importer {
         }
     }
     
+    /**
+     * Create a row for this player in the table BAT_player though some informations are unknown
+     * this will avoid a lot of errors
+     * @param conn | sql connection to use
+     * @param pName
+     * @param UUID
+     */
+    public void initPlayerRowInBatPlayer(final Connection conn, final String pName, final String UUID) throws SQLException{
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO `" + SQLQueries.Core.table + "` (BAT_player, UUID, lastip, firstlogin, lastlogin)"
+                + " VALUES (?, ?, '0.0.0.0', null, null) ON DUPLICATE KEY UPDATE BAT_player = BAT_player;");
+        stmt.setString(1, pName);
+        stmt.setString(2, UUID);
+        stmt.executeUpdate();
+    }
+    
     @Getter
     class ImportStatus{
         // The total number of entries to process (processed and remaining)
@@ -183,7 +198,9 @@ public abstract class Importer {
                     insertBans.clearParameters();
                     getIP.clearParameters();
                     uncomittedEntries++;
-
+                    
+                    initPlayerRowInBatPlayer(conn, pName, UUID);
+                    uncomittedEntries++;
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
                         status.incrementConvertedEntries(uncomittedEntries);
@@ -268,6 +285,10 @@ public abstract class Importer {
                     getIP.clearParameters();
                     uncomittedEntries++;
 
+                    if(!ipBan){
+                        initPlayerRowInBatPlayer(conn, pName, UUID);
+                        uncomittedEntries++;
+                    }
                     if(uncomittedEntries % 100 == 0){
                         conn.commit();
                         status.incrementConvertedEntries(uncomittedEntries);
@@ -355,6 +376,11 @@ public abstract class Importer {
                         insertBans.executeUpdate();
                         insertBans.clearParameters();
                         uncomittedEntries++;
+                        
+                        if(banRecord.getUuid() != null){
+                            initPlayerRowInBatPlayer(conn, banRecord.getPName(), banRecord.getUuid());
+                            uncomittedEntries++;
+                        }
                     }catch(final RuntimeException e){
                         if(!"commentline".equals(e.getMessage())){
                             progressionCallback.onMinorError(e.getMessage());
@@ -381,6 +407,7 @@ public abstract class Importer {
         @Getter
         private class Minecraft1v6_BanRecord{
             private String uuid = null;
+            private String pName = null;
             private String ip = null;
             private String reason;
             private String staffBan;
@@ -403,6 +430,7 @@ public abstract class Importer {
                     ip = splittedLine[0];
                 }else{
                     try {
+                        pName = splittedLine[0];
                         uuid = uuidCache.get(splittedLine[0]);
                     } catch (ExecutionException e) {
                         if(e.getCause() instanceof UUIDNotFoundException){
@@ -465,7 +493,6 @@ public abstract class Importer {
                 status = new ImportStatus(playerBanEntries.size() + ipBanEntries.size());
                 
                 // Proccess the import
-                String line = null;
                 conn.setAutoCommit(false);
                 int uncomittedEntries = 0;
                 for(final Map<String, String> banEntry : Iterables.concat(playerBanEntries, ipBanEntries)){
@@ -496,6 +523,11 @@ public abstract class Importer {
                         insertBans.executeUpdate();
                         insertBans.clearParameters();
                         uncomittedEntries++;
+                        
+                        if(UUID != null){
+                            initPlayerRowInBatPlayer(conn, banEntry.get("name"), UUID);
+                            uncomittedEntries++;
+                        }
                     }catch(final RuntimeException e){
                         progressionCallback.onMinorError(e.getMessage());
                     }
@@ -630,7 +662,11 @@ public abstract class Importer {
                             insertBans.execute();
                             insertBans.clearParameters();
                             uncomittedEntries++;
-
+                            
+                            if(UUID != null){
+                                initPlayerRowInBatPlayer(conn, pName, UUID);
+                                uncomittedEntries++;
+                            }
                             if(uncomittedEntries % 100 == 0){
                                 conn.commit();
                                 status.incrementConvertedEntries(uncomittedEntries);
