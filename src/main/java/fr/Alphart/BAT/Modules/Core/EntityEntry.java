@@ -78,10 +78,11 @@ public class EntityEntry {
 								lastIP = resultSet.getString("lastip");
 							}
 						}
-						// If firstLogin doesn't exist, lastLogin doesn't as well
 						if(firstLogin == null){
 						    firstLogin = noDateFound;
-                            lastLogin = noDateFound;
+						}
+						if(lastLogin == null){
+						    lastLogin = noDateFound;
 						}
 			} catch (final SQLException e) {
 				DataSourceHandler.handleException(e);
