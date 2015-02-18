@@ -1043,7 +1043,9 @@ public class CoreCommand extends BATCommand{
                     public void done(ImportStatus result, Throwable throwable) {
                         if(throwable != null){
                             if(throwable instanceof RuntimeException){
-                                sender.sendMessage(BAT.__(throwable.getMessage()));
+                                sender.sendMessage(BAT.__("An error (" + throwable.getMessage()
+                                        + ") has occured during the import. Please check the logs"));
+                                throwable.printStackTrace();
                             }else{
                                 sender.sendMessage(BAT.__("An error has occured during the import. Please check the logs"));
                                 BAT.getInstance().getLogger().severe("An error has occured during the import of data from " + source 

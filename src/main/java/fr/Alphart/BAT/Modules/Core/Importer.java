@@ -169,7 +169,14 @@ public abstract class Importer {
                     final String staff = res.getString("banned_by");
                     final String reason = res.getString("reason");
                     final Timestamp ban_begin = res.getTimestamp("banned_on");
-                    final Timestamp ban_end = res.getTimestamp("banned_until");
+                    Timestamp ban_end = res.getTimestamp("banned_until");
+                    
+                    /* For unknown reason BungeeBans table contained (hardly ever but it did) date with a year > 3000,
+                     * not sure if that was some kind of joke from a staff member ... Anyways this code convert long-duration
+                       tempban to definitive ban */
+                    if(ban_end == null || ban_end.getTime() > System.currentTimeMillis() + 10 * (365 * (24 * 3600))){
+                        ban_end = null;
+                    }
 
                     // Get the ip
                     String ip = null;
@@ -184,7 +191,16 @@ public abstract class Importer {
                     }
 
                     // Get UUID
-                    String UUID = uuidCache.get(pName);
+                    String UUID = null;
+                    try{
+                        UUID = uuidCache.get(pName);
+                    } catch (UncheckedExecutionException e) {
+                        if(e.getCause() instanceof UUIDNotFoundException){
+                            continue;
+                        }else{
+                            throw e;
+                        }
+                    }
 
                     // Insert the ban
                     insertBans.setString(1, (ipBan) ? null : UUID);
