@@ -4,26 +4,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TimeZone;
-import java.util.UUID;
 
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
@@ -45,7 +29,12 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Ban.BanEntry;
 import fr.Alphart.BAT.Modules.Comment.CommentEntry;
 import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
-import fr.Alphart.BAT.Modules.Core.Importer.*;
+import fr.Alphart.BAT.Modules.Core.Importer.BanHammerImporter;
+import fr.Alphart.BAT.Modules.Core.Importer.BungeeSuiteImporter;
+import fr.Alphart.BAT.Modules.Core.Importer.GeSuiteImporter;
+import fr.Alphart.BAT.Modules.Core.Importer.ImportStatus;
+import fr.Alphart.BAT.Modules.Core.Importer.MinecraftPreUUIDImporter;
+import fr.Alphart.BAT.Modules.Core.Importer.SQLiteMigrater;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
@@ -54,7 +43,6 @@ import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
-import fr.Alphart.BAT.database.SQLQueries;
 
 public class CoreCommand extends BATCommand{
 	private final BaseComponent[] CREDIT;
@@ -812,6 +800,7 @@ public class CoreCommand extends BATCommand{
 	}
 	}
 		
+	@RunAsync
 	public static class StaffLookupCmd extends BATCommand {
 		private final ModulesManager modules;
 		private final String lookupHeader = "\n&f---- &9Staff Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {page} &f----\n";
