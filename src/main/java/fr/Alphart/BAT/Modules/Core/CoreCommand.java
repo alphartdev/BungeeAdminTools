@@ -4,7 +4,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static fr.Alphart.BAT.I18n.I18n._;
 import static fr.Alphart.BAT.I18n.I18n.__;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -18,6 +23,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
@@ -202,6 +209,7 @@ public class CoreCommand extends BATCommand{
 	public static class LookupCmd extends BATCommand {
 		private final ModulesManager modules;
 		private final Calendar localTime = Calendar.getInstance(TimeZone.getDefault());
+		private final Gson gson = new Gson();
 		private static final int entriesPerPage = 15;
 		private final String lookupHeader = "\n&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {page} &f----\n";
 		private final String lookupFooter = "\n&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {page} &f----";
@@ -516,6 +524,38 @@ public class CoreCommand extends BATCommand{
 				}
 			} else {
 				msg.append("\n&eNo sanctions ever imposed.");
+			}
+			
+			msg.append("\n&ePlayer's name history : &a");
+			// Fetch player's name history from Mojang servers
+			BufferedReader reader = null;
+			try{
+			    final URL mojangURL = new URL("https://api.mojang.com/user/profiles/" + Core.getUUID(pDetails.getEntity()) + "/names");
+			    final URLConnection conn = mojangURL.openConnection();
+			    reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			    String content = "";
+			    String line;
+			    while((line = reader.readLine()) != null){
+			        content += line;
+			    }
+			    final List<String> names = Lists.newArrayList();
+			    for(final Map<String, Object> entry : 
+			            (Set<Map<String, Object>>) gson.fromJson(content, new TypeToken<Set<Map<String, Object>>>() {}.getType())){
+			        names.add((String)entry.get("name"));
+			    }
+			    msg.append(Joiner.on("&e, &a").join(names));
+			}catch(final IOException e){
+			    BAT.getInstance().getLogger().severe("BAT encountered an error while getting player's name history. Please report this :");
+			    e.printStackTrace();
+			    msg.append("&cunable to get player's name history, check the logs ...");
+			}finally{
+			    if(reader != null){
+			        try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+			    }
 			}
 
 			msg.append(lookupFooter.replace("{entity}", pName).replace("{module}", "Summary").replace("{page}", "1/1"));
