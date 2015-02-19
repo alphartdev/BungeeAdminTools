@@ -109,7 +109,7 @@ public class I18n {
 			BAT.getInstance().getLogger().info("Incorrect translation key : " + key + ". Locale: " 
 					+ getInstance().localeBundle.getLocale().getLanguage());
 			try{
-				message = getInstance().localeBundle.getString(key);
+				message = getInstance().enBundle.getString(key);
 			}catch(final MissingResourceException subE){
 				BAT.getInstance().getLogger().warning("Incorrect translation key in default bundle."
 						+ "Key : " + key);
