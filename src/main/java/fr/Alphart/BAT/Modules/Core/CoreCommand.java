@@ -8,10 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import lombok.Getter;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
@@ -22,6 +25,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.I18n.I18n;
@@ -52,26 +56,25 @@ public class CoreCommand extends BATCommand{
 	private final BaseComponent[] CREDIT;
 	private final BaseComponent[] HELP_MSG;
 	private final Map<List<String>, BATCommand> subCmd;
-	private final boolean simpleAliases;
 
 	
-	public CoreCommand(final boolean simpleAliases) {
+	public CoreCommand(final Core coreModule) {
 		super("bat", "", "", null);
-		this.simpleAliases = simpleAliases;
+		final Map<String, Boolean> simpleAliasesCommands = BAT.getInstance().getConfiguration().getSimpleAliasesCommands();
 		subCmd = new HashMap<List<String>, BATCommand>();
 		CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
 				'&', "&9Bungee&fAdmin&cTools&a Version {version}&e - Developped by &aAlphart")
 				.replace("{version}", BAT.getInstance().getDescription().getVersion()));
-		HELP_MSG = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', 
-				"&eType &6" + ((simpleAliases) ? "/help" : "/bat help") + "&e to get help"));
 		
 		// Dynamic commands load, commands are not configurable as with other modules
+		final List<String> cmdsList = Lists.newArrayList();
 		for (final Class<?> subClass : CoreCommand.this.getClass().getDeclaredClasses()) {
 			try {
 				if(subClass.getAnnotation(BATCommand.Disable.class) != null){
 					continue;
 				}
 				final BATCommand command = (BATCommand) subClass.getConstructors()[0].newInstance();
+				cmdsList.add(command.getName());
 				final List<String> aliases = new ArrayList<String>(Arrays.asList(command.getAliases()));
 				aliases.add(command.getName());
 				subCmd.put(aliases, command);
@@ -84,7 +87,37 @@ public class CoreCommand extends BATCommand{
 			}
 		}
 		
-
+		Collections.sort(cmdsList);
+        // Add new commands if there are
+        for (final String cmdName : cmdsList) {
+            if (!simpleAliasesCommands.containsKey(cmdName)) {
+                simpleAliasesCommands.put(cmdName, true);
+            }
+        }
+        // Iterate through the commands map and remove the ones who don't exist (e.g because of an update)
+        for(final Iterator<Map.Entry<String, Boolean>> it = simpleAliasesCommands.entrySet().iterator(); it.hasNext();){
+            final Map.Entry<String, Boolean> cmdEntry = it.next();
+            if(!cmdsList.contains(cmdEntry.getKey())){
+                it.remove();
+            }
+        }
+        try {
+            BAT.getInstance().getConfiguration().save();
+        } catch (InvalidConfigurationException e) {
+            BAT.getInstance().getLogger().log(Level.SEVERE, "Error while saving simpleAliasesCmds", e);
+        }
+        // Register command either as subcommand or as simple alias
+        for(final Iterator<Map.Entry<List<String>, BATCommand>> it = subCmd.entrySet().iterator(); it.hasNext();){
+            final Map.Entry<List<String>, BATCommand> cmdEntry = it.next();
+            if(simpleAliasesCommands.get(cmdEntry.getValue().getName())){
+                coreModule.addCommand(cmdEntry.getValue());
+                it.remove();
+            }
+            // Otherwise, do nothing just let the command in the subcommand map
+        }
+        
+        HELP_MSG = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', 
+                "&eType &6" + ((simpleAliasesCommands.get("help")) ? "/help" : "/bat help") + "&e to get help"));
 	}
 
 	public List<BATCommand> getSubCmd() {
@@ -95,7 +128,7 @@ public class CoreCommand extends BATCommand{
 	@Override
 	public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 			throws IllegalArgumentException {
-		if (args.length == 0 || simpleAliases) {
+		if (args.length == 0 || subCmd.isEmpty()) {
 			sender.sendMessage(CREDIT);
 			sender.sendMessage(HELP_MSG);
 		} else {
@@ -137,6 +170,8 @@ public class CoreCommand extends BATCommand{
 			for (final BATCommand cmd : BAT.getInstance().getModules().getCore().getCommands()) {
 				if (cmd instanceof CoreCommand) {
 					cmdsList.addAll(((CoreCommand) cmd).getSubCmd());
+				}else{
+				    cmdsList.add(cmd);
 				}
 			}
 			FormatUtils.showFormattedHelp(cmdsList, sender, "CORE");
@@ -498,8 +533,9 @@ public class CoreCommand extends BATCommand{
 
 		@Override
 		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+		    boolean isImportSimpleAlias = BAT.getInstance().getConfiguration().getSimpleAliasesCommands().get("import");
 			ProxyServer.getInstance().getPluginManager().dispatchCommand(sender, 
-			        ((!BAT.getInstance().getConfiguration().isSimpleAliases()) ? "bat " : "") + "import BATSQLite");
+			        ((!isImportSimpleAlias) ? "bat " : "") + "import BATSQLite");
 		}
 
 	}

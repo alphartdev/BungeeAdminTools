@@ -269,7 +269,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	}
 
 	public void mustConfirmCommand(final CommandSender sender, final String command, final String message) {
-		final String cmdToConfirm = (BAT.getInstance().getConfiguration().isSimpleAliases()) ? "confirm" : "bat confirm";
+		final String cmdToConfirm = (BAT.getInstance().getConfiguration().getSimpleAliasesCommands().get("confirm"))
+		        ? "confirm" : "bat confirm";
 		if (!CommandQueue.isExecutingQueueCommand(sender)) {
 			if ("".equals(message)) {
 				sender.sendMessage(__("mustConfirm", new String[] { "", cmdToConfirm }));

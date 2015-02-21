@@ -36,6 +36,7 @@ import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -146,12 +147,8 @@ public class Core implements IModule, Listener {
 		}
 
 		// Register commands
-		cmds = new ArrayList<BATCommand>();
-		final CoreCommand cCmd = new CoreCommand(BAT.getInstance().getConfiguration().isSimpleAliases());
-		cmds.add(cCmd);
-		if(BAT.getInstance().getConfiguration().isSimpleAliases()){
-			cmds.addAll(cCmd.getSubCmd());
-		}
+		cmds = new ArrayList<>();
+		cmds.add(new CoreCommand(this)); // Most of the job is done in the constructor of CoreCommand
 		
 		// Try to hook into BungeePerms
 		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
@@ -186,7 +183,11 @@ public class Core implements IModule, Listener {
 	public String getMainCommand() {
 		return "bat";
 	}
-
+	
+	public void addCommand(final BATCommand cmd){
+	    cmds.add(cmd);
+	}
+	
 	/**
 	 * Get the UUID of the specified player
 	 * @param pName
