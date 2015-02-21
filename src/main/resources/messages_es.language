@@ -1,4 +1,5 @@
 # BungeeAdminTools language ES file - thanks to Daglimioux for this translation :D
+# --- Modules ---
 # Ban module
 alreadyBan=&c¡El jugador ya está baneado en este servidor!
 banBroadcast=&a{0}&e ha sido &6baneado definitivamente&e ,por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
@@ -10,6 +11,7 @@ notBannedAny=&c{0} no está baneado en ningún servidor.
 notBannedIP=&cLa IP {0} &cno está baneada en este servidor.
 unbanBroadcast=&a{0}&e ha sido &6desbaneado &e,por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
 wasBannedNotif=Has sido baneado. Motivo: {0}
+
 # Mute module
 alreadyMute=&c¡El jugador ya ha sido silenciado en este servidor!
 isMute=Has sido silenciado el {1} por {2} de este servidor por: {0}
@@ -23,11 +25,13 @@ unmuteBroadcast=&a{0}&e ha sido &6desenmudecido &e,por &a{1}&e, del servidor &a{
 wasMutedNotif=Has sido silenciado. Motivo: {0}
 wasUnmutedNotif=Has sido desenmudecido. Motivo: {0}
 loadingMutedata=Carga de datos en progreso: podrás hablar en unos momentos.
+
 # Kick module
 kickBroadcast=&a{0}&e ha sido &6expulsado&e, por &a{1}&e, del servidor &a{2}&e. Motivo: {3}
 gKickBroadcast=&a{0}&e ha sido &6expulsado&e, por &a{1}&e, de la Network. Motivo: {2}
 wasKickedNotif=¡Has sido expulsado del servidor! Motivo: {0}
 cantKickDefaultServer=&cNo puedes expulsar a {0}, porque ya está en el servidor por defecto.
+
 # Comment module
 warnBroadcast=&a{0}&e ha sido &6avisado&e por &a{1}&e. Motivo: {2}
 wasWarnedNotif=Has sido avisado. Motivo: {0}
@@ -35,15 +39,71 @@ commentsCleared=&eLos comentarios de &a{0}&e han sido limpiados.
 commentAdded=&eEl comentario se ha añadido con éxito.
 noCommentIDFound={0} no tiene un comentario con ese ID.
 commentIDCleared=El comentario &b#{0}&e de &a{1}&e ha sido eliminado.
-# Command related message
-invalidArgs=Argumentos incorrectos. {0}
-invalidArgsUsage=Argumentos incorrectos. Uso: {0}
-invalidCommand=Comando incorrecto.
-noPerm=&c¡No tienes permiso para ejecutar este comando!
-mustConfirm=Debes &aconfirmar&e el comando usando &6/{1} {0}
-noQueuedCommand=No tienes comandos en cola.
-# Per module lookup translation
-# Player lookup
+
+
+# --- Lookup ---
+# Player lookup - aims at providing a quick view of a player's situation
+# This message is really big (a lookup is multiline), therefore placeholders aren't {0}, {1} ...
+# The placeholder may refer to others translation message, e.g the {connection_state} placeholder can be
+# the connection_state_online or connection_state_offline placeholder depending if the player is online or not
+# but more intuitive words.
+# The {last_comments:number} is configurable, just set number to whatever number you want
+# Formatting tools :
+# '\n' to make a new line --> will appear ingame
+# '\' to be able to use multiple lines in this FILE will have no impact InGame
+# '¤' will be replaced by space InGame, needed for spaces at the beginning of a line
+playerLookup=&f---- &9Búsqueda &b{player} &f----\n\
+{connection_state}\n\
+&eEstado : \n\
+¤¤&c&lBaneado &ed2 :&3 {ban_servers}\n\
+¤¤&c&lIP baneada &ede :&3 {banip_servers}\n\
+¤¤&c&lSilenciado &ede :&3 {mute_servers}\n\
+¤¤&c&lIP silenciada &ede :&3 {muteip_servers}\n\
+&ePrimera entrada : &a{first_login}\n\
+&eÚltima entrada : &a{last_login}\n\
+&eÚltima IP : &a{last_ip}\n\
+&eHistorial : &a{bans_number} baneos\n\
+¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} silencios\n\
+¤¤¤¤¤¤¤¤¤¤¤¤&a{kicks_number} expulsiones\n\
+&eÚltimos tres comentarios : \n\
+¤¤&a{last_comments:3}\n\
+&eHistorial de nombres de jugador : &a{name_history_list}\n\
+&eUUID : &a{uuid}\n\
+&f---- &9Búsqueda &b{player} &f----
+# END of the player lookup message
+# Placeholders for the player lookup
+connectionStateOnline=&a&lConectado &r&een el servidor &3{server}
+connectionStateOffline=&8&lDesconectado
+hiddenIp=&7Oculto
+ 
+# Staff lookup - same rules as the player lookup (read above)
+staffLookup=&f---- &9&nSTAFF búsqueda&r &b{staff} &f----\n\
+&eStatistics :\n\
+¤¤&b{staff}&e ha realizado &a{bans_number}&e ban(s) y &a{unbans_number}&e indulto(s)\n\
+¤¤&b{staff}&e ha realizado &a{mutes_number}&e silencios y &a{unmutes_number}&e desenmudecimiento(s) \n\
+¤¤&b{staff}&e ha realizado &a{kicks_number}&e expulsiones y &a{warnings_number}&e avisos\n\
+¤¤&b{staff}&e ha escrito &a{comments_number}&e comentarios\n\
+&f---- &9&nSTAFF búsqueda&r &b{staff} &f----
+ 
+# IP lookup - same rules as the player lookup (read above)
+# If you experience lag during an IP lookup, remove the {ip_location} placeholder
+ipLookup=&f---- &9Búsqueda &b{ip} &f----\n\
+&eLocalización IP: {ip_location}\n\
+&eEsta IP ha sido usada por los siguientes jugadores : \n\
+¤&3{ip_users}\n\
+&eEstado:\n\
+¤¤&c&lBaneado &ede :&3 {ban_servers}\n\
+¤¤&c&lSilenciado &ede :&3 {ban_servers}\n\
+&eHistorial : &a{bans_number} bans\n\
+¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} mutes\n\
+&f---- &9Búsqueda &b{ip} &f----
+ 
+ 
+# Per module lookup headers
+perModuleLookupHeader=&f---- &9Búsqueda &f- &b{entity} &f-&a {module} &f-&6 Página {page} &f----\n
+perModuleLookupFooter=\n&f---- &9Búsqueda &f- &b{entity} &f-&a {module} &f-&6 Página {page} &f----
+
+# Per module player lookup
 activeBanLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3} &eFin:&a {4}
 archiveBanLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3}\
 \n&6Fecha desbaneo:&a {4} &6Motivo desbaneo:&a {5} &6Desbaneado por:&a {6}
@@ -52,7 +112,8 @@ archiveMuteLookupRow=&6* &eComienzo:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eS
 \n&6Fecha desenmudecimiento:&a {4} &6Motivo desenmudecimiento:&a {5} &6Desenmudecido por:&a {6}
 kickLookupRow=&6* &eFecha:&a {0} &eServidor:&a {1} &eMotivo:&a {2} &eStaff:&a {3}
 commentRow=&a#{0}&e {1}&f Contenido: &a{2} &fFecha: &6{3} &fStaff: &b{4}
-# Staff lookup
+
+# Per module staff lookup
 activeStaffBanLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3} &eFin:&a {4}
 archiveStaffBanLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {2} &eMotivo:&a {3}\
 \n&6Fecha desbaneo:&a {4} &6Motivo desbaneo:&a {5} &6Desbaneado por:&a {6}
@@ -61,6 +122,16 @@ archiveStaffMuteLookupRow=&6* &eEntidad:&a {0} &eComienzo:&a {1} &eServidor:&a {
 \n&6Fecha desenmudecimiento:&a {4} &6Motivo desenmudecimiento:&a {5} &6Desenmudecido por:&a {6}
 kickStaffLookupRow=&6* &eEntidad:&a {0} &eFecha:&a {1} &eServidor:&a {2} &eMotivo:&a {3}
 commentStaffRow=&a#{0}&e {1}&f &eEntidad:&a {2} Contenido: &a{3} &fFecha: &6{4}
+
+
+# --- Miscellaneous ---
+# Command related message
+invalidArgs=Argumentos incorrectos. {0}
+invalidArgsUsage=Argumentos incorrectos. Uso: {0}
+invalidCommand=Comando incorrecto.
+noPerm=&c¡No tienes permiso para ejecutar este comando!
+mustConfirm=Debes &aconfirmar&e el comando usando &6/{1} {0}
+noQueuedCommand=No tienes comandos en cola.
 # Miscellaneous related to BAT
 playerNotFound=Jugador no encontrado.
 noReason=No se ha especificado ninguna Motivo.
@@ -72,8 +143,11 @@ global=global
 invalidServer=¡El servidor especificado es incorrecto!
 ipUnknownPlayer=No puedes ejecutar la acción sobre la IP de este usuario, porque nunca se ha conectado.
 isExempt=¡&cNo puedes ejecutar este comando sobre este jugador!
+unknownDate=Fecha desconocida
+unknownIp=IP address desconocida
 # Miscellaneous related to language : some words that need to be translated
 today=hoy
 tomorrow=mañana
 yesterday=ayer
 at=a las
+none=ninguno
