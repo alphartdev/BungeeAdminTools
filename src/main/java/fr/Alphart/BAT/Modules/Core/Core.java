@@ -17,7 +17,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +35,6 @@ import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -365,7 +363,7 @@ public class Core implements IModule, Listener {
 	public void initMetrics() throws IOException{
         Metrics metrics = new Metrics(BAT.getInstance());
         final Graph locale = metrics.createGraph("Locale");
-        locale.addPlotter(new Metrics.Plotter(BAT.getInstance().getConfiguration().getLocale().getDisplayCountry(new Locale("en"))) {
+        locale.addPlotter(new Metrics.Plotter(BAT.getInstance().getConfiguration().getLocale().getLanguage()) {
             @Override
             public int getValue() {
                 return 1;
