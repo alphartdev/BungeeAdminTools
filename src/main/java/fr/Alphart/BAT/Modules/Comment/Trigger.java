@@ -2,12 +2,14 @@ package fr.Alphart.BAT.Modules.Comment;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import net.cubespace.Yamler.Config.Config;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.PluginManager;
+import fr.Alphart.BAT.BAT;
 
 public class Trigger extends Config{
 	@Getter
@@ -19,8 +21,15 @@ public class Trigger extends Config{
 	public void onTrigger(final String pName, final String reason){
 		final PluginManager pm = ProxyServer.getInstance().getPluginManager();
 		final CommandSender console = ProxyServer.getInstance().getConsole();
+		long delay = 100;
 		for (final String command : commands) {
-			pm.dispatchCommand(console, command.replace("{player}", pName).replace("{reason}", reason));
+		    ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    pm.dispatchCommand(console, command.replace("{player}", pName).replace("{reason}", reason));
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+		    delay += 500;
 		}
 	}
 	
