@@ -91,7 +91,7 @@ public class CoreCommand extends BATCommand{
         // Add new commands if there are
         for (final String cmdName : cmdsList) {
             if (!simpleAliasesCommands.containsKey(cmdName)) {
-                simpleAliasesCommands.put(cmdName, true);
+                simpleAliasesCommands.put(cmdName, false);
             }
         }
         // Iterate through the commands map and remove the ones who don't exist (e.g because of an update)
