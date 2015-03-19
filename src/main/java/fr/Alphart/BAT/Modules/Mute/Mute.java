@@ -585,7 +585,27 @@ public class Mute implements IModule, Listener {
 
 		public PlayerMuteData(final String pName, final List<String> servers) {
 			this.pName = pName;
-			this.servers = new ArrayList<String>(servers);
+			// Override the arraylist implementation to make used methods non-case sensitive
+			this.servers = new ArrayList<String>(){
+			    @Override
+			    public void add(int index, String element) {
+			        super.add(index, element.toLowerCase());
+			    }
+			    @Override
+			    public boolean add(String e) {
+			        return super.add(e.toLowerCase());
+			    }
+			    @Override
+			    public boolean contains(Object o) {
+			        if(o instanceof String){
+			            return super.contains(((String)o).toLowerCase());
+			        }
+			        return super.contains(o);
+			    }
+			};
+			for(final String server : servers){
+			    servers.add(server);
+			}
 		}
 
 		public void setGlobal() {
