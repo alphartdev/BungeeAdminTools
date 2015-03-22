@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import net.alpenblock.bungeeperms.BungeePerms;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -48,6 +47,8 @@ import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
+import fr.Alphart.BAT.Utils.BPInterfaceFactory;
+import fr.Alphart.BAT.Utils.BPInterfaceFactory.PermissionProvider;
 import fr.Alphart.BAT.Utils.Metrics;
 import fr.Alphart.BAT.Utils.Metrics.Graph;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
@@ -111,7 +112,7 @@ public class Core implements IModule, Listener {
 	private List<BATCommand> cmds;
 	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
 	private Gson gson = new Gson();
-	private static BungeePerms bungeePerms;
+	private static PermissionProvider bungeePerms;
 	public static EnhancedDateFormat defaultDF = new EnhancedDateFormat(false);
 
 	@Override
@@ -150,7 +151,7 @@ public class Core implements IModule, Listener {
 		
 		// Try to hook into BungeePerms
 		if(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms") != null){
-			bungeePerms = (BungeePerms) ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms");
+			bungeePerms = BPInterfaceFactory.getBPInterface(ProxyServer.getInstance().getPluginManager().getPlugin("BungeePerms"));
 		}
 		
 		// Update the date format (if translation has been changed)
@@ -312,7 +313,7 @@ public class Core implements IModule, Listener {
 				return sender.getPermissions();	
 			}
 			try{
-				return bungeePerms.getPermissionsManager().getUser(sender.getName()).getEffectivePerms();
+				return bungeePerms.getPermissions(sender);
 			}catch(final NullPointerException e){
 				return new ArrayList<String>();
 			}
