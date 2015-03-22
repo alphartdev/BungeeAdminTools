@@ -1,42 +1,42 @@
 # BungeeAdminTools language EN file - thanks to JamesJ for his help with the translation
 # --- Modules ---
 # Ban module
-alreadyBan=&cThis player is already banned from this server!
-banBroadcast=&a{0}&e was &6banned definitively&e by &a{1}&e from the server &a{2}&e. Reason : {3}
-banTempBroadcast=&a{0}&e was &6banned&e during &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
-isBanned=You have been banned the {1} by {2} from this server for: {0}
+alreadyBan=&cThis player is already banned on this server!
+banBroadcast=&a{0}&e was &6banned indefinitely&e by &a{1}&e from the server &a{2}&e. Reason : {3}
+banTempBroadcast=&a{0}&e was &6banned&e for &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
+isBanned=You have been banned for {1} by {2} from this server for: {0}
 isBannedTemp=You have been temporarily banned the {2} by {3} from this server, you were banned for: Reason: {0} This ban ends in: {1}
 notBanned=&c{0} isn''t banned from this server.
 notBannedAny=&c{0} isn''t banned from any server !
-notBannedIP=&c{0} isn''t banned IP from this server.
+notBannedIP=&c{0} isn''t IP banned from this server.
 unbanBroadcast=&a{0}&e was &6unbanned &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 wasBannedNotif=You were banned. Reason : {0}
 
 # Mute module
 alreadyMute=&cThis player is already muted from this server!
-isMute=You have been muted the {1} by {2} from this server for: {0}
-isMuteTemp=You have been temporarily muted the {2} by {3} from this server, you were mute for: Reason: {0} This mute ends in: {1}
-muteBroadcast=&a{0}&e was &6muted definitively&e by &a{1}&e from the server &a{2}&e. Reason : {3}
-muteTempBroadcast=&a{0}&e was &6muted &eduring &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
+isMute=You was muted on {1} by {2} from this server for: {0}
+isMuteTemp=You was temporarily muted on {2} by {3} from this server, you was muted for: Reason: {0} This mute ends in: {1}
+muteBroadcast=&a{0}&e was &6muted indefinitely&e by &a{1}&e from the server &a{2}&e. Reason : {3}
+muteTempBroadcast=&a{0}&e was &6muted &for &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
 notMuted=&c{0} isn''t muted from this server.
 notMutedAny=&c{0} isn''t muted from any server !
-notMutedIP=&c{0} isn''t IP muted from this server.
+notMutedIP=&c{0} isn''t  muted from this server.
 unmuteBroadcast=&a{0}&e was &6unmuted &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 wasMutedNotif=You were muted. Reason : {0}
 wasUnmutedNotif=You were unmuted. Reason : {0}
-loadingMutedata=Loading of data in progress : you may speak in a little while.
+loadingMutedata=Loading of data in progress: you may speak in a little while.
 
 # Kick module
 kickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the server &a{2}&e. Reason : {3}
 gKickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the network. Reason : {2}
-wasKickedNotif=You were kicked from this server ! Reason : {0}
+wasKickedNotif=You were kicked from this server! Reason : {0}
 cantKickDefaultServer=&cYou can''t kick {0} because he is already on the default server.
 
 # Comment module
 warnBroadcast=&a{0}&e was &6warned&e by &a{1}&e. Reason : {2}
 wasWarnedNotif=You were warned. Reason : {0}
 commentsCleared=&a{0}'s&e comments were cleared.
-commentAdded=&eThe comment was succesfully added.
+commentAdded=&eThe comment was successfully added.
 noCommentIDFound={0} has no comment with a such ID.
 commentIDCleared=The comment &b#{0}&e of &a{1}&e was deleted.
 
@@ -55,20 +55,20 @@ commentIDCleared=The comment &b#{0}&e of &a{1}&e was deleted.
 playerLookup=&f---- &9Lookup &b{player} &f----\n\
 {connection_state}\n\
 &eState : \n\
-¤¤&c&lBanned &efrom :&3 {ban_servers}\n\
-¤¤&c&lBanned IP &efrom :&3 {banip_servers}\n\
-¤¤&c&lMute &efrom :&3 {mute_servers}\n\
-¤¤&c&lMute IP &efrom :&3 {muteip_servers}\n\
-&eFirst login : &a{first_login}\n\
-&eLast login : &a{last_login}\n\
-&eLast IP : &a{last_ip}\n\
-&eHistory : &a{bans_number} bans\n\
+¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
+¤¤&c&lIP Banned &efrom:&3 {banip_servers}\n\
+¤¤&c&lMuted &efrom:&3 {mute_servers}\n\
+¤¤&c&lIP Muted &efrom:&3 {muteip_servers}\n\
+&eFirst login: &a{first_login}\n\
+&eLast login: &a{last_login}\n\
+&eLast IP: &a{last_ip}\n\
+&eHistory: &a{bans_number} bans\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} mutes\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{kicks_number} kicks\n\
 &eLast three comments: \n\
 ¤¤&a{last_comments:3}\n\
-&ePlayer's name history : &a{name_history_list}\n\
-&eUUID : &a{uuid}\n\
+&ePlayer's name history: &a{name_history_list}\n\
+&eUUID: &a{uuid}\n\
 &f---- &9Lookup &b{player} &f----
 # END of the player lookup message
 # Placeholders for the player lookup
@@ -89,12 +89,12 @@ staffLookup=&f---- &9&nSTAFF Lookup&r &b{staff} &f----\n\
 # If you experience lag during an IP lookup, remove the {ip_location} placeholder
 ipLookup=&f---- &9Lookup &b{ip} &f----\n\
 &eIP location: {ip_location}\n\
-&eThis IP is used by the following players : \n\
+&eThis IP is used by the following players: \n\
 ¤&3{ip_users}\n\
 &eState:\n\
-¤¤&c&lBanned &efrom :&3 {ban_servers}\n\
-¤¤&c&lMute &efrom :&3 {mute_servers}\n\
-&eHistory : &a{bans_number} bans\n\
+¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
+¤¤&c&lMute &efrom:&3 {mute_servers}\n\
+&eHistory: &a{bans_number} bans\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} mutes\n\
 &f---- &9Lookup &b{ip} &f----
 
@@ -129,19 +129,19 @@ commentStaffRow=&a#{0}&e {1}&f &eEntity:&a {2} Content: &a{3} &fDate: &6{4}
 invalidArgs=Invalid args. {0}
 invalidArgsUsage=Invalid args. Usage : {0}
 invalidCommand=Invalid command.
-noPerm=&cYou don''t have the permission to execute this command!
+noPerm=&cYou don''t have permission to execute this command!
 mustConfirm=You must &aconfirm&e your command using &6/{1} {0}
-noQueuedCommand=You have no queued command.
+noQueuedCommand=You have no command queued.
 # Miscellaneous related to BAT
 playerNotFound=Player not found
 noReason=No reason was specified.
 noReasonInCommand=&cYou must include a reason.
-operationUnknownPlayer=You''re currently perfoming operation on the player {0} who never connected.
+operationUnknownPlayer=You''re currently perfoming operation on the player {0} who has never connected.
 specifyServer=Please specify a specific server!
 cannotGetUUID={0}''s UUID can''t be retrieved.
 global=global
 invalidServer=The specified server is invalid!
-ipUnknownPlayer=You can''t perfom operation on this user''s ip because he never connected.
+ipUnknownPlayer=You can''t perfom operation on this user''s ip because it never connected.
 isExempt=&cYou can''t perform this command on this player!!
 unknownDate=Unknown date
 unknownIp=Unknown IP address
