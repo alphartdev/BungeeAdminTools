@@ -100,14 +100,19 @@ public class LookupFormatter {
         String connection_state;
         if (BAT.getInstance().getRedis().isRedisEnabled()) {
                 UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
-                connection_state = (pUUID != null && RedisBungee.getApi().isPlayerOnline(pUUID)) 
-                        ? "&a&lConnected &r&eon the &3" + RedisBungee.getApi().getServerFor(pUUID).getName() + " &eserver" 
-                        : "&8&lOffline";
+                if(pUUID != null && RedisBungee.getApi().isPlayerOnline(pUUID)){
+                    connection_state = _("connectionStateOnline").replace("{server}", RedisBungee.getApi().getServerFor(pUUID).getName());
+                }else{
+                    connection_state = _("connectionStateOffline");
+                }
         } else {
-                connection_state = (ProxyServer.getInstance().getPlayer(pName) != null) 
-                        ? "&a&lConnected &r&eon the &3" 
-                            + ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName() + " &eserver"
-                        : "&8&lOffline";
+            if(ProxyServer.getInstance().getPlayer(pName) != null){
+                connection_state = _("connectionStateOnline")
+                        .replace("{server}", ProxyServer.getInstance().getPlayer(pName).getServer().getInfo().getName());
+            }else{
+                connection_state = _("connectionStateOffline");
+            }
+
         }
         
         final String joinChar = "&f, &3";
