@@ -157,6 +157,9 @@ public class MinecraftPreUUIDImporter extends Importer{
                 throw new RuntimeException("Invalid ban format. The import process will continue ...");
             }
             staffBan = (splittedLine[2].equals("(Unknown)")) ? "CONSOLE" : splittedLine[2];
+            if(staffBan.length() > 20){
+                staffBan = staffBan.substring(0, 20);
+            }
             reason = splittedLine[4];
         }
     }

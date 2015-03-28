@@ -18,7 +18,6 @@ import com.google.common.reflect.TypeToken;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.IModule;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.database.SQLQueries;
 
@@ -78,6 +77,9 @@ public class MinecraftUUIDImporter extends Importer{
                     String staffBan = banEntry.get("source");
                     if(staffBan.equalsIgnoreCase("(Unknwown)") || staffBan.equalsIgnoreCase("console")){
                         staffBan = "CONSOLE";
+                    }
+                    if(staffBan.length() > 20){
+                        staffBan = staffBan.substring(0, 20);
                     }
                     final String reason = banEntry.get("reason");
                     final Timestamp beginBan = new Timestamp(dfMc.parse(banEntry.get("created")).getTime());

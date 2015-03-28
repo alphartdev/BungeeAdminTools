@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.IModule;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
