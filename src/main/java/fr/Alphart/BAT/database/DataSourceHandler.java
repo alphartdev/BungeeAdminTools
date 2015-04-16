@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import net.md_5.bungee.api.ProxyServer;
@@ -73,6 +74,7 @@ public class DataSourceHandler {
 		ds.setMinConnectionsPerPartition(3);
 		ds.setMaxConnectionsPerPartition(7);
 		ds.setConnectionTestStatement("SELECT 1");
+		ds.setIdleConnectionTestPeriod(30, TimeUnit.SECONDS);
 		try {
 			final Connection conn = ds.getConnection();
 		    int intOffset = Calendar.getInstance().getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000;
