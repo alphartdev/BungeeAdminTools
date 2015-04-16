@@ -159,6 +159,7 @@ public class Utils {
         try{
             final URL geoApiURL = new URL("http://freegeoip.net/json/" + ip);
             final URLConnection conn = geoApiURL.openConnection();
+            conn.setConnectTimeout(5000);
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String content = "";
             String line;

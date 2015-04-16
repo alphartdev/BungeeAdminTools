@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -244,19 +245,27 @@ public class LookupFormatter {
                 ? Joiner.on(joinChar).join(muteServers).toLowerCase()
                 : _("none");
         
-        final String replacedString = _("ipLookup")
+        String replacedString = _("ipLookup")
                 .replace("{ban_servers}", ban_servers).replace("{mute_servers}", mute_servers)
                 .replace("{bans_number}", String.valueOf(bansNumber)).replace("{mutes_number}", String.valueOf(mutesNumber))
                 .replace("{ip}", ip).replace("{ip_users}", ip_users)
                 // '¤' is used as a space character, so we replace it with space and display correctly the escaped one
                 .replace("¤", " ").replace("\\¤", "¤");
                 
+        if(replacedString.contains("{ip_location}")){
+            String ipLocation = "";
+            try{
+                ipLocation = Utils.getIpDetails(ip);
+            }catch(final Exception e){
+                BAT.getInstance().getLogger().log(Level.SEVERE, 
+                        "Error while fetching ip location from the API. Please report this :", e);
+                ipLocation = "unresolvable ip location. Check your logs";
+            }
+            replacedString = replacedString.replace("{ip_location}", ipLocation);
+        }
+        
         final List<BaseComponent[]> finalMessage = FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&',
-                // Avoid a costy call to an external API if not needed
-                (replacedString.contains("{ip_location}"))
-                    ? replacedString.replace("{ip_location}", Utils.getIpDetails(ip))
-                    : replacedString
-                ));
+                replacedString));
 
         return finalMessage;
     }
