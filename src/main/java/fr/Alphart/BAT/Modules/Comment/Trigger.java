@@ -4,18 +4,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.cubespace.Yamler.Config.Config;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.PluginManager;
 import fr.Alphart.BAT.BAT;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class Trigger extends Config{
 	@Getter
 	private int triggerNumber = 3;
 	@Getter
-	private String pattern = "";
+	private List<String> pattern = Arrays.asList("");
 	private List<String> commands = Arrays.asList("alert {player} sparks a trigger. Reason: {reason}","gtempmute {player} 30m");
 	
 	public void onTrigger(final String pName, final String reason){

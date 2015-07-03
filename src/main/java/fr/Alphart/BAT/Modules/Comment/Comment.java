@@ -1,15 +1,22 @@
 package fr.Alphart.BAT.Modules.Comment;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import lombok.Getter;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
 import com.google.common.collect.Lists;
 
@@ -88,7 +95,34 @@ public class Comment implements IModule{
 
 	public class CommentConfig extends ModuleConfiguration {
 		public CommentConfig() {
-			init(name);
+			try {
+                initThrowingExceptions(name);
+            } catch (InvalidConfigurationException e) {
+                /* The structure of a trigger has changed from 1.3.3 to 1.3.4
+                 * so if an class cast exception is thrown it's probably caused by an old trigger.
+                 * We're going to convert this old trigger to the new ones */
+                if(e.getCause() instanceof ClassCastException){
+                    try {
+                        final Configuration config;
+                        final File configFile = new File(BAT.getInstance().getDataFolder(), "comment.yml");
+                        config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+                        
+                        final Configuration triggerSection = config.getSection("triggers");
+                        triggers.clear();
+                        for(final String triggerName : triggerSection.getKeys()){
+                            final List<String> patterns = Arrays.asList(triggerSection.getString(triggerName + ".pattern"));
+                            final List<String> cmds = triggerSection.getStringList(triggerName + ".commands");
+                            final int triggerNumber = triggerSection.getInt(triggerName + ".triggerNumber");
+                            triggers.put(triggerName, new Trigger(triggerNumber, patterns, cmds));
+                        }
+                        save();
+                    } catch (final Exception migrationException) {
+                        BAT.getInstance().getLogger().log(Level.SEVERE, "BAT met an error while migrating old triggers", migrationException);
+                    }
+                }else{
+                    BAT.getInstance().getLogger().log(Level.SEVERE, "BAT met an error while loading comments config", e);
+                }
+            }
 		}
 		
 		@net.cubespace.Yamler.Config.Comments({"Triggers list",
@@ -189,26 +223,32 @@ public class Comment implements IModule{
 			
 			// Handle the trigger system
 			for(final Trigger trigger : config.getTriggers().values()){
-				if(trigger.getPattern().isEmpty() || comment.contains(trigger.getPattern())){
-					statement = conn.prepareStatement((trigger.getPattern().isEmpty()) 
-							? SQLQueries.Comments.simpleTriggerCheck
-							: SQLQueries.Comments.patternTriggerCheck);
-					statement.setString(1, Core.getUUID(entity));
-					if(!trigger.getPattern().isEmpty()){
-						statement.setString(2, '%' + trigger.getPattern() + '%');
-					}
-					
-					final ResultSet rs = statement.executeQuery();
-					if(rs.next()){
-						int count = rs.getInt("COUNT(*)");
-						if(trigger.getTriggerNumber() == count){
-							trigger.onTrigger(entity, comment);
-						}
-					}
-					
-					rs.close();
-					statement.close();
-				}
+			    for(final String pattern : trigger.getPattern()){
+		             if(pattern.isEmpty() || comment.contains(pattern)){
+		                    statement = conn.prepareStatement((pattern.isEmpty()) 
+		                            ? SQLQueries.Comments.simpleTriggerCheck
+		                            : SQLQueries.Comments.patternTriggerCheck);
+		                    statement.setString(1, Core.getUUID(entity));
+		                    if(!pattern.isEmpty()){
+		                        statement.setString(2, '%' + pattern + '%');
+		                    }
+		                    
+                            final ResultSet rs = statement.executeQuery();
+		                    try{
+    		                    if(rs.next()){
+    		                        int count = rs.getInt("COUNT(*)");
+    		                        if(trigger.getTriggerNumber() == count){
+    		                            trigger.onTrigger(entity, comment);
+    		                            break;
+    		                        }
+    		                    }
+		                    }finally{
+		                        rs.close();
+		                        statement.close();
+		                    }
+		                    
+		                }
+			    }
 			}
 		} catch (final SQLException e) {
 			DataSourceHandler.handleException(e);
