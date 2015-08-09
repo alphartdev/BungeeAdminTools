@@ -5,7 +5,7 @@ alreadyBan=&cThis player is already banned on this server!
 banBroadcast=&a{0}&e was &6banned permanently&e by &a{1}&e from the server &a{2}&e. Reason : {3}
 banTempBroadcast=&a{0}&e was &6banned&e for &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
 isBanned=You have been banned for {1} by {2} from this server for: {0}
-isBannedTemp=You was temporarily banned on {2} by {3} from this server, you was banned for: Reason: {0} This ban ends in: {1}
+isBannedTemp=You were temporarily banned on {2} by {3} from this server, you were banned for: Reason: {0} This ban ends in: {1}
 notBanned=&c{0} isn''t banned from this server.
 notBannedAny=&c{0} isn''t banned from any server !
 notBannedIP=&c{0} isn''t IP banned from this server.
@@ -14,8 +14,8 @@ wasBannedNotif=You were banned. Reason : {0}
 
 # Mute module
 alreadyMute=&cThis player is already muted from this server!
-isMute=You was muted on {1} by {2} from this server for: {0}
-isMuteTemp=You was temporarily muted on {2} by {3} from this server, you was muted for: Reason: {0} This mute ends in: {1}
+isMute=You were muted on {1} by {2} from this server for: {0}
+isMuteTemp=You were temporarily muted on {2} by {3} from this server, you were muted for: Reason: {0} This mute ends in: {1}
 muteBroadcast=&a{0}&e was &6muted permanently&e by &a{1}&e from the server &a{2}&e. Reason : {3}
 muteTempBroadcast=&a{0}&e was &6muted&e for &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
 notMuted=&c{0} isn''t muted from this server.
