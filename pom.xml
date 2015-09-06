@@ -110,7 +110,7 @@
 		<dependency>
 			<groupId>com.imaginarycode.minecraft</groupId>
 			<artifactId>RedisBungee</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.6-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -159,5 +159,5 @@
 		</plugins>
 	</build>
 	<description>Bungee plugin which handles ban, mute and kick management</description>
-	<version>1.3.3</version>
+	<version>1.3.4</version>
 </project>
