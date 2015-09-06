@@ -18,14 +18,22 @@ public abstract class ModuleConfiguration extends Config {
 	
 	// We must use an init method because if we use the super constructor, it doesn't work properly (field of children class are overwritten)
 	public void init(final String moduleName){
-		CONFIG_HEADER = new String[] { "BungeeAdminTools - " + moduleName + " configuration file" };
-		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), moduleName + ".yml");
-		try {
-			init();
-			load();
-		} catch (final InvalidConfigurationException e) {
-			e.printStackTrace();
-		}
+       try {
+        initThrowingExceptions(moduleName);
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+	}
+	
+	/**
+	 * Unlike {@link ModuleConfiguration#init()} this init method throw the exception and doesn't
+	 * print it in the console
+	 */
+	public void initThrowingExceptions(final String moduleName) throws InvalidConfigurationException{
+	    CONFIG_HEADER = new String[] { "BungeeAdminTools - " + moduleName + " configuration file" };
+	    CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), moduleName + ".yml");
+        init();
+        load();
 	}
 
 	@Getter

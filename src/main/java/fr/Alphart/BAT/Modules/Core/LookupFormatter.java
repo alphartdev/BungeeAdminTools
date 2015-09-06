@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -102,7 +103,8 @@ public class LookupFormatter {
         if (BAT.getInstance().getRedis().isRedisEnabled()) {
                 UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
                 if(pUUID != null && RedisBungee.getApi().isPlayerOnline(pUUID)){
-                    connection_state = _("connectionStateOnline").replace("{server}", RedisBungee.getApi().getServerFor(pUUID).getName());
+                    ServerInfo si = RedisBungee.getApi().getServerFor(pUUID);
+                    connection_state = _("connectionStateOnline").replace("{server}", si != null ? si.getName() : "unknown state");
                 }else{
                     connection_state = _("connectionStateOffline");
                 }
