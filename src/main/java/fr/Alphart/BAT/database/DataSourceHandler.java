@@ -18,6 +18,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import com.zaxxer.hikari.HikariDataSource;
 import net.md_5.bungee.api.ProxyServer;
 
 import org.apache.log4j.BasicConfigurator;
@@ -26,7 +27,6 @@ import org.apache.log4j.varia.NullAppender;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
-import com.jolbox.bonecp.BoneCPDataSource;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import fr.Alphart.BAT.BAT;
@@ -34,7 +34,7 @@ import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 
 public class DataSourceHandler {
 	// Connection informations
-	private BoneCPDataSource ds;
+	private HikariDataSource ds;
 	private String username;
 	private String password;
 	private String database;
@@ -62,19 +62,15 @@ public class DataSourceHandler {
 		this.username = Preconditions.checkNotNull(username);
 		this.password = Preconditions.checkNotNull(password);
 
-		BAT.getInstance().getLogger().config("Initialization of BoneCP in progress ...");
+		BAT.getInstance().getLogger().config("Initialization of HikariCP in progress ...");
 		BasicConfigurator.configure(new NullAppender());
-		ds = new BoneCPDataSource();
+		ds = new HikariDataSource();
 		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
 				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
 		ds.setUsername(this.username);
 		ds.setPassword(this.password);
-		ds.close();
-		ds.setPartitionCount(2);
-		ds.setMinConnectionsPerPartition(3);
-		ds.setMaxConnectionsPerPartition(7);
-		ds.setConnectionTestStatement("SELECT 1");
-		ds.setIdleConnectionTestPeriod(30, TimeUnit.SECONDS);
+		ds.addDataSourceProperty("cachePrepStmts", "true");
+		ds.setMaximumPoolSize(8);
 		try {
 			final Connection conn = ds.getConnection();
 		    int intOffset = Calendar.getInstance().getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000;
