@@ -1,6 +1,8 @@
 package io.minimum.minecraft.bat.database.data;
 
+import io.minimum.minecraft.bat.utils.CalendarUtils;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -13,6 +15,7 @@ public class StoredPlayer {
     /**
      * The player's current UUID.
      */
+    @NonNull
     private final UUID uuid;
     /**
      * The player's last known name.
@@ -28,8 +31,6 @@ public class StoredPlayer {
     private String lastServer;
 
     public Calendar getLastOnlineTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(lastOnlineTime.getTimeInMillis());
-        return calendar;
+        return lastOnlineTime == null ? lastOnlineTime : CalendarUtils.copy(lastOnlineTime);
     }
 }
