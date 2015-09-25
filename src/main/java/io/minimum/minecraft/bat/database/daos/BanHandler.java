@@ -4,7 +4,7 @@ import io.minimum.minecraft.bat.database.data.Ban;
 
 import java.util.UUID;
 
-public interface BanDao {
+public interface BanHandler {
     boolean isCurrentlyBanned(UUID uuid);
     Ban getMostRecentBan(UUID uuid);
     void createBan(Ban ban);

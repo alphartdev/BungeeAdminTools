@@ -1,6 +1,6 @@
 package io.minimum.minecraft.bat.database.daos.impl;
 
-import io.minimum.minecraft.bat.database.daos.PlayerDao;
+import io.minimum.minecraft.bat.database.daos.PlayerHandler;
 import io.minimum.minecraft.bat.database.data.StoredPlayer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class JsonPlayerDao implements PlayerDao {
+public class JsonPlayerHandler implements PlayerHandler {
     private final ConcurrentMap<UUID, StoredPlayer> storedPlayersByUuid = new ConcurrentHashMap<>();
 
     @Override
