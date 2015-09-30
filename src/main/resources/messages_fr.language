@@ -89,9 +89,9 @@ staffLookup=&f---- &9&nSTAFF Lookup&r &b{staff} &f----\n\
 # If you experience lag during an IP lookup, remove the {ip_location} placeholder
 ipLookup=&f---- &9Lookup &b{ip} &f----\n\
 &eEmplacement de l''IP: {ip_location}\n\
-&eCette adresse IP est ou a été utilisée par les joueurs suivants : \n\
+&eCette adresse IP est ou a été utilisée par le(s) joueur(s) suivant(s) : \n\
 ¤&3{ip_users}\n\
-&eEtat:\n\
+&eÉtat:\n\
 ¤¤&c&lBanni &ede :&3 {ban_servers}\n\
 ¤¤&c&lMute &ede :&3 {mute_servers}\n\
 &eHistorique : &a{bans_number} bans\n\
@@ -104,10 +104,10 @@ perModuleLookupHeader=&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {
 perModuleLookupFooter=\n&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {page} &f----
 
 # Per module player lookup
-activeBanLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+activeBanLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
 archiveBanLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
 \n&6Date unban:&a {4} &6Raison unban:&a {5} &6Staff unban:&a {6}
-activeMuteLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+activeMuteLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
 archiveMuteLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
 \n&6Date unmute:&a {4} &6Raison unmute:&a {5} &6Staff unmute:&a {6}
 kickLookupRow=&6* &eDate:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}
@@ -140,7 +140,7 @@ operationUnknownPlayer=Vous êtes en train d''effectuer une opération sur le jo
 specifyServer=Vous devez specifiez un serveur !
 cannotGetUUID=L''UUID de {0} ne peut pas être récuperé.
 global=global
-invalidServer=Le serveur specifié est invalide!
+invalidServer=Le serveur specifié est invalide !
 ipUnknownPlayer=Vous ne pouvez pas effectuez d''opérations relatives à l''IP de ce joueur car il ne s''est jamais connecté.
 isExempt=&cCette commande ne peut pas être executée sur ce joueur !
 unknownDate=Date inconnue
@@ -150,4 +150,9 @@ today=aujourd''hui
 tomorrow=demain
 yesterday=hier
 at=à
+years=ans
+months=mois
+hours=heures
+minutes=mins
+seconds=secs
 none=aucun
