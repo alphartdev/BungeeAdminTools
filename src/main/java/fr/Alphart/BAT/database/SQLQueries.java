@@ -312,7 +312,7 @@ public class SQLQueries {
 				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," + "INDEX(BAT_player)"
 				+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		public static final String updateIPUUID = "INSERT INTO `" + table + "` (BAT_player, lastip, firstlogin, UUID)"
-				+ " VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE lastip = ?, lastlogin = null, BAT_player = ?;";
+				+ " VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE lastip = ?, lastlogin = NOW(), BAT_player = ?;";
 
 		public static final String getPlayerName = "SELECT BAT_player FROM `" + table + "` WHERE UUID = ?;";
 		
