@@ -15,7 +15,7 @@ public class PermissionManager {
 		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
 				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
-		KICK("kick"), WARN("warn"), KICK_BROADCAST("kick.broadcast"),
+		KICK("kick"), WARN("warn"), WARN_BROADCAST("warn.broadcast"), KICK_BROADCAST("kick.broadcast"),
 		
 		LOOKUP("lookup");
 
