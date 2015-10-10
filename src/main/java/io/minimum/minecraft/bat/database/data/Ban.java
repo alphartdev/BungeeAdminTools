@@ -51,10 +51,10 @@ public class Ban {
     }
 
     public Calendar getBannedAt() {
-        return CalendarUtils.copy(bannedAt);
+        return (Calendar) bannedAt.clone();
     }
 
     public Calendar getExpiresAt() {
-        return expiresAt == null ? expiresAt : CalendarUtils.copy(expiresAt);
+        return expiresAt == null ? expiresAt : (Calendar) expiresAt.clone();
     }
 }

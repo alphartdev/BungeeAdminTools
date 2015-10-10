@@ -31,6 +31,6 @@ public class StoredPlayer {
     private String lastServer;
 
     public Calendar getLastOnlineTime() {
-        return lastOnlineTime == null ? lastOnlineTime : CalendarUtils.copy(lastOnlineTime);
+        return lastOnlineTime == null ? lastOnlineTime : (Calendar) lastOnlineTime.clone();
     }
 }
