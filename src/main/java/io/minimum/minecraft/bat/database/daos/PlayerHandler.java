@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface PlayerHandler {
     StoredPlayer getOrCreateData(UUID uuid);
+    StoredPlayer getData(UUID uuid);
     void updateData(PendingConnection connection);
     void updateServer(ProxiedPlayer player);
 }

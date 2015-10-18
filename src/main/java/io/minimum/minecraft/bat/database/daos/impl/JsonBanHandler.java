@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.minimum.minecraft.bat.database.daos.BanHandler;
 import io.minimum.minecraft.bat.database.data.Ban;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,21 +15,18 @@ public class JsonBanHandler implements BanHandler {
     private final ConcurrentMap<UUID, List<Ban>> storedPlayersByUuid = new ConcurrentHashMap<>();
 
     @Override
-    public boolean isCurrentlyBanned(UUID uuid) {
-        Preconditions.checkNotNull(uuid, "uuid");
-        return getMostRecentBan(uuid) != null;
-    }
-
-    @Override
-    public Ban getMostRecentBan(UUID uuid) {
+    public List<Ban> getMostRecentBans(UUID uuid) {
         Preconditions.checkNotNull(uuid, "uuid");
         List<Ban> bans = storedPlayersByUuid.get(uuid);
+        List<Ban> applicable = new ArrayList<>();
         if (bans != null) {
             for (Ban ban : bans) {
-                if (ban.isApplicable()) return ban;
+                if (ban.isApplicable()) {
+                    applicable.add(ban);
+                }
             }
         }
-        return null;
+        return applicable;
     }
 
     @Override

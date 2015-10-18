@@ -36,6 +36,10 @@ public class Ban {
      * Whether or not this user was manually unbanned.
      */
     private boolean manuallyUnbanned = false;
+    /**
+     * For which server this ban applies.
+     */
+    private final String server;
 
     /**
      * Determines whether or not this ban is applicable. The exact criteria are:

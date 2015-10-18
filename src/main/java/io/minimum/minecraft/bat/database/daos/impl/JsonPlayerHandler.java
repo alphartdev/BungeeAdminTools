@@ -21,6 +21,11 @@ public class JsonPlayerHandler implements PlayerHandler {
     }
 
     @Override
+    public StoredPlayer getData(UUID uuid) {
+        return storedPlayersByUuid.get(uuid);
+    }
+
+    @Override
     public void updateData(PendingConnection connection) {
         StoredPlayer player = getOrCreateData(connection.getUniqueId());
         if (player.getLastKnownName() == null)

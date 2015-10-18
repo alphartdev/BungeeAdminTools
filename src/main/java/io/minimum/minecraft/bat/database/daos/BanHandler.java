@@ -1,12 +1,13 @@
 package io.minimum.minecraft.bat.database.daos;
 
 import io.minimum.minecraft.bat.database.data.Ban;
+import io.minimum.minecraft.bat.database.data.Server;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface BanHandler {
-    boolean isCurrentlyBanned(UUID uuid);
-    Ban getMostRecentBan(UUID uuid);
+    List<Ban> getMostRecentBans(UUID uuid);
     void createBan(Ban ban);
     void unban(UUID uuid);
 }
