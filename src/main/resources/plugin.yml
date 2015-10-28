@@ -3,3 +3,4 @@ author: Alphart
 version: ${project.version}
 main: fr.Alphart.BAT.BAT
 depends: ['Yamler']
+softdepends: [RedisBungee]
