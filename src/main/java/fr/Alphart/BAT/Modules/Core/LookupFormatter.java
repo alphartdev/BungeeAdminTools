@@ -207,7 +207,7 @@ public class LookupFormatter {
         final EntityEntry ipDetails = new EntityEntry(ip);
         if (!ipDetails.exist()) {
             final List<BaseComponent[]> returnedMsg = new ArrayList<BaseComponent[]>();
-            returnedMsg.add(__("unkownIp"));
+            returnedMsg.add(__("unknownIp"));
             return returnedMsg;
         }
         boolean isBan = false;
