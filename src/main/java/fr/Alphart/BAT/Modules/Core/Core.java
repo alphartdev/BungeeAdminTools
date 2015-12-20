@@ -1,10 +1,6 @@
 package fr.Alphart.BAT.Modules.Core;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,8 +13,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,13 +28,8 @@ import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
-import com.mojang.api.profiles.HttpProfileRepository;
-import com.mojang.api.profiles.Profile;
-import com.mojang.api.profiles.ProfileCriteria;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.I18n.I18n;
@@ -51,6 +40,7 @@ import fr.Alphart.BAT.Utils.BPInterfaceFactory;
 import fr.Alphart.BAT.Utils.BPInterfaceFactory.PermissionProvider;
 import fr.Alphart.BAT.Utils.Metrics;
 import fr.Alphart.BAT.Utils.Metrics.Graph;
+import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -92,12 +82,9 @@ public class Core implements IModule, Listener {
 	         		
 	         		// If online server, retrieve the UUID from the mojang server
 	         		if(UUID.isEmpty() && ProxyServer.getInstance().getConfig().isOnlineMode()){
-	         			final Profile[] profiles = profileRepository.findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
-
-	         			if (profiles.length > 0) {
-	         				UUID = profiles[0].getId();
-	         			} else{
-	         				throw new UUIDNotFoundException(pName);
+	         			UUID = MojangAPIProvider.getUUID(pName);
+	         			if (UUID == null) {
+	         			 throw new UUIDNotFoundException(pName);
 	         			}
 	         		}
 	         		// If offline server, generate the UUID
@@ -110,7 +97,6 @@ public class Core implements IModule, Listener {
 	           });
 	private final String name = "core";
 	private List<BATCommand> cmds;
-	private static final HttpProfileRepository profileRepository = new HttpProfileRepository();
 	private Gson gson = new Gson();
 	private static PermissionProvider bungeePerms;
 	public static EnhancedDateFormat defaultDF = new EnhancedDateFormat(false);
@@ -239,10 +225,6 @@ public class Core implements IModule, Listener {
 		return null;
 	}
 	
-	public static HttpProfileRepository getProfileRepository() {
-		return profileRepository;
-	}
-
 	/**
 	 * Update the IP and UUID of a player in the database
 	 * 
@@ -320,45 +302,6 @@ public class Core implements IModule, Listener {
 		}else{
 			return sender.getPermissions();	
 		}
-	}
-	
-	/**
-	 * Fetch a player's name history from <b>Mojang's server : high latency</b>
-	 * @param pName
-	 * @throws RuntimeException | if any error is met or if the server is offline mode
-	 */
-	public List<String> getPlayerNameHistory(final String pName) throws RuntimeException{
-	    if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
-	        throw new RuntimeException("Can't get player name history from an offline server !");
-	    }
-	    // Fetch player's name history from Mojang servers
-        BufferedReader reader = null;
-        try{
-            final URL mojangURL = new URL("https://api.mojang.com/user/profiles/" + Core.getUUID(pName) + "/names");
-            final URLConnection conn = mojangURL.openConnection();
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String content = "";
-            String line;
-            while((line = reader.readLine()) != null){
-                content += line;
-            }
-            final List<String> names = Lists.newArrayList();
-            for(final Map<String, Object> entry : 
-                    (Set<Map<String, Object>>) gson.fromJson(content, new TypeToken<Set<Map<String, Object>>>() {}.getType())){
-                names.add((String)entry.get("name"));
-            }
-            return names;
-        }catch(final IOException e){
-            throw new RuntimeException(e);
-        }finally{
-            if(reader != null){
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
 	}
 	
 	public void initMetrics() throws IOException{

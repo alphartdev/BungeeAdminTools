@@ -30,6 +30,7 @@ import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
+import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.Utils;
 
 public class LookupFormatter {
@@ -146,7 +147,7 @@ public class LookupFormatter {
         // Create a function for that or something better than a big chunk of code inside the lookup
         if(ProxyServer.getInstance().getConfig().isOnlineMode()){
             try{
-                name_history_list = Joiner.on("&e, &a").join(BAT.getInstance().getModules().getCore().getPlayerNameHistory(pName));
+                name_history_list = Joiner.on("&e, &a").join(MojangAPIProvider.getPlayerNameHistory(pName));
             }catch(final RuntimeException e){
                 name_history_list = "unable to fetch player's name history. Check the logs";
                 BAT.getInstance().getLogger().severe("An error occured while fetching " + pName + "'s name history from mojang servers."

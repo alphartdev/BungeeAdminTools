@@ -13,11 +13,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
-import com.mojang.api.profiles.Profile;
-import com.mojang.api.profiles.ProfileCriteria;
 
-import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
+import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.database.SQLQueries;
 
@@ -27,7 +25,7 @@ public abstract class Importer {
             .expireAfterAccess(30, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
                 public String load(final String pName) throws UUIDNotFoundException {
                     if (ProxyServer.getInstance().getConfig().isOnlineMode()) {
-                        String uuid = getUUIDusingMojangAPI(pName);
+                        String uuid = MojangAPIProvider.getUUID(pName);
                         if (uuid != null) {
                             return uuid;
                         } else {
@@ -41,17 +39,6 @@ public abstract class Importer {
                 }
             });
     protected ImportStatus status;
-    
-    
-    private String getUUIDusingMojangAPI(final String pName) {
-        final Profile[] profiles = Core.getProfileRepository().findProfilesByCriteria(new ProfileCriteria(pName, "minecraft"));
-
-        if (profiles.length > 0) {
-            return profiles[0].getId();
-        } else {
-            return null;
-        }
-    }
     
     protected abstract void importData(final ProgressCallback<ImportStatus> progressionCallback, final String... additionnalsArgs) throws Exception;
     
