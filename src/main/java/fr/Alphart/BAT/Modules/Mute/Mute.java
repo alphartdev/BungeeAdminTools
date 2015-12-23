@@ -826,7 +826,7 @@ public class Mute implements IModule, Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerChat(final ChatEvent e) {
-		if(!(e.getSender() instanceof ProxiedPlayer)){
+		if(!(e.getSender() instanceof ProxiedPlayer) || ((ProxiedPlayer) e.getSender()).getServer() == null){
 			return;
 		}
 		final ProxiedPlayer player = (ProxiedPlayer) e.getSender();
