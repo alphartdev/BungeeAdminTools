@@ -835,11 +835,11 @@ public class Mute implements IModule, Listener {
 			return;
 		}
 		if (e.isCommand()) {
-			final String command = e.getMessage().replaceAll("/", "").split(" ")[0].toLowerCase();
+			final String command = e.getMessage().replaceAll("/", "").toLowerCase();
 			// There is a bug when overriding the contains method of the arraylist, so we do the contains here
 			boolean contains = false;
-			for(final String string : config.getForbiddenCmds()){
-				if(command.equals(string.toLowerCase())){
+			for(final String forbiddenCmd : config.getForbiddenCmds()){
+				if(command.startsWith(forbiddenCmd.toLowerCase())){
 					contains = true;
 					break;
 				}
