@@ -7,9 +7,12 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
+import com.google.common.util.concurrent.UncheckedExecutionException;
+
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
+import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
@@ -37,7 +40,7 @@ public class GeSuiteImporter extends Importer{
             final PreparedStatement insertBans = conn.prepareStatement("INSERT INTO `" + SQLQueries.Ban.table
                     + "`(UUID, ban_ip, ban_staff, ban_server, ban_begin, ban_end, ban_reason) VALUES (?, ?, ?, ?, ?, ?, ?);");
             final PreparedStatement getIP = conn.prepareStatement("SELECT ipaddress FROM players WHERE playername = ?;");
-            res = conn.createStatement().executeQuery("SELECT * bans;");
+            res = conn.createStatement().executeQuery("SELECT * FROM bans;");
             
             int uncomittedEntries = 0;
             conn.setAutoCommit(false);
@@ -45,12 +48,24 @@ public class GeSuiteImporter extends Importer{
                 final boolean ipBan = "ipban".equals(res.getString("type"));
 
                 final String pName = res.getString("banned_playername");
-                final String UUID = res.getString("banned_uuid");
                 final String server = IModule.GLOBAL_SERVER;
                 final String staff = res.getString("banned_by");
                 final String reason = res.getString("reason");
                 final Timestamp ban_begin = res.getTimestamp("banned_on");
                 final Timestamp ban_end = res.getTimestamp("banned_until");
+                
+                String UUID = res.getString("banned_uuid");
+                if(UUID == null){
+                    try{
+                      UUID = uuidCache.get(pName);
+                    }catch (final UncheckedExecutionException e) {
+                      if(e.getCause() instanceof UUIDNotFoundException){
+                          continue;
+                      }else{
+                          throw e;
+                      }
+                    }
+                }
 
                 // Get the ip
                 String ip = null;
