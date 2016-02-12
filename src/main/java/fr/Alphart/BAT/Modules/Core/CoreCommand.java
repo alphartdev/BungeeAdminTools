@@ -45,6 +45,7 @@ import fr.Alphart.BAT.Modules.Core.Importer.MinecraftPreUUIDImporter;
 import fr.Alphart.BAT.Modules.Core.Importer.MinecraftUUIDImporter;
 import fr.Alphart.BAT.Modules.Core.Importer.SQLiteMigrater;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
+import fr.Alphart.BAT.Modules.Watch.WatchEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
@@ -302,6 +303,17 @@ public class CoreCommand extends BATCommand{
 							message.add(BAT.__((!Utils.validIP(entity))
 										? "&eThe player &a" + entity + "&e wasn't ever mute."
 										: "&eThe IP &a" + entity + "&e wasn't ever mute."));
+						}
+						break;
+					case "watch":
+						final List<WatchEntry> watches = modules.getWatchModule().getWatchData(entity);
+						if(!watches.isEmpty()){
+							message = lookupFormatter.formatWatchLookup(entity, watches, page, false);
+						}else{
+							message = new ArrayList<BaseComponent[]>();
+							message.add(BAT.__((!Utils.validIP(entity))
+										? "&eThe player &a" + entity + "&e wasn't ever watched."
+										: "&eThe IP &a" + entity + "&e wasn't ever watched."));
 						}
 						break;
 					case "kick":

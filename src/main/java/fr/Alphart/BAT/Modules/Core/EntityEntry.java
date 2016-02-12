@@ -17,6 +17,7 @@ import fr.Alphart.BAT.Modules.Ban.BanEntry;
 import fr.Alphart.BAT.Modules.Comment.CommentEntry;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
+import fr.Alphart.BAT.Modules.Watch.WatchEntry;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
@@ -34,6 +35,7 @@ public class EntityEntry {
 
 	private final List<BanEntry> bans = new ArrayList<BanEntry>();
 	private final List<MuteEntry> mutes = new ArrayList<MuteEntry>();
+	private final List<WatchEntry> watches = new ArrayList<WatchEntry>();
 	private final List<KickEntry> kicks = new ArrayList<KickEntry>();
 	private final List<CommentEntry> comments = new ArrayList<CommentEntry>();
 
@@ -121,6 +123,10 @@ public class EntityEntry {
 			if (modules.isLoaded("mute")) {
 				mutes.addAll(modules.getMuteModule().getMuteData(entity));
 			}
+
+			if (modules.isLoaded("watch")) {
+				watches.addAll(modules.getWatchModule().getWatchData(entity));
+			}
 			// No ip kick
 			if (modules.isLoaded("kick") && ipUsers.isEmpty()) {
 				kicks.addAll(modules.getKickModule().getKickData(entity));
@@ -146,6 +152,10 @@ public class EntityEntry {
 
 	public List<MuteEntry> getMutes() {
 		return mutes;
+	}
+
+	public List<WatchEntry> getWatches() {
+		return watches;
 	}
 
 	public List<KickEntry> getKicks() {

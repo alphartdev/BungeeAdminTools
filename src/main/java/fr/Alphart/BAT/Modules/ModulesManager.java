@@ -20,6 +20,7 @@ import fr.Alphart.BAT.Modules.Comment.Comment;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Kick.Kick;
 import fr.Alphart.BAT.Modules.Mute.Mute;
+import fr.Alphart.BAT.Modules.Watch.Watch;
 
 public class ModulesManager {
 	private final Logger log;
@@ -67,6 +68,7 @@ public class ModulesManager {
 		modules.put(new Core(), IModule.OFF_STATE);
 		modules.put(new Ban(), IModule.OFF_STATE);
 		modules.put(new Mute(), IModule.OFF_STATE);
+		modules.put(new Watch(), IModule.OFF_STATE);
 		modules.put(new Kick(), IModule.OFF_STATE);
 		modules.put(new Comment(), IModule.OFF_STATE);
 		cmdsModules = new HashMap<String, IModule>();
@@ -161,6 +163,14 @@ public class ModulesManager {
 		final IModule module = getModule("mute");
 		if (module != null) {
 			return (Mute) module;
+		}
+		return null;
+	}
+
+	public Watch getWatchModule() throws InvalidModuleException {
+		final IModule module = getModule("watch");
+		if (module != null) {
+			return (Watch) module;
 		}
 		return null;
 	}

@@ -59,6 +59,9 @@ public class RedisUtils implements Listener {
 	case "muteupdate":
 		recieveMuteUpdatePlayer(message[2], message[3]);
 		break;
+	case "watchupdate":
+		recieveWatchUpdatePlayer(message[2], message[3]);
+		break;
 	case "movedefaultserver":
 		recieveMoveDefaultServerPlayer(message[2]);
 		break;
@@ -111,6 +114,10 @@ public class RedisUtils implements Listener {
 		if (!redis) return;
 		sendMessage("muteupdate", pUUID.toString() + split + server);
     }
+    public void sendWatchUpdatePlayer(UUID pUUID, String server) {
+		if (!redis) return;
+		sendMessage("watchupdate", pUUID.toString() + split + server);
+    }
     private void recieveMuteUpdatePlayer(String sUUID, String server) {
     	if(BAT.getInstance().getModules().isLoaded("mute")){
     		ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
@@ -125,7 +132,22 @@ public class RedisUtils implements Listener {
     		throw new IllegalStateException("The mute module isn't enabled. The mute message can't be handled.");
     	}
     }
-    
+
+    private void recieveWatchUpdatePlayer(String sUUID, String server) {
+    	if(BAT.getInstance().getModules().isLoaded("watch")){
+    		ProxiedPlayer player = BAT.getInstance().getProxy().getPlayer(UUID.fromString(sUUID));
+    		if (player != null) {
+    		    try {
+					BAT.getInstance().getModules().getWatchModule().updateWatchData(player.getName());
+				} catch (InvalidModuleException ignored) {
+				}
+    		}
+    	}
+    	else{
+    		throw new IllegalStateException("The watch module isn't enabled. The watch message can't be handled.");
+    	}
+    }
+        
     public void sendMoveDefaultServerPlayer(UUID pUUID) {
 		if (!redis) return;
 		sendMessage("movedefaultserver", pUUID.toString());
