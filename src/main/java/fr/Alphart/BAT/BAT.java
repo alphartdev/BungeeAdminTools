@@ -57,13 +57,14 @@ public class BAT extends Plugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		if(getBCBuild() < requiredBCBuild){
-			getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
-			getLogger().severe("BAT is going to shutdown ...");
-			return;
-		}
-		getLogger().setLevel(Level.INFO);
 		config = new Configuration();
+		if(config.isBungeeCheck()) {
+			if (getBCBuild() < requiredBCBuild) {
+				getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+				getLogger().severe("BAT is going to shutdown ...");
+				return;
+			}
+		}
 		if(config.isDebugMode()){
 		    try{
 		        final File debugFile = new File(getDataFolder(), "debug.log");
