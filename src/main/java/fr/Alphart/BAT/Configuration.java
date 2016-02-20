@@ -41,8 +41,6 @@ public class Configuration extends Config{
 	private boolean redisSupport = false;
 	@Comment("The debug mode enables verbose logging. All the logged message will be in the debug.log file in BAT folder")
 	private boolean debugMode = false;
-	@Comment("Enable Bungee compatibility check")
-	private boolean bungeeCheck = true;
 	
 	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
