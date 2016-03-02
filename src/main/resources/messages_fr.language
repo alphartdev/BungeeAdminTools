@@ -145,6 +145,7 @@ ipUnknownPlayer=Vous ne pouvez pas effectuez d''opérations relatives à l''IP d
 isExempt=&cCette commande ne peut pas être executée sur ce joueur !
 unknownDate=Date inconnue
 unknownIp=Adresse IP inconnue
+cooldownUnfinished=Le délai d'attente entre deux commentaires n'est pas encore expiré.
 # Miscellaneous related to language : some words that need to be translated
 today=aujourd''hui
 tomorrow=demain

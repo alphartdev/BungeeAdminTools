@@ -145,6 +145,7 @@ ipUnknownPlayer=You can''t perfom operation on this user''s ip because it never 
 isExempt=&cYou can''t perform this command on this player!!
 unknownDate=Unknown date
 unknownIp=Unknown IP address
+cooldownUnfinished=The punishment cooldown is not over yet.
 # Miscellaneous related to language : some words that need to be translated
 today=today
 tomorrow=tomorrow

@@ -277,6 +277,8 @@ public class SQLQueries {
 		public static final String getManagedEntries = "SELECT id, note, type, date, entity FROM `" + table + "` "
 				+ "WHERE staff = ? ORDER BY date DESC;";
 		
+		public static final String getMostRecentCommentDate = "SELECT date FROM `" + table + "` WHERE entity = ? ORDER BY date DESC";
+		
 		public static final String clearEntries = "DELETE FROM `" + table + "` WHERE entity = ?;";
 		
 		public static final String clearByID = "DELETE FROM `" + table + "` WHERE entity = ? AND id = ?;";

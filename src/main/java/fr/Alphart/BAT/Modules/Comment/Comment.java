@@ -2,6 +2,7 @@ package fr.Alphart.BAT.Modules.Comment;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -56,7 +57,7 @@ public class Comment implements IModule{
 	}
 
 	@Override
-	public ModuleConfiguration getConfig() {
+	public CommentConfig getConfig() {
 		return config;
 	}
 
@@ -136,6 +137,10 @@ public class Comment implements IModule{
 		{
 			put("example", new Trigger());
 		}};
+		
+		@Getter
+		@net.cubespace.Yamler.Config.Comment("Interval in seconds between two comments on the same player")
+		private int cooldown = 3;
 	}
 	
 	/**
@@ -290,5 +295,19 @@ public class Comment implements IModule{
 		} finally {
 			DataSourceHandler.close(statement);
 		}
+	}
+	
+	boolean hasLastcommentCooledDown(final String entity) throws RuntimeException{
+      try(Connection conn = BAT.getConnection()){
+        PreparedStatement statement = conn.prepareStatement(SQLQueries.Comments.getMostRecentCommentDate);
+        statement.setString(1, (Utils.validIP(entity)) ? entity : Core.getUUID(entity));
+        ResultSet result = statement.executeQuery();
+        if(result.next()){
+          return new Date(result.getTimestamp("date").getTime()).before(new Date(System.currentTimeMillis() - getConfig().getCooldown()*1000));
+        }
+        return true;
+      } catch (final SQLException e) {
+          throw new RuntimeException(DataSourceHandler.handleException(e));
+      }
 	}
 }

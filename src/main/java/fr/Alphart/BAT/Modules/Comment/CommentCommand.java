@@ -56,6 +56,8 @@ public class CommentCommand extends CommandHandler{
 						_("operationUnknownPlayer", new String[] {args[0]}));
 				return;
 			}
+			
+			checkArgument(comment.hasLastcommentCooledDown(args[0]), _("cooldownUnfinished"));
 			comment.insertComment(args[0], Utils.getFinalArg(args, 1), Type.NOTE, sender.getName());
 			sender.sendMessage(__("commentAdded"));
 		}
@@ -87,17 +89,17 @@ public class CommentCommand extends CommandHandler{
 					return;
 				}
 			}
-			else{
-				target.sendMessage(__("wasWarnedNotif", new String[] {reason}));
-			}
 			
 			if(sender instanceof ProxiedPlayer){
 				checkArgument(PermissionManager.canExecuteAction(Action.WARN , sender, ((ProxiedPlayer)sender).getServer().getInfo().getName()),
 						_("noPerm"));
 			}
-			
+	          checkArgument(comment.hasLastcommentCooledDown(args[0]), _("cooldownUnfinished"));
 			comment.insertComment(args[0], reason, Type.WARNING, sender.getName());
-			
+			if(target != null){
+			  target.sendMessage(__("wasWarnedNotif", new String[] {reason}));
+			}
+			  
 			BAT.broadcast(_("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.WARN_BROADCAST.getPermission());
 			return;
 		}
