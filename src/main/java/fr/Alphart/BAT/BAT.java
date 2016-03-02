@@ -57,13 +57,17 @@ public class BAT extends Plugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		if(getBCBuild() < requiredBCBuild){
-			getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
-			getLogger().severe("BAT is going to shutdown ...");
-			return;
-		}
-		getLogger().setLevel(Level.INFO);
 		config = new Configuration();
+
+		if(!ProxyServer.getInstance().getName().equals("Waterfall")) {
+			if (getBCBuild() < requiredBCBuild) {
+				getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+				getLogger().severe("BAT is going to shutdown ...");
+				return;
+			}
+		} else {
+			getLogger().warning("BungeeCord version check disabled because you are using Waterfall");
+		}
 		if(config.isDebugMode()){
 		    try{
 		        final File debugFile = new File(getDataFolder(), "debug.log");
