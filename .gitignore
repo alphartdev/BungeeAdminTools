@@ -5,5 +5,5 @@ build_move-BAT.bat
 dependency-reduced-pom.xml
 .project
 .classpath
-.idea
+.idea/
 BungeeAdminTools.iml

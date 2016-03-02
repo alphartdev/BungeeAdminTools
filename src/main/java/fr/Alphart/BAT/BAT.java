@@ -57,13 +57,17 @@ public class BAT extends Plugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		if(getBCBuild() < requiredBCBuild){
-			getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
-			getLogger().severe("BAT is going to shutdown ...");
-			return;
-		}
-		getLogger().setLevel(Level.INFO);
 		config = new Configuration();
+		getLogger().setLevel(Level.INFO);
+		if (!ProxyServer.getInstance().getName().equals("BungeeCord")) {
+		  getLogger().warning("BungeeCord version check disabled because a fork has been detected."
+              + " Make sur your fork is based on a BungeeCord build > #" + requiredBCBuild);
+		}
+		else if(getBCBuild() < requiredBCBuild){
+		  getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+          getLogger().severe("BAT is going to shutdown ...");
+          return;
+		}
 		if(config.isDebugMode()){
 		    try{
 		        final File debugFile = new File(getDataFolder(), "debug.log");
