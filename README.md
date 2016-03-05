@@ -2,7 +2,7 @@
 Plugin page : http://www.spigotmc.org/resources/bungee-admin-tools.444/
 Repository webinterface : https://github.com/alphartdev/BAT-WebInterface/
 
-## For developpers :
+## For developers :
 
 ### Importing the project :
 BAT is a maven project so most dependencies will be automatically downloaded once you import it. However don't forget to add BungeePerms in your lib folder (because there is no maven repo available).
