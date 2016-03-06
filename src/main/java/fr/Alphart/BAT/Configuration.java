@@ -28,6 +28,8 @@ public class Configuration extends Config{
 	private String language = "en";
 	private String prefix = "&6[&4BAT&6]&e ";
 	
+        @Comment("Ignore BungeeCord build version check on enable. (Useful when using a forked version but using BungeeCord as the same name)")
+        private boolean ignoreBuildCheck= false;
     @Comment("Force players to give reason when /ban /unban /kick /mute /unmute etc.")
 	private boolean mustGiveReason= false;
 	@Comment("Enable /bat confirm, to confirm command such as action on unknown player.")
