@@ -63,8 +63,9 @@ public class BAT extends Plugin {
 		  getLogger().warning("BungeeCord version check disabled because a fork has been detected."
               + " Make sur your fork is based on a BungeeCord build > #" + requiredBCBuild);
 		}
-		else if(getBCBuild() < requiredBCBuild){
+		else if(getBCBuild() < requiredBCBuild && !BAT.getInstance().getConfiguration().isIgnoreBuildCheck()){
 		  getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+		  getLogger().severe("If you are using a custom build of BungeeCord, set ignoreBuildCheck to false in BAT's config.yml");
           getLogger().severe("BAT is going to shutdown ...");
           return;
 		}
