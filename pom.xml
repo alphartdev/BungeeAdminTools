@@ -132,6 +132,7 @@
 						</goals>
 						<configuration>
 							<minimizeJar>true</minimizeJar>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 							</artifactSet>
 						</configuration>
