@@ -1,18 +1,19 @@
 # Bungee Admin Tools
-Plugin page : http://www.spigotmc.org/resources/bungee-admin-tools.444/
-Repository webinterface : https://github.com/alphartdev/BAT-WebInterface/
+The plugin page can be found [here](http://www.spigotmc.org/resources/bungee-admin-tools.444/)
 
-## For developpers :
+The BungeeAdminTools web-interface repo can be found [here](https://github.com/alphartdev/BAT-WebInterface/)
 
-### Importing the project :
+## For developers
+
+### Importing the project
 BAT is a maven project so most dependencies will be automatically downloaded once you import it. However don't forget to add BungeePerms in your lib folder (because there is no maven repo available).
 
-### About pull requests :
-I'm very glad if you send PR, however I need you test to really test them before please :) 
+### About pull requests
+I'm very glad if you send PR, however I need you test to really test them before please :)
+
 If you want to write unit test, go ahead but please don't mix unit tests with integration tests
 
--------------------------
-# Contributor Code of Conduct
+### Contributor Code of Conduct
 
 As contributors and maintainers of the BungeeAdminTools project, we pledge to respect everyone who contributes by posting issues, updating documentation, submitting pull requests, providing feedback in comments, and any other activities.
 
@@ -22,4 +23,4 @@ We promise to extend courtesy and respect to everyone involved in this project r
 
 If any member of the community violates this code of conduct, the maintainers of the BungeeAdminTools project may take action, removing issues, comments, and PRs or blocking accounts as deemed appropriate.
 
-If you are subject to or witness unacceptable behavior, or have any other concerns, please email us at [conduct@BungeeAdminTools.org](mailto:coc@BungeeAdminTools.org).
+If you are subject to or witness unacceptable behavior, or have any other concerns, please email us at [coc@BungeeAdminTools.org](mailto:coc@BungeeAdminTools.org).
