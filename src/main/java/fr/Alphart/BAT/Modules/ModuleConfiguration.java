@@ -13,8 +13,9 @@ import lombok.Getter;
 import net.cubespace.Yamler.Config.Config;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import fr.Alphart.BAT.BAT;
+import net.cubespace.Yamler.Config.YamlConfig;
 
-public abstract class ModuleConfiguration extends Config {
+public abstract class ModuleConfiguration extends YamlConfig {
 	
 	// We must use an init method because if we use the super constructor, it doesn't work properly (field of children class are overwritten)
 	public void init(final String moduleName){
