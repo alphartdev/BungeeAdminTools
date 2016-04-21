@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import lombok.Getter;
-import net.cubespace.Yamler.Config.Config;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import fr.Alphart.BAT.BAT;
 import net.cubespace.Yamler.Config.YamlConfig;
