@@ -51,7 +51,7 @@ public class Configuration extends YamlConfig {
 	private String mysql_user = "user";
     @Path(value = "mysql.password")
 	private String mysql_password = "password";
-    @Path(value = "mysql.databse")
+    @Path(value = "mysql.database")
 	private String mysql_database = "database";
     @Path(value = "mysql.host")
 	private String mysql_host = "localhost";
