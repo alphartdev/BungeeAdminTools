@@ -91,8 +91,8 @@ public class Ban implements IModule, Listener {
 		commandHandler.loadCmds();
 
 		// Launch tempban task
-		final BanTask banTask = new BanTask(this);
-		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banTask, 0, 10, TimeUnit.SECONDS);
+		final BanExpirationTask banExpirationTask = new BanExpirationTask(this);
+		task = ProxyServer.getInstance().getScheduler().schedule(BAT.getInstance(), banExpirationTask, 0, 10, TimeUnit.SECONDS);
 
 		// Check if the online players are banned (if the module has been reloaded)
 		for(final ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){

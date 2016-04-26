@@ -1,5 +1,11 @@
 package fr.Alphart.BAT.Utils;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,13 +16,6 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 public class Utils {
     private static Gson gson = new Gson();
@@ -30,7 +29,7 @@ public class Utils {
 
 	/**
 	 * Get the timestamp corresponding to the current date + this duration
-	 * 
+	 *
 	 * @param durationStr
 	 * @return timestamp in millis
 	 * @throws IllegalArgumentException
@@ -110,7 +109,7 @@ public class Utils {
 
 	/**
 	 * Get the final args from start
-	 * 
+	 *
 	 * @param args
 	 * @param start
 	 * @return finalArg from start
@@ -129,7 +128,7 @@ public class Utils {
 
 	/**
 	 * Check if a server with his name exist
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isServer(final String serverName) {
@@ -144,51 +143,50 @@ public class Utils {
 	public static boolean validIP(final String ip) {
 		return ipPattern.matcher(ip).matches();
 	}
-	
+
 	/**
 	 * Little extra for the ip lookup : get server location using freegeoip api
 	 * @param ip
 	 * @return
 	 */
 	public static String getIpDetails(final String ip){
-	    if(!validIP(ip)){
-	        throw new RuntimeException(ip + " is not an valid ip!");
-	    }
-	 // Fetch player's name history from Mojang servers
-        BufferedReader reader = null;
-        try{
-            final URL geoApiURL = new URL("http://freegeoip.net/json/" + ip);
-            final URLConnection conn = geoApiURL.openConnection();
-            conn.setConnectTimeout(5000);
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String content = "";
-            String line;
-            while((line = reader.readLine()) != null){
-                content += line;
-            }
-            final Map<String, Object> attributes = (Map<String, Object>) 
-                    gson.fromJson(content, new TypeToken<Map<String, Object>>() {}.getType());
-            String city = !((String)attributes.get("city")).isEmpty()
-                    ? (String)attributes.get("city")
-                    : "unknown";
-            String country = !((String)attributes.get("country_name")).isEmpty()
-                    ? (String)attributes.get("country_name")
-                    : "unknown";
-            String country_code = !((String)attributes.get("country_code")).isEmpty()
-                    ? (String)attributes.get("country_code")
-                    : "unknown";
-            return "&7City: &f" + city + "&7 Country: &f" + country +
-                    "&e(&f" + country_code + "&e)";
-        }catch(final IOException e){
-            throw new RuntimeException(e);
-        }finally{
-            if(reader != null){
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+		if(!validIP(ip)){
+			throw new RuntimeException(ip + " is not an valid ip!");
+		}
+		// Fetch player's name history from Mojang servers
+		BufferedReader reader = null;
+		try{
+			final URL geoApiURL = new URL("http://ip-api.com/json/" + ip + "?fields=country,countryCode,city");
+			final URLConnection conn = geoApiURL.openConnection();
+			conn.setConnectTimeout(5000);
+			reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String content = "";
+			String line;
+			while((line = reader.readLine()) != null){
+				content += line;
+			}
+			final Map<String, Object> attributes = gson.fromJson(content, new TypeToken<Map<String, Object>>() {}.getType());
+			String city = !((String)attributes.get("city")).isEmpty()
+					? (String)attributes.get("city")
+					: "unknown";
+			String country = !((String)attributes.get("country")).isEmpty()
+					? (String)attributes.get("country")
+					: "unknown";
+			String country_code = !((String)attributes.get("countryCode")).isEmpty()
+					? (String)attributes.get("countryCode")
+					: "unknown";
+			return "&7City: &f" + city + "&7 Country: &f" + country +
+					" &e(&f" + country_code + "&e)";
+		}catch(final IOException e){
+			throw new RuntimeException(e);
+		}finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 	}
 }
