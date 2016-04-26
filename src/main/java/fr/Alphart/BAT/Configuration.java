@@ -1,19 +1,19 @@
 package fr.Alphart.BAT;
 
+import com.google.common.collect.Maps;
+import lombok.Getter;
+import lombok.Setter;
+import net.cubespace.Yamler.Config.Comment;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
+import net.cubespace.Yamler.Config.Path;
+import net.cubespace.Yamler.Config.YamlConfig;
+
 import java.io.File;
 import java.util.Locale;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
-import lombok.Getter;
-import lombok.Setter;
-import net.cubespace.Yamler.Config.Comment;
-import net.cubespace.Yamler.Config.Config;
-import net.cubespace.Yamler.Config.InvalidConfigurationException;
-
 @Getter
-public class Configuration extends Config{
+public class Configuration extends YamlConfig {
 	public Configuration(){
 		CONFIG_HEADER = new String[]{"Bungee Admin Tools - Configuration file"};
 		CONFIG_FILE = new File(BAT.getInstance().getDataFolder(), "config.yml");
@@ -45,12 +45,18 @@ public class Configuration extends Config{
 	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
 	@Setter
+    @Path(value = "mysql.enabled")
 	private boolean mysql_enabled = true;
+    @Path(value = "mysql.user")
 	private String mysql_user = "user";
+    @Path(value = "mysql.password")
 	private String mysql_password = "password";
+    @Path(value = "mysql.database")
 	private String mysql_database = "database";
+    @Path(value = "mysql.host")
 	private String mysql_host = "localhost";
 	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
+    @Path(value = "mysql.port")
 	private String mysql_port = "3306";
 	public Locale getLocale() {
 		if (language.length() != 2) {
