@@ -24,7 +24,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -797,12 +796,12 @@ public class Watch implements IModule, Listener {
 
     public void unloadWatchData(final ProxiedPlayer player, final int watchState) {
 	    if (watchState == 1)
-		BAT.broadcast( "Watched player " + player + " left \n", "watch.broadcast");
+		BAT.broadcast( "Watched player " + player + " left \n", Action.WATCH_BROADCAST.getPermission());
     	    watchedPlayers.remove(player.getName());
 	}
 
 	// Event Listener
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST) // we want MONITOR but it doens't exist in bungee
 	public void onServerConnect(final ServerConnectedEvent e) {
 		final ProxiedPlayer player = e.getPlayer();
 		final String pName = player.getName();
@@ -824,7 +823,7 @@ public class Watch implements IModule, Listener {
 			}
 			//player.sendMessage(pWatchData.getWatchMessage(this));  Don't notify the player
 			String msg =  _("watchConnectBroadcast", new String[] { pName, e.getServer().getInfo().getName()});
-			BAT.broadcast( msg, "watch.broadcast");
+			BAT.broadcast( msg, Action.WATCH_BROADCAST.getPermission());
 		}
 	}
 
