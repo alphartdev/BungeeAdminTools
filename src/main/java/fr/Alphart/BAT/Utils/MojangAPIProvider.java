@@ -38,7 +38,10 @@ public class MojangAPIProvider {
         content.append(line);
       }
       
-      return gson.fromJson(content.toString(), MojangUUIDProfile.class).id;
+      MojangUUIDProfile p = gson.fromJson(content.toString(), MojangUUIDProfile.class);
+      if(p != null && !p.id.isEmpty()){
+        return p.id;
+      }
     } catch (IOException e) {
       BAT.getInstance().getLogger().log(Level.CONFIG, "Can't retrieve UUID from mojang servers", e);
     } finally{

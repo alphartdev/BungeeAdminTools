@@ -175,6 +175,7 @@ public class LookupFormatter {
             name_history_list = "offline server";
         }
         
+        int commentsNumber = pDetails.getComments().size();
         String last_comments = "";
         // We need to parse the number of last comments from the lookup pattern
         final Pattern lastCommentsPattern = Pattern.compile("(?:.|\n)*?\\{last_comments:(\\d*)\\}(?:.|\n)*?");
@@ -213,7 +214,7 @@ public class LookupFormatter {
                 .replace("{first_login}", first_login).replace("{last_login}", last_login).replace("{last_ip}", last_ip)
                 .replace("{bans_number}", String.valueOf(bansNumber)).replace("{mutes_number}", String.valueOf(mutesNumber))
                 .replace("{watches_number}", String.valueOf(watchesNumber))
-                .replace("{kicks_number}", String.valueOf(kicksNumber))
+                .replace("{kicks_number}", String.valueOf(kicksNumber)).replace("{comments_number}", String.valueOf(commentsNumber))
                 .replace("{name_history_list}", name_history_list).replaceAll("\\{last_comments:\\d\\}", last_comments)
                 .replace("{player}", pName).replace("{uuid}", Core.getUUID(pName))
                 // '¤' is used as a space character, so we replace it with space and display correctly the escaped one

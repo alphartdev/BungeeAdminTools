@@ -826,7 +826,7 @@ public class Mute implements IModule, Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerChat(final ChatEvent e) {
-		if(!(e.getSender() instanceof ProxiedPlayer)){
+		if(!(e.getSender() instanceof ProxiedPlayer) || ((ProxiedPlayer) e.getSender()).getServer() == null){
 			return;
 		}
 		final ProxiedPlayer player = (ProxiedPlayer) e.getSender();
@@ -835,11 +835,12 @@ public class Mute implements IModule, Listener {
 			return;
 		}
 		if (e.isCommand()) {
-			final String command = e.getMessage().replaceAll("/", "").split(" ")[0].toLowerCase();
+			final String command = e.getMessage().replaceAll("/", "").toLowerCase() + " ";
 			// There is a bug when overriding the contains method of the arraylist, so we do the contains here
 			boolean contains = false;
-			for(final String string : config.getForbiddenCmds()){
-				if(command.equals(string.toLowerCase())){
+			for(final String forbiddenCmd : config.getForbiddenCmds()){
+			  // Add a space because if we block "/r", we don't want to block "/replay"
+				if(command.startsWith(forbiddenCmd.toLowerCase() + " ")){
 					contains = true;
 					break;
 				}

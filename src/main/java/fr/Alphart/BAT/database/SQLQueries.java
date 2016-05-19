@@ -145,13 +145,11 @@ public class SQLQueries {
 					+ "WHERE ban_state = 1 AND (ban_end != 0 AND (ban_end / 1000) < CAST(strftime('%s', 'now') as integer));";
 		}
 	}
-
 	public static class Watch {
 		public final static String table = "BAT_watch";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
 				+ "`watch_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
 				+ "`watch_ip` varchar(50) NULL,"
-
 				+ "`watch_staff` varchar(30) NOT NULL," + "`watch_reason` varchar(100) NULL,"
 				+ "`watch_server` varchar(30) NOT NULL," + "`watch_begin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
 				+ "`watch_end` timestamp NULL," + "`watch_state` bool NOT NULL default 1,"
@@ -254,6 +252,7 @@ public class SQLQueries {
 					+ "WHERE watch_state = 1 AND watch_end != 0 AND (watch_end / 1000) < CAST(strftime('%s', 'now') as integer);";
 		}
 	}
+
 	public static class Mute {
 		public final static String table = "BAT_mute";
 		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
@@ -384,6 +383,8 @@ public class SQLQueries {
 				+ "WHERE entity = ? ORDER BY date DESC;";
 		public static final String getManagedEntries = "SELECT id, note, type, date, entity FROM `" + table + "` "
 				+ "WHERE staff = ? ORDER BY date DESC;";
+		
+		public static final String getMostRecentCommentDate = "SELECT date FROM `" + table + "` WHERE entity = ? ORDER BY date DESC";
 		
 		public static final String clearEntries = "DELETE FROM `" + table + "` WHERE entity = ?;";
 		

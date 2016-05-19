@@ -64,7 +64,7 @@ public class CoreCommand extends BATCommand{
 		final Map<String, Boolean> simpleAliasesCommands = BAT.getInstance().getConfiguration().getSimpleAliasesCommands();
 		subCmd = new HashMap<List<String>, BATCommand>();
 		CREDIT = TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes(
-				'&', "&9Bungee&fAdmin&cTools&a Version {version}&e - Developped by &aAlphart")
+				'&', "&9Bungee&fAdmin&cTools&a Version {version}&e - Developed by &aAlphart")
 				.replace("{version}", BAT.getInstance().getDescription().getVersion()));
 		
 		// Dynamic commands load, commands are not configurable as with other modules
@@ -83,7 +83,7 @@ public class CoreCommand extends BATCommand{
 					| InvocationTargetException | SecurityException e) {
 				BAT.getInstance()
 				.getLogger()
-				.severe("An error happend during loading of CORE commands please report this :");
+				.severe("An error occurred during loading of CORE commands please report this :");
 				e.printStackTrace();
 			}
 		}
@@ -290,8 +290,8 @@ public class CoreCommand extends BATCommand{
 						}else{
 							message = new ArrayList<BaseComponent[]>();
 							message.add(BAT.__((!Utils.validIP(entity))
-										? "&eThe player &a" + entity + "&e wasn't ever banned."
-										: "&eThe IP &a" + entity + "&e wasn't ever banned."));
+										? "&eThe player &a" + entity + "&e has never been banned."
+										: "&eThe IP &a" + entity + "&e has never been banned."));
 						}
 						break;
 					case "mute":
@@ -301,8 +301,8 @@ public class CoreCommand extends BATCommand{
 						}else{
 							message = new ArrayList<BaseComponent[]>();
 							message.add(BAT.__((!Utils.validIP(entity))
-										? "&eThe player &a" + entity + "&e wasn't ever mute."
-										: "&eThe IP &a" + entity + "&e wasn't ever mute."));
+										? "&eThe player &a" + entity + "&e has never been muted."
+										: "&eThe IP &a" + entity + "&e has never been muted."));
 						}
 						break;
 					case "watch":
@@ -323,8 +323,8 @@ public class CoreCommand extends BATCommand{
 						}else{
 							message = new ArrayList<BaseComponent[]>();
 							message.add(BAT.__((!Utils.validIP(entity))
-										? "&eThe player &a" + entity + "&e wasn't ever kicked."
-										: "&eThe IP &a" + entity + "&e wasn't ever kicked."));
+										? "&eThe player &a" + entity + "&e has never been kicked."
+										: "&eThe IP &a" + entity + "&e has never been kicked."));
 						}
 						break;
 					case "comment":
@@ -334,7 +334,7 @@ public class CoreCommand extends BATCommand{
 						}else{
 							message = new ArrayList<BaseComponent[]>();
 							message.add(BAT.__((!Utils.validIP(entity))
-										? "&eThe player &a" + entity + "&e has no comment on him."
+										? "&eThe player &a" + entity + "&e has no comment about him."
 										: "&eThe IP &a" + entity + "&e has no comment."));
 						}
 						break;
