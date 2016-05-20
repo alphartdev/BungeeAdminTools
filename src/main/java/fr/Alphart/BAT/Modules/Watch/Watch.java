@@ -800,11 +800,31 @@ public class Watch implements IModule, Listener {
     	    watchedPlayers.remove(player.getName());
 	}
 
+    public void postConnect(final ServerConnectedEvent e)
+    {
+	final ProxiedPlayer player = e.getPlayer();
+	final String pName = player.getName();
+	//	BAT.getInstance().getLogger().info ("running postConnect for player " +pName);
+	final int watchState = isWatched(player, e.getServer().getInfo().getName());
+	if (watchState == 1) {
+		PlayerWatchData pWatchData = watchedPlayers.get(pName);
+		if(pWatchData.isWatched(GLOBAL_SERVER)){
+			loadWatchMessage(pName, GLOBAL_SERVER);
+		}else if(pWatchData.isWatched(e.getServer().getInfo().getName())){
+			loadWatchMessage(pName, e.getServer().getInfo().getName());
+		}
+		String msg =  _("watchConnectBroadcast", new String[] { pName, e.getServer().getInfo().getName()});
+		BAT.broadcast( msg, Action.WATCH_BROADCAST.getPermission());
+	}
+    }
 	// Event Listener
 	@EventHandler(priority = EventPriority.HIGHEST) // we want MONITOR but it doens't exist in bungee
 	public void onServerConnect(final ServerConnectedEvent e) {
-		final ProxiedPlayer player = e.getPlayer();
-		final String pName = player.getName();
+	
+	    final ProxiedPlayer player = e.getPlayer();
+	    final String pName = player.getName();
+	    BAT.getInstance().getLogger().info ("running onServerConnect for player " +pName);
+
 		final int watchState = isWatched(player, e.getServer().getInfo().getName());
 		if (watchState == -1) {
 			// Load watch data with a little bit of delay to handle server switching operations which may take some time
@@ -814,6 +834,14 @@ public class Watch implements IModule, Listener {
 					updateWatchData(pName);
 				}
 			}, 250, TimeUnit.MILLISECONDS);
+			// give the update time to run then see if the player is in watched status and print
+			BAT.getInstance().getProxy().getScheduler().schedule(BAT.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+				    postConnect(e);
+				}
+			}, 750, TimeUnit.MILLISECONDS);
+
 		} else if (watchState == 1) {
 			PlayerWatchData pWatchData = watchedPlayers.get(pName);
 			if(pWatchData.isWatched(GLOBAL_SERVER)){
