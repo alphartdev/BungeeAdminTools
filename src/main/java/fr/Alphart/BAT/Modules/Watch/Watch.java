@@ -314,12 +314,6 @@ public class Watch implements IModule, Listener {
 				    	    	    	// The watch task timer will add the player to the bungeecord instance's cache if needed.
 				    	    	    	if(server.equals(GLOBAL_SERVER) || RedisBungee.getApi().getServerFor(pUUID).getName().equalsIgnoreCase(server)) {
 				    	    	    	    	ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pUUID);
-								/*
-				    	    	    	    	if (player != null) {
-				    	    	    	    	    	player.sendMessage(__("wasWatchedNotif", new String[] { reason }));
-				    	    	    	    	} else {
-					    	    	    	    	BAT.getInstance().getRedis().sendMessagePlayer(pUUID, TextComponent.toLegacyText(__("wasWatchedNotif", new String[] { reason })));
-									}*/
 				    	    	    	}
 				    	    	}
 				    	}
@@ -330,10 +324,7 @@ public class Watch implements IModule, Listener {
 								watchedPlayers.get(player.getName()).setGlobal();
 							} else {
 								watchedPlayers.get(player.getName()).addServer(server);
-							}/*
-							if (server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)) {
-								player.sendMessage(__("wasWatchedNotif", new String[] { reason }));
-								}*/
+							}
 						}
 					}
 				}
@@ -360,15 +351,11 @@ public class Watch implements IModule, Listener {
 		    	    	statement.close();
 			    
 			    	if (player != null) {
-						updateWatchData(player.getName());/*
-						if(server.equals(GLOBAL_SERVER) || player.getServer().getInfo().getName().equalsIgnoreCase(server)){
-							player.sendMessage(__("wasWatchedNotif", new String[] { reason }));
-							}*/
+						updateWatchData(player.getName());
 					} else if (BAT.getInstance().getRedis().isRedisEnabled()) {
 						//Need to implement a function to get an UUID object instead of a string one.
 						final UUID pUUID = Core.getUUIDfromString(Core.getUUID(pName));
 						BAT.getInstance().getRedis().sendWatchUpdatePlayer(pUUID, server);
-				    	BAT.getInstance().getRedis().sendMessagePlayer(pUUID, TextComponent.toLegacyText(__("wasWatchedNotif", new String[] { reason })));
 					}
 			    	if (expirationTimestamp > 0) {
 						return _("watchTempBroadcast", new String[] { pName, FormatUtils.getDuration(expirationTimestamp),
@@ -473,11 +460,8 @@ public class Watch implements IModule, Listener {
 						final UUID pUUID = Core.getUUIDfromString(Core.getUUID(pName));
 				    	ServerInfo pServer = RedisBungee.getApi().getServerFor(pUUID);
 				    	if (ANY_SERVER.equals(server) || GLOBAL_SERVER.equals(server) || (pServer != null && pServer.getName().equalsIgnoreCase(server))){
-				    		BAT.getInstance().getRedis().sendWatchUpdatePlayer(pUUID, server);
-				    		BAT.getInstance().getRedis().sendMessagePlayer(pUUID, TextComponent.toLegacyText(__("wasUnwatchedNotif", new String[] { reason })));
 				    	}
 				}
-
 				return _("unWatchBroadcast", new String[] { pName, staff, server, reason });
 			}
 		} catch (final SQLException e) {
