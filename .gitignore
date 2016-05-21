@@ -6,3 +6,4 @@ build_move-BAT.bat
 .classpath
 .idea/
 *.iml
+*~
