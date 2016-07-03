@@ -15,7 +15,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
 
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
-import fr.Alphart.BAT.Utils.MojangAPIProvider;
+import fr.Alphart.BAT.Utils.thirdparty.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.database.SQLQueries;
 

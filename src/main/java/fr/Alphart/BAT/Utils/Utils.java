@@ -1,11 +1,5 @@
 package fr.Alphart.BAT.Utils;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +10,15 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import fr.Alphart.BAT.BAT;
 
 public class Utils {
     private static Gson gson = new Gson();
@@ -189,4 +192,24 @@ public class Utils {
 			}
 		}
 	}
+	
+    public static int getBCBuild() {
+        final Pattern p = Pattern.compile(".*?:(.*?:){3}(\\d*)");
+        final Matcher m = p.matcher(ProxyServer.getInstance().getVersion());
+        int BCBuild;
+        try {
+          if (m.find()) {
+            BCBuild = Integer.parseInt(m.group(2));
+          } else {
+            throw new NumberFormatException();
+          }
+        } catch (final NumberFormatException e) {
+          // We can't determine BC build, just display a message, and set the build so it doesn't
+          // trigger the security
+          BAT.getInstance().getLogger().info(
+                  "BC build can't be detected. If you encounter any problems, please report that message. Otherwise don't take into account");
+          BCBuild = BAT.requiredBCBuild;
+        }
+        return BCBuild;
+    }
 }

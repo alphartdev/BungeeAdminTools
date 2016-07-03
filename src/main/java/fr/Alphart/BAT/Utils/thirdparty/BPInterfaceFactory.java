@@ -1,4 +1,4 @@
-package fr.Alphart.BAT.Utils;
+package fr.Alphart.BAT.Utils.thirdparty;
 
 import java.util.Collection;
 
