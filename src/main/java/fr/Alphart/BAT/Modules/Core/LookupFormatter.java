@@ -30,8 +30,8 @@ import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
-import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.Utils;
+import fr.Alphart.BAT.Utils.thirdparty.MojangAPIProvider;
 
 public class LookupFormatter {
     private ModulesManager modules;

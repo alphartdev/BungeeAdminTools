@@ -18,8 +18,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -37,6 +35,7 @@ import fr.Alphart.BAT.Modules.ModulesManager;
 import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
 import fr.Alphart.BAT.Utils.RedisUtils;
+import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
 
 /**
@@ -45,8 +44,8 @@ import fr.Alphart.BAT.database.DataSourceHandler;
  * @author Alphart
  */
 public class BAT extends Plugin {
-	// This way we can check at runtime if the required BC build (or a higher one) is installed 
-	private final int requiredBCBuild = 878;
+	public final static int requiredBCBuild = 878;
+	
 	private static BAT instance;
 	private static DataSourceHandler dsHandler;
 	private Configuration config;
@@ -58,57 +57,29 @@ public class BAT extends Plugin {
 	public void onEnable() {
 		instance = this;
 		config = new Configuration();
+		prefix = config.getPrefix();
 		getLogger().setLevel(Level.INFO);
+		
+		// Minimal version check
 		if (!ProxyServer.getInstance().getName().equals("BungeeCord")) {
 		  getLogger().warning("BungeeCord version check disabled because a fork has been detected."
               + " Make sur your fork is based on a BungeeCord build > #" + requiredBCBuild);
 		}
-		else if(getBCBuild() < requiredBCBuild && !new File(getDataFolder(), "skipversiontest").exists()){
-		  getLogger().severe("Your BungeeCord build (#" + getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
+		else if(Utils.getBCBuild() < requiredBCBuild && !new File(getDataFolder(), "skipversiontest").exists()){
+		  getLogger().severe("Your BungeeCord build (#" + Utils.getBCBuild() + ") is not supported. Please use at least BungeeCord #" + requiredBCBuild);
 		  getLogger().severe("If you want to skip that test, create a file named 'skipversiontest' in BAT directory.");
           getLogger().severe("BAT is going to shutdown ...");
           return;
 		}
+		
 		if(config.isDebugMode()){
-		    try{
-		        final File debugFile = new File(getDataFolder(), "debug.log");
-		        if(debugFile.exists()){
-		            debugFile.delete();
-		        }
-		        // Write header into debug log
-                Files.asCharSink(debugFile, Charsets.UTF_8).writeLines(Arrays.asList("BAT log debug file"
-                        + " - If you have an error with BAT, you should post this file on BAT topic on spigotmc",
-                        "Bungee build : " + ProxyServer.getInstance().getVersion(),
-                        "BAT version : " + getDescription().getVersion(),
-                        "Operating System : " + System.getProperty("os.name"),
-                        "Timezone : " + TimeZone.getDefault().getID(),
-                        "------------------------------------------------------------"));
-		        final FileHandler handler = new FileHandler(debugFile.getAbsolutePath(), true);
-		        handler.setFormatter(new Formatter() {
-		            private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		            private final String pattern = "time [level] message\n";
-                    @Override
-                    public String format(LogRecord record) {
-                        return pattern.replace("level", record.getLevel().getName())
-                                    .replace("message", record.getMessage())
-                                    .replace("[BungeeAdminTools]", "")
-                                    .replace("time", sdf.format(Calendar.getInstance().getTime()));
-                    }
-                });
-		        getLogger().addHandler(handler);
-		        getLogger().setLevel(Level.CONFIG);
-		        getLogger().info("The debug mode is now enabled ! Log are available in debug.log file located in BAT folder");
-	            getLogger().config("Debug mode enabled ...");
-	            getLogger().setUseParentHandlers(false);
-		    }catch(final Exception e){
-		        getLogger().log(Level.SEVERE, "An exception occured during the initialization of debug logging file", e);
-		    }
+		    enableDebugMode();
 		}
-		prefix = config.getPrefix();
+		
 		loadDB(new Callback<Boolean>(){
 			@Override
-			public void done(final Boolean dbState, Throwable throwable) {
-				if (dbState) {
+			public void done(final Boolean dbEnabled, Throwable throwable) {
+				if (dbEnabled) {
 				    getLogger().config("Connection to the database established");
 					// Try enabling redis support.
 					redis = new RedisUtils(config.isRedisSupport());
@@ -122,24 +93,6 @@ public class BAT extends Plugin {
 				I18n.getString("global");
 			}
 		});
-	}
-	
-	public int getBCBuild(){
-		final Pattern p = Pattern.compile(".*?:(.*?:){3}(\\d*)");
-		final Matcher m = p.matcher(ProxyServer.getInstance().getVersion());
-		int BCBuild;
-		try{
-			if (m.find()) {
-			    BCBuild = Integer.parseInt(m.group(2));
-			}else{
-				throw new NumberFormatException();
-			}
-		}catch(final NumberFormatException e){
-			// We can't determine BC build, just display a message, and set the build so it doesn't trigger the security
-			getLogger().info("BC build can't be detected. If you encounter any problems, please report that message. Otherwise don't take into account");
-			BCBuild = requiredBCBuild;
-		}
-		return BCBuild;
 	}
 
 	@Override
@@ -316,6 +269,42 @@ public class BAT extends Plugin {
 		} else {
 			player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
 		}
+	}
+	
+	private void enableDebugMode(){
+	  try{
+        final File debugFile = new File(getDataFolder(), "debug.log");
+        if(debugFile.exists()){
+            debugFile.delete();
+        }
+        // Write header into debug log
+        Files.asCharSink(debugFile, Charsets.UTF_8).writeLines(Arrays.asList("BAT log debug file"
+                + " - If you have an error with BAT, you should post this file on BAT topic on spigotmc",
+                "Bungee build : " + ProxyServer.getInstance().getVersion(),
+                "BAT version : " + getDescription().getVersion(),
+                "Operating System : " + System.getProperty("os.name"),
+                "Timezone : " + TimeZone.getDefault().getID(),
+                "------------------------------------------------------------"));
+        final FileHandler handler = new FileHandler(debugFile.getAbsolutePath(), true);
+        handler.setFormatter(new Formatter() {
+            private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            private final String pattern = "time [level] message\n";
+            @Override
+            public String format(LogRecord record) {
+                return pattern.replace("level", record.getLevel().getName())
+                            .replace("message", record.getMessage())
+                            .replace("[BungeeAdminTools]", "")
+                            .replace("time", sdf.format(Calendar.getInstance().getTime()));
+            }
+        });
+        getLogger().addHandler(handler);
+        getLogger().setLevel(Level.CONFIG);
+        getLogger().info("The debug mode is now enabled ! Log are available in debug.log file located in BAT folder");
+        getLogger().config("Debug mode enabled ...");
+        getLogger().setUseParentHandlers(false);
+    }catch(final Exception e){
+        getLogger().log(Level.SEVERE, "An exception occured during the initialization of debug logging file", e);
+    }
 	}
 
 }
