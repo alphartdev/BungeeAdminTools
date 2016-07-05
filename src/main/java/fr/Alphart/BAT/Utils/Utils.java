@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import com.google.common.base.Charsets;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
@@ -211,5 +212,10 @@ public class Utils {
           BCBuild = BAT.requiredBCBuild;
         }
         return BCBuild;
+    }
+    
+    public static String getOfflineUUID(String pName){
+      return java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName.toLowerCase()) //Dsiable case sensitivity
+          .getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
     }
 }
