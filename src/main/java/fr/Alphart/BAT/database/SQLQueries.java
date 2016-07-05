@@ -309,7 +309,7 @@ public class SQLQueries {
 		public static final String table = "BAT_players";
 
 		public static final String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-				+ "`BAT_player` varchar(30) NOT NULL," + "`UUID` varchar(100) UNIQUE NOT NULL,"
+				+ "`BAT_player` varchar(30) UNIQUE NOT NULL," + "`UUID` varchar(100) UNIQUE NOT NULL,"
 				+ "`lastip` varchar(50) NOT NULL," + "`firstlogin` timestamp NULL,"
 				+ "`lastlogin` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," + "INDEX(BAT_player)"
 				+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
