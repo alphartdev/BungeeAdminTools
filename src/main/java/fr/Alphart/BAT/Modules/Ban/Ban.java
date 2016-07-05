@@ -25,7 +25,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
-import com.google.common.base.Charsets;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
@@ -139,14 +138,14 @@ public class Ban implements IModule, Listener {
 					? SQLQueries.Ban.SQLite.getBanMessage
 					: SQLQueries.Ban.getBanMessage);
 			try{
-				final UUID pUUID;
-	        	if(pConn.getUniqueId() != null){
-	        		pUUID = pConn.getUniqueId();
+				final String pUUID;
+	        	if(pConn.getUniqueId() != null && ProxyServer.getInstance().getConfig().isOnlineMode()){
+	        		pUUID = pConn.getUniqueId().toString().replace("-", "");
 	        	}
 	        	else{
-	        		pUUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pConn.getName() ).getBytes(Charsets.UTF_8));
+	        		pUUID = Utils.getOfflineUUID(pConn.getName());
 	        	}
-				statement.setString(1, pUUID.toString().replace("-", ""));
+				statement.setString(1, pUUID);
 				statement.setString(2, pConn.getAddress().getAddress().getHostAddress());
 				statement.setString(3, server);
 			}catch(final UUIDNotFoundException e){
@@ -631,18 +630,18 @@ public class Ban implements IModule, Listener {
 
 	        PreparedStatement statement = null;
 	        ResultSet resultSet = null;
-	        UUID uuid = null;
+	        String uuid = null;
 	        try(Connection conn = BAT.getConnection()){ 
 	        	statement = conn.prepareStatement("SELECT ban_id FROM `BAT_ban` WHERE ban_state = 1 AND UUID = ? AND ban_server = '" + GLOBAL_SERVER + "';");
 	        	// If this is an online mode server, the uuid will be already set
-	        	if(ev.getConnection().getUniqueId() != null){
-	        		uuid = ev.getConnection().getUniqueId();
+	        	if(ev.getConnection().getUniqueId() != null  && ProxyServer.getInstance().getConfig().isOnlineMode()){
+	        		uuid = ev.getConnection().getUniqueId().toString().replaceAll( "-", "" );
 	        	}
 	        	// Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
 	        	else{
-	        		uuid = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + ev.getConnection().getName() ).getBytes(Charsets.UTF_8));
+	        		uuid = Utils.getOfflineUUID(ev.getConnection().getName());
 	        	}
-	            statement.setString(1, uuid.toString().replaceAll( "-", "" ));
+	            statement.setString(1, uuid.toString());
 	        	
 	            resultSet = statement.executeQuery();
 	            if (resultSet.next()){
