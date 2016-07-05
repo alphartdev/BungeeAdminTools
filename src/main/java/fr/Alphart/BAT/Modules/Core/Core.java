@@ -170,10 +170,9 @@ public class Core implements IModule, Listener {
 	 * @throws UUIDNotFoundException
 	 * @return String which is the UUID
 	 */
-	@SuppressWarnings("deprecation")
 	public static String getUUID(final String pName){
 		try {
-			return uuidCache.get(pName);
+			return uuidCache.get(pName.toLowerCase());
 		} catch (final Exception e) {
 			if(e.getCause() instanceof UUIDNotFoundException){
 				throw (UUIDNotFoundException)e.getCause();
