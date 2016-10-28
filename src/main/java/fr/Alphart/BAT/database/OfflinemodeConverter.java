@@ -85,7 +85,15 @@ public class OfflinemodeConverter {
     ImportStatus importStatus = null;
     Statement finalUUIDstmt = null;
     try {
-      conn.setAutoCommit(false);
+      /* May be useful in the future, keeping it as comment for now
+       * Set correct charset and collation (utf8_general_ci is buggy compared to utf8_unicode_ci)
+      BAT.getInstance().getLogger().info("Setting charsets and collation, this might take up to a few minutes.");
+      for(String table : Arrays.asList(SQLQueries.Core.table,
+          SQLQueries.Ban.table, SQLQueries.Mute.table, SQLQueries.Kick.table, SQLQueries.Comments.table)){
+        conn.createStatement().execute("ALTER TABLE " + table + " CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;");
+      }*/
+      
+      BAT.getInstance().getLogger().info("Migration of the data starting. This might take a very long time, please do not quit it once it's launched.");
       finalUUIDstmt = conn.createStatement();
       String finalUUIDstmtString = "SELECT BAT_player as pName, UUID as entryToKeepUUID FROM BAT_players,"
           + " (SELECT BAT_player as foundP, MIN(firstlogin) AS minLogin FROM bat_players GROUP BY BAT_player) as subquery"
@@ -96,6 +104,8 @@ public class OfflinemodeConverter {
       
       ResultSet finalUUIDresultSet = finalUUIDstmt.executeQuery(finalUUIDstmtString + ";");
       importStatus = new ImportStatus(resultsNumber > 0 ? resultsNumber : 1); // See constructor avoid exceptions
+      
+      conn.setAutoCommit(false);
       while(finalUUIDresultSet.next()){
           // 1)For each player retrieve their informations
           final String pName = finalUUIDresultSet.getString("pName");
@@ -122,7 +132,6 @@ public class OfflinemodeConverter {
                 updateUUIDstmt.executeUpdate();
               }
             }
-            
             
             // 3)We will delete all the entries from the BAT_players table except the right one
             String deleteOldEntriesStmtTemplate = "DELETE FROM BAT_players WHERE BAT_player = ? AND UUID != ?;";
@@ -154,6 +163,23 @@ public class OfflinemodeConverter {
       // Commit all
       conn.commit();
       conn.setAutoCommit(true);
+      
+      // Check if there are no more duplicates before creating the UNIQUE index
+      ResultSet duplicateCheckRS = conn.createStatement()
+          .executeQuery("SELECT COUNT(*) AS duplicates FROM (SELECT BAT_player, COUNT(*) FROM bat_players GROUP BY BAT_player HAVING COUNT(*) > 1) AS sub;");
+      if(duplicateCheckRS.next()){
+        int duplicates = duplicateCheckRS.getInt("duplicates");
+        if(duplicates > 0){
+          String errorMessage = duplicates + " duplicates were found (" + duplicates/importStatus.getTotalEntries() + "% of total entries)."
+              + "To avoid any loss of data, the migration was stopped. Please **BACKUP** your data before and contact the developer (AlphartDev)"
+              + "of the plugin on spigotmc forums.";
+          progressionCallback.done(importStatus, new RuntimeException(errorMessage));
+          return;
+        }else{
+          BAT.getInstance().getLogger().info("No duplicates found!");
+        }
+      }
+      
       
       // Alter the table so the BAT_player column is UNIQUE
       try(Statement alterTableUniqueStmt = conn.createStatement()){
