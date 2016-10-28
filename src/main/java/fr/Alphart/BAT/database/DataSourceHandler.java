@@ -68,7 +68,7 @@ public class DataSourceHandler {
 		BasicConfigurator.configure(new NullAppender());
 		ds = new HikariDataSource();
 		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
-				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
+				"?useLegacyDatetimeCode=false&characterEncoding=utf8&serverTimezone=" + TimeZone.getDefault().getID());
 		ds.setUsername(this.username);
 		ds.setPassword(this.password);
 		ds.addDataSourceProperty("cachePrepStmts", "true");
