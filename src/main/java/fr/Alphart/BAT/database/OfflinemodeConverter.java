@@ -96,7 +96,7 @@ public class OfflinemodeConverter {
       BAT.getInstance().getLogger().info("Migration of the data starting. This might take a very long time, please do not quit it once it's launched.");
       finalUUIDstmt = conn.createStatement();
       String finalUUIDstmtString = "SELECT BAT_player as pName, UUID as entryToKeepUUID FROM BAT_players,"
-          + " (SELECT BAT_player as foundP, MIN(firstlogin) AS minLogin FROM bat_players GROUP BY BAT_player) as subquery"
+          + " (SELECT BAT_player as foundP, MIN(firstlogin) AS minLogin FROM BAT_players GROUP BY BAT_player) as subquery"
           + " WHERE BAT_player = foundP AND firstlogin = minLogin";
       ResultSet finalUUIDCountResultSet = finalUUIDstmt.executeQuery("SELECT COUNT(*) FROM (" + finalUUIDstmtString + ") as subsubquery;");
       finalUUIDCountResultSet.next();
@@ -117,7 +117,7 @@ public class OfflinemodeConverter {
             UUIDTableFieldToUpdate.put("BAT_ban", "UUID");
             UUIDTableFieldToUpdate.put("BAT_mute", "UUID");
             UUIDTableFieldToUpdate.put("BAT_kick", "UUID");
-            UUIDTableFieldToUpdate.put("BAT_comments", "entity");
+            UUIDTableFieldToUpdate.put("bat_comments", "entity");
             
             // 2)For each table we will replace all the different UUIDS of this player with the one we previously determined
             String updateUUIDStmtTemplate = "UPDATE {table} JOIN BAT_players ON {table}.{UUIDfield} = BAT_players.UUID"
