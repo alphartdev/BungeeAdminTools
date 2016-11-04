@@ -599,14 +599,14 @@ public class LookupFormatter {
         for(final CommentEntry comm : comments){
             msg.append("\n");
             if(staffLookup){
-                msg.append(_("commentRow", new String[]{String.valueOf(comm.getID()), 
-                        (comm.getType() == Type.NOTE) ? "&eComment" : "&cWarning", comm.getContent(),
-                        comm.getFormattedDate(), comm.getAuthor()}));
-            }
-            else{
                 msg.append(_("commentStaffRow", new String[]{String.valueOf(comm.getID()), 
                         (comm.getType() == Type.NOTE) ? "&eComment" : "&cWarning", 
                         comm.getEntity(), comm.getContent(), comm.getFormattedDate()}));
+            }
+            else{
+                msg.append(_("commentRow", new String[]{String.valueOf(comm.getID()), 
+                    (comm.getType() == Type.NOTE) ? "&eComment" : "&cWarning", comm.getContent(),
+                    comm.getFormattedDate(), comm.getAuthor()}));
             }
         }
 
