@@ -24,8 +24,9 @@ import fr.Alphart.BAT.BAT;
 public class Utils {
     private static Gson gson = new Gson();
 	private static StringBuilder sb = new StringBuilder();
-	private static Pattern ipPattern = Pattern
-			.compile("(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
+	private static String ipRegex = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+	private static Pattern exactIpPattern = Pattern.compile(ipRegex);
+	private static Pattern containIpPattern = Pattern.compile("(.*?)(" + ipRegex + ")(.*)");
 	private final static Pattern timePattern = Pattern.compile("(?:([0-9]+)\\s*y[a-z]*[,\\s]*)?"
 			+ "(?:([0-9]+)\\s*mo[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*w[a-z]*[,\\s]*)?"
 			+ "(?:([0-9]+)\\s*d[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*h[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*m[a-z]*[,\\s]*)?"
@@ -145,8 +146,18 @@ public class Utils {
 	}
 
 	public static boolean validIP(final String ip) {
-		return ipPattern.matcher(ip).matches();
+		return exactIpPattern.matcher(ip).matches();
 	}
+	
+	public static String extractIpFromString(final String string){
+	  Matcher m = containIpPattern.matcher(string);
+	  if(m.matches()){
+	    return m.group(2);
+	  }else{
+	    return "";
+	  }
+	}
+	
 
 	/**
 	 * Little extra for the ip lookup : get server location using freegeoip api
