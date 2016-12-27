@@ -219,16 +219,26 @@ public class BAT extends Plugin {
 	}
 	
 	public static void noRedisBroadcast(final String message, final String perm) {
-		final BaseComponent[] bsMsg = __(message);
+	    // The IP address won't be displayed to all players (bat.broadcast.displayip)
+	    final String DISPLAY_IP_BROADCAST_PERM = "bat.broadcast.displayip";
+	    String ipInMessage = Utils.extractIpFromString(message);
+	    boolean containsIp = !ipInMessage.isEmpty();
+	    final BaseComponent[] ipIncludedMsg = __(message);
+		final BaseComponent[] ipFreeMsg = containsIp ?
+		    __(message.replace(ipInMessage, "<hiddenIP>")) : ipIncludedMsg;
+		
 		for (final ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
-			if (p.hasPermission(perm) || p.hasPermission("bat.admin")) {
-				p.sendMessage(bsMsg);
+		    if(p.hasPermission("bat.admin")){
+		      p.sendMessage(ipIncludedMsg);
+		    }
+		    else if (p.hasPermission(perm)) {
+				p.sendMessage(p.hasPermission(DISPLAY_IP_BROADCAST_PERM) ? ipIncludedMsg : ipFreeMsg);
 			}
 			// If he has a grantall permission, he will have the broadcast on all the servers
 			else{
 				for(final String playerPerm : Core.getCommandSenderPermission(p)){
 					if(playerPerm.startsWith("bat.grantall.")){
-						p.sendMessage(bsMsg);
+						p.sendMessage(p.hasPermission(DISPLAY_IP_BROADCAST_PERM) ? ipIncludedMsg : ipFreeMsg);
 						break;
 					}
 				}
