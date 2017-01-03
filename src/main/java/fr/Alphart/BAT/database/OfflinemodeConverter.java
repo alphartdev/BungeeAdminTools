@@ -166,7 +166,7 @@ public class OfflinemodeConverter {
       
       // Check if there are no more duplicates before creating the UNIQUE index
       ResultSet duplicateCheckRS = conn.createStatement()
-          .executeQuery("SELECT COUNT(*) AS duplicates FROM (SELECT BAT_player, COUNT(*) FROM bat_players GROUP BY BAT_player HAVING COUNT(*) > 1) AS sub;");
+          .executeQuery("SELECT COUNT(*) AS duplicates FROM (SELECT BAT_player, COUNT(*) FROM BAT_players GROUP BY BAT_player HAVING COUNT(*) > 1) AS sub;");
       if(duplicateCheckRS.next()){
         int duplicates = duplicateCheckRS.getInt("duplicates");
         if(duplicates > 0){
