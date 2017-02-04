@@ -285,9 +285,14 @@ public class Ban implements IModule, Listener {
 				
 				if (BAT.getInstance().getRedis().isRedisEnabled()) {
 				    	for (final UUID pUUID : RedisBungee.getApi().getPlayersOnline()) {
-				    	    	if (RedisBungee.getApi().getPlayerIp(pUUID).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(RedisBungee.getApi().getServerFor(pUUID).getName()))) {
-				    	    	    	BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
-				    	    	}
+				    	    // Though they're provided by RedisBungee itself, sometimes Redis can't return PlayerIP or Server of this player so we just skip it
+				    	    if(RedisBungee.getApi().getPlayerIp(pUUID) == null || RedisBungee.getApi().getServerFor(pUUID)==null){
+				    	      BAT.getInstance().getLogger().config("Skipping UUID " + pUUID + " while iterating through players @ Redis support banip");
+				    	      continue;
+				    	    }
+				    	    if (ip.equals(RedisBungee.getApi().getPlayerIp(pUUID)) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(RedisBungee.getApi().getServerFor(pUUID).getName()))) {
+				    	      BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
+				    	    }
 				    	}
 				}
 
