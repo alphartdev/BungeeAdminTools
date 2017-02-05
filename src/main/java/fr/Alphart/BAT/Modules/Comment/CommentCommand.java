@@ -38,7 +38,7 @@ public class CommentCommand extends CommandHandler{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast) throws IllegalArgumentException {
 			if (args[0].equals("help")) {
 				try {
 					FormatUtils.showFormattedHelp(BAT.getInstance().getModules().getModule("comment").getCommands(),
@@ -68,7 +68,7 @@ public class CommentCommand extends CommandHandler{
 		public ClearCommentCmd() { super("clearcomment", "<entity> [commentID]", "Clear all the comments and warnings or the specified one of the player.", "bat.comment.clear");}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast) throws IllegalArgumentException {
 			sender.sendMessage(BAT.__(comment.clearComments(args[0], ((args.length == 2) ? Integer.parseInt(args[1]) : -1) )));
 		}
 	}
@@ -78,7 +78,7 @@ public class CommentCommand extends CommandHandler{
 		public WarnCmd() { super("warn", "<player> <reason>", "Warn a player and add warning note on player's info text.", Action.WARN.getPermission());}
 
 		@Override
-		public void onCommand(CommandSender sender, String[] args, boolean confirmedCmd)
+		public void onCommand(CommandSender sender, String[] args, boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			final ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
 			final String reason = Utils.getFinalArg(args, 1);
@@ -100,7 +100,9 @@ public class CommentCommand extends CommandHandler{
 			  target.sendMessage(__("wasWarnedNotif", new String[] {reason}));
 			}
 			  
-			BAT.broadcast(_("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.WARN_BROADCAST.getPermission());
+			if(broadcast){
+			    BAT.broadcast(_("warnBroadcast", new String[]{args[0], sender.getName(), reason}), Action.WARN_BROADCAST.getPermission());
+			}
 			return;
 		}
 	}

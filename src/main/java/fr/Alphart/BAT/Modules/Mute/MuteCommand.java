@@ -37,7 +37,7 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			if (args[0].equals("help")) {
 				try {
@@ -48,7 +48,7 @@ public class MuteCommand extends CommandHandler {
 				}
 				return;
 			}
-			handleMuteCommand(this, false, false, sender, args, confirmedCmd);
+			handleMuteCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -63,9 +63,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleMuteCommand(this, false, true, sender, args, confirmedCmd);
+			handleMuteCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -80,9 +80,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleMuteCommand(this, true, false, sender, args, confirmedCmd);
+			handleMuteCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -97,14 +97,14 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleMuteCommand(this, true, true, sender, args, confirmedCmd);
+			handleMuteCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handleMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -168,7 +168,9 @@ public class MuteCommand extends CommandHandler {
 			returnedMsg = mute.mute(target, server, staff, 0, reason);
 		}
 
-		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		}
 	}
 
 	@RunAsync
@@ -180,9 +182,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempMuteCommand(this, false, false, sender, args, confirmedCmd);
+			handleTempMuteCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -197,9 +199,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempMuteCommand(this, false, true, sender, args, confirmedCmd);
+			handleTempMuteCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -212,9 +214,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempMuteCommand(this, true, false, sender, args, confirmedCmd);
+			handleTempMuteCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -229,14 +231,14 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempMuteCommand(this, true, true, sender, args, confirmedCmd);
+			handleTempMuteCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handleTempMuteCommand(final BATCommand command, final boolean global, final boolean ipMute,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -302,7 +304,9 @@ public class MuteCommand extends CommandHandler {
 			returnedMsg = mute.mute(target, server, staff, expirationTimestamp, reason);
 		}
 
-		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		}
 	}
 
 	@RunAsync
@@ -313,9 +317,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleUnmuteCommand(this, false, false, sender, args, confirmedCmd);
+			handleUnmuteCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -328,9 +332,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleUnmuteCommand(this, false, true, sender, args, confirmedCmd);
+			handleUnmuteCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -342,9 +346,9 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleUnmuteCommand(this, true, false, sender, args, confirmedCmd);
+			handleUnmuteCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -357,14 +361,14 @@ public class MuteCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleUnmuteCommand(this, true, true, sender, args, confirmedCmd);
+			handleUnmuteCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handleUnmuteCommand(final BATCommand command, final boolean global, final boolean ipUnmute,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
@@ -419,6 +423,8 @@ public class MuteCommand extends CommandHandler {
 			returnedMsg = mute.unMute(target, server, staff, reason);
 		}
 
-		BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.MUTE_BROADCAST.getPermission());
+		}
 	}
 }
