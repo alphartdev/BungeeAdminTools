@@ -173,6 +173,19 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 				return;
 			}
 		}
+		
+		// Check for the -s parameters to silent the output of the command i.e no broadcast
+		final String[] parsedArgs;
+		final boolean broadcast;
+		if(args.length > 0 && args[0].equals("-s")){
+		  broadcast = false;
+		  parsedArgs = new String[args.length-1];
+		  System.arraycopy(args, 1, parsedArgs, 0, args.length-1);
+		}else{
+		  broadcast = true;
+		  parsedArgs = args;
+		}
+		
 		// Overrides command to confirm if /bat confirm is disabled
 		final boolean confirmedCmd = (BAT.getInstance().getConfiguration().isConfirmCommand()) ? CommandQueue.isExecutingQueueCommand(sender) : true;
 		try {
@@ -182,14 +195,14 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 					@Override
 					public void run() {
 						try {
-							onCommand(sender, args, confirmedCmd);
+							onCommand(sender, parsedArgs, confirmedCmd, broadcast);
 						} catch (final Exception exception) {
 							handleCommandException(sender, exception);
 						} 
 					}
 				});
 			} else {
-				onCommand(sender, args, confirmedCmd);
+				onCommand(sender, parsedArgs, confirmedCmd, broadcast);
 			}
 		} catch (final Exception exception) {
 			handleCommandException(sender, exception);
@@ -234,7 +247,7 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 		return result;
 	}
 
-	public abstract void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+	public abstract void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 			throws IllegalArgumentException;
 
 	/**

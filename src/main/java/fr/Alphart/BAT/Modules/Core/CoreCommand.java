@@ -126,7 +126,7 @@ public class CoreCommand extends BATCommand{
 
 	// Route the core subcmd
 	@Override
-	public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+	public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 			throws IllegalArgumentException {
 		if (args.length == 0 || subCmd.isEmpty()) {
 			sender.sendMessage(CREDIT);
@@ -164,7 +164,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			final List<BATCommand> cmdsList = new ArrayList<BATCommand>();
 			for (final BATCommand cmd : BAT.getInstance().getModules().getCore().getCommands()) {
@@ -186,7 +186,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			sender.sendMessage(BAT.__("The loaded modules are :&a"));
 			for (final IModule module : BAT.getInstance().getModules().getLoadedModules()) {
@@ -221,7 +221,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			sender.sendMessage(BAT.__("Starting reload ..."));
 			try {
@@ -250,7 +250,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			final String entity = args[0];
 			if (Utils.validIP(entity)) {
@@ -351,7 +351,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast) throws IllegalArgumentException {
 			final String entity = args[0];
 			if(args.length == 1){
 				for (final BaseComponent[] msg : LookupCmd.getLookupFormatter().getSummaryStaffLookup(entity, 
@@ -430,7 +430,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			if (!CommandQueue.executeQueueCommand(sender)) {
 				sender.sendMessage(__("noQueuedCommand"));
@@ -456,7 +456,7 @@ public class CoreCommand extends BATCommand{
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 		    checkArgument(BAT.getInstance().getConfiguration().isMysql_enabled(), "You must use MySQL in order to use the import function.");
 			final String source = args[0];
@@ -511,7 +511,7 @@ public class CoreCommand extends BATCommand{
 		public BackupCmd() { super("backup", "", "Backup the BAT's data from the mysql database into a file", "bat.backup");}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			if(DataSourceHandler.isSQLite()){
 				throw new IllegalArgumentException("You can't backup an SQLite database with this command. "
@@ -532,7 +532,7 @@ public class CoreCommand extends BATCommand{
 		public MigrateCmd() { super("migrateToMysql", "", "Migrate from sqlite to mysql (one-way conversion)", "bat.import");}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd) throws IllegalArgumentException {
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast) throws IllegalArgumentException {
 		    boolean isImportSimpleAlias = BAT.getInstance().getConfiguration().getSimpleAliasesCommands().get("import");
 			ProxyServer.getInstance().getPluginManager().dispatchCommand(sender, 
 			        ((!isImportSimpleAlias) ? "bat " : "") + "import BATSQLite");

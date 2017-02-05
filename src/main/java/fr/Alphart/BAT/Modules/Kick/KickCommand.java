@@ -40,7 +40,7 @@ public class KickCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			if (args[0].equals("help")) {
 				try {
@@ -72,7 +72,9 @@ public class KickCommand extends CommandHandler {
 
    				final String returnedMsg = kick.kick(player, sender.getName(),
 					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
-   				BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+                if(broadcast){
+                  BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+                }
 	    	}else{
 	    		if(!BAT.getInstance().getRedis().isRedisEnabled()){
 	    			throw new IllegalArgumentException(_("playerNotFound"));
@@ -100,7 +102,10 @@ public class KickCommand extends CommandHandler {
 		    	returnedMsg = kick.kickSQL(pUUID.toString().replaceAll("-", ""), RedisBungee.getApi().getServerFor(pUUID).getName(), sender.getName(), 
 		    		(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 	    	    BAT.getInstance().getRedis().sendMoveDefaultServerPlayer(pUUID);
-    	    	BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+	    	    
+	    	    if(broadcast){
+	    	      BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+	    	    }
 	    	}
 		}
 	}
@@ -113,7 +118,7 @@ public class KickCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			final String pName = args[0];
                         
@@ -136,7 +141,10 @@ public class KickCommand extends CommandHandler {
 				    		(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 			    	        BAT.getInstance().getRedis().sendGKickPlayer(pUUID, returnedMsg);
 			    	}
-		    	    	BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+		    	    
+			    	if(broadcast){
+			    	  BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+			    	}
 			} else {
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				checkArgument(player != null, _("playerNotFound"));
@@ -146,7 +154,9 @@ public class KickCommand extends CommandHandler {
 				final String returnedMsg = kick.gKick(player, sender.getName(),
 					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 
-				BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+				if(broadcast){
+				    BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
+				}
 			}
 		}
 	}

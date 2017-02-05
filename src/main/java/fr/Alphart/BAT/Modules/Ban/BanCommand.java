@@ -41,7 +41,7 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
 			if (args[0].equals("help")) {
 				try {
@@ -52,7 +52,7 @@ public class BanCommand extends CommandHandler {
 				}
 				return;
 			}
-			handleBanCommand(this, false, false, sender, args, confirmedCmd);
+			handleBanCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -65,9 +65,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleBanCommand(this, false, true, sender, args, confirmedCmd);
+			handleBanCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -82,9 +82,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleBanCommand(this, true, false, sender, args, confirmedCmd);
+			handleBanCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -97,14 +97,14 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleBanCommand(this, true, true, sender, args, confirmedCmd);
+			handleBanCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handleBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		String server = IModule.GLOBAL_SERVER;
 		final String staff = sender.getName();
@@ -182,7 +182,9 @@ public class BanCommand extends CommandHandler {
 			returnedMsg = ban.ban(target, server, staff, 0, reason);
 		}
 
-		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		}
 	}
 
 	@RunAsync
@@ -194,9 +196,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempBanCommand(this, false, false, sender, args, confirmedCmd);
+			handleTempBanCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -209,9 +211,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempBanCommand(this, false, true, sender, args, confirmedCmd);
+			handleTempBanCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -224,9 +226,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempBanCommand(this, true, false, sender, args, confirmedCmd);
+			handleTempBanCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -239,14 +241,14 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handleTempBanCommand(this, true, true, sender, args, confirmedCmd);
+			handleTempBanCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handleTempBanCommand(final BATCommand command, final boolean global, final boolean ipBan,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		final long expirationTimestamp = Utils.parseDuration(args[1]);
 		String server = IModule.GLOBAL_SERVER;
@@ -320,7 +322,9 @@ public class BanCommand extends CommandHandler {
 			returnedMsg = ban.ban(target , server, staff, expirationTimestamp, reason);
 		}
 
-		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		}
 	}
 
 	@RunAsync
@@ -332,9 +336,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handlePardonCommand(this, false, false, sender, args, confirmedCmd);
+			handlePardonCommand(this, false, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -346,9 +350,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handlePardonCommand(this, false, true, sender, args, confirmedCmd);
+			handlePardonCommand(this, false, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -361,9 +365,9 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handlePardonCommand(this, true, false, sender, args, confirmedCmd);
+			handlePardonCommand(this, true, false, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
@@ -376,14 +380,14 @@ public class BanCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
 				throws IllegalArgumentException {
-			handlePardonCommand(this, true, true, sender, args, confirmedCmd);
+			handlePardonCommand(this, true, true, sender, args, confirmedCmd, broadcast);
 		}
 	}
 
 	public static void handlePardonCommand(final BATCommand command, final boolean global, final boolean ipUnban,
-			final CommandSender sender, final String[] args, final boolean confirmedCmd) {
+			final CommandSender sender, final String[] args, final boolean confirmedCmd, final boolean broadcast) {
 		String target = args[0];
 		String server = IModule.ANY_SERVER;
 		final String staff = sender.getName();
@@ -439,7 +443,9 @@ public class BanCommand extends CommandHandler {
 		} else {
 			returnedMsg = ban.unBan(target, server, staff, reason);
 		}
-
-		BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		
+		if(broadcast){
+		  BAT.broadcast(returnedMsg, Action.banBroadcast.getPermission());
+		}
 	}
 }
