@@ -11,6 +11,10 @@ notBannedAny=&c{0} isn''t banned from any server !
 notBannedIP=&c{0} isn''t IP banned from this server.
 unbanBroadcast=&a{0}&e was &6unbanned &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 wasBannedNotif=You were banned. Reason : {0}
+banListHeader=&e---- &cBan list -&6 Page {page} &e----
+activeBanListRow=&6* &cActive &ePlayer/IP: &a{0} &eBegin:&a {1} &eServer:&a {2} &eReason:&a {3} &eStaff:&a {4} &eEnd:&a {5}\n
+archiveBanListRow=&6* &aExpired &ePlayer/IP: &a{0} &eBegin:&a {1} &eServer:&a {2} &eReason:&a {3} &eStaff:&a {4}\
+\n&6Unban date:&a {5} &6Unban reason:&a {6} &6Unban staff:&a {7}\n
 
 # Mute module
 alreadyMute=&cThis player is already muted from this server!

@@ -591,6 +591,55 @@ public class Ban implements IModule, Listener {
 		return banList;
 	}
 	
+	/**
+	 * @param amount
+	 * @param startIndex
+	 * @return Return <i>amount</i> ban entries starting from the <i>startIndex</i>th one, sorted by date
+	 */
+	public List<BanEntry> getBans(int amount, int startIndex){
+	  final List<BanEntry> banList = new ArrayList<BanEntry>();
+      PreparedStatement statement = null;
+      ResultSet resultSet = null;
+      try (Connection conn = BAT.getConnection()) {
+          statement = conn.prepareStatement("SELECT * FROM `BAT_ban` ORDER BY ban_begin DESC LIMIT ? OFFSET ?;");
+          statement.setInt(1, amount);
+          statement.setInt(2, startIndex);
+          resultSet = statement.executeQuery();
+          
+          while (resultSet.next()) {
+              final String staff = resultSet.getString("ban_staff");
+              final Timestamp beginDate = resultSet.getTimestamp("ban_begin");
+              final Timestamp endDate = resultSet.getTimestamp("ban_end");
+              final Timestamp unbanDate = resultSet.getTimestamp("ban_unbandate");
+
+              final String server = resultSet.getString("ban_server");
+              String reason = resultSet.getString("ban_reason");
+              if(reason == null){
+                  reason = NO_REASON;
+              }
+              String entity = (resultSet.getString("ban_ip") != null) 
+                      ? resultSet.getString("ban_ip")
+                      : Core.getPlayerName(resultSet.getString("UUID"));
+              // If the UUID search failed
+              if(entity == null){
+                  entity = "UUID:" + resultSet.getString("UUID");
+              }
+              final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
+              String unbanReason = resultSet.getString("ban_unbanreason");
+              if(unbanReason == null){
+                  unbanReason = NO_REASON;
+              }
+              final String unbanStaff = resultSet.getString("ban_unbanstaff");
+              banList.add(new BanEntry(entity, server, reason, staff, beginDate, endDate, unbanDate, unbanReason, unbanStaff, active));
+          }
+      } catch (final SQLException e) {
+          DataSourceHandler.handleException(e);
+      } finally {
+          DataSourceHandler.close(statement, resultSet);
+      }
+      return banList;
+	}
+	
 	// Event listener
 	
 	@EventHandler
