@@ -456,7 +456,7 @@ public class BanCommand extends CommandHandler {
   public static class BanListCmd extends BATCommand {
     public BanListCmd() {
       super("banlist", "[page]", "See the latest active bans on the server",
-          Action.banList.getPermission() , "");
+          Action.banList.getPermission());
     }
 
     @Override
