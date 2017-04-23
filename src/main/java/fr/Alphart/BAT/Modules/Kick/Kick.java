@@ -157,7 +157,7 @@ public class Kick implements IModule {
 			if (BAT.getInstance().getRedis().isRedisEnabled()) {
 			    	return _("gKickBroadcast", new String[] { RedisBungee.getApi().getNameFromUuid(Core.getUUIDfromString(pUUID)), staff, reason });
 			} else {
-				return _("gKickBroadcast", new String[] { BAT.getInstance().getProxy().getPlayer(pUUID).getName(), staff, reason });
+				return _("gKickBroadcast", new String[] { Core.getPlayerName(pUUID), staff, reason });
 			}
 		} catch (final SQLException e) {
 			return DataSourceHandler.handleException(e);
