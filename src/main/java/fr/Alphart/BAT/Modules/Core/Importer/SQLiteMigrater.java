@@ -14,8 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.mysql.jdbc.MysqlDataTruncation;
+
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
@@ -105,10 +106,13 @@ public class SQLiteMigrater extends Importer{
                             try{
                                 insertStatement.execute();
                             }catch(final SQLException exception){
-                                // If that's an duplicated entry error, we don't care we continue the import ...
-                                if(exception.getErrorCode() != 1062){
-                                    throw exception;
+                                if(exception.getErrorCode() == 1062 || exception instanceof MysqlDataTruncation){
+                                  progressionCallback.onMinorError("A minor exception has been met : " + exception.getMessage()
+                                      + " ---- The import will continue.");
+                                }else{
+                                  throw exception;
                                 }
+                                // If that's an duplicated entry error, we don't care we continue the import ...
                             }
                             uncomittedEntries++;
                             insertStatement.clearParameters();
