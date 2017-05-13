@@ -188,6 +188,10 @@ public class LookupFormatter {
             last_comments = "Unable to parse the number of last_comments";
         }
         
+        final String ip_users = !ipDetails.getUsers().isEmpty()
+            ? Joiner.on(joinChar).join(ipDetails.getUsers())
+            : _("none");
+        
         final List<BaseComponent[]> finalMessage = FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&',
                 lookupPattern
                 .replace("{connection_state}", connection_state)
@@ -198,6 +202,7 @@ public class LookupFormatter {
                 .replace("{kicks_number}", String.valueOf(kicksNumber)).replace("{comments_number}", String.valueOf(commentsNumber))
                 .replace("{name_history_list}", name_history_list).replaceAll("\\{last_comments:\\d\\}", last_comments)
                 .replace("{player}", pName).replace("{uuid}", Core.getUUID(pName))
+                .replace("{ip_users}", ip_users)
                 // '¤' is used as a space character, so we replace it with space and display correctly the escaped one
                 .replace("¤", " ").replace("\\¤", "¤")
                 ));
