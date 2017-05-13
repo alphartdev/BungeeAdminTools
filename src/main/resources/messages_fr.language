@@ -69,6 +69,7 @@ playerLookup=&f---- &9Lookup &b{player} &f----\n\
 ¤¤&a{last_comments:3}\n\
 &eHistorique des changements de nom : &a{name_history_list}\n\
 &eUUID : &a{uuid}\n\
+&eJoueurs avec même IP: &3{ip_users}\n\
 &f---- &9Lookup &b{player} &f----
 # END of the player lookup message
 # Placeholders for the player lookup
