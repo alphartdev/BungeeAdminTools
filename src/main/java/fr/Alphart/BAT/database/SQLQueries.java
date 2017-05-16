@@ -145,6 +145,113 @@ public class SQLQueries {
 					+ "WHERE ban_state = 1 AND (ban_end != 0 AND (ban_end / 1000) < CAST(strftime('%s', 'now') as integer));";
 		}
 	}
+	public static class Watch {
+		public final static String table = "BAT_watch";
+		public final static String createTable = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
+				+ "`watch_id` INTEGER PRIMARY KEY AUTO_INCREMENT," + "`UUID` varchar(100) NULL,"
+				+ "`watch_ip` varchar(50) NULL,"
+				+ "`watch_staff` varchar(30) NOT NULL," + "`watch_reason` varchar(100) NULL,"
+				+ "`watch_server` varchar(30) NOT NULL," + "`watch_begin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+				+ "`watch_end` timestamp NULL," + "`watch_state` bool NOT NULL default 1,"
+
+				+ "`watch_unwatchdate` timestamp NULL," + "`watch_unwatchstaff` varchar(30) NULL,"
+				+ "`watch_unwatchreason` varchar(100) NULL,"
+
+				+ "INDEX(UUID)," + "INDEX(watch_ip)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+
+		public static final String isWatched = "SELECT watch_id FROM `" + table + "` WHERE watch_state = 1 AND UUID = ?;";
+		public static final String isWatchedServer = "SELECT watch_id FROM `" + table
+				+ "` WHERE watch_state = 1 AND UUID = ? " + "AND watch_server = ?;";
+
+		public static final String isWatchedIP = "SELECT watch_id FROM `" + table
+				+ "` WHERE watch_state = 1 AND watch_ip = ?  AND UUID IS NULL;";
+		public static final String isWatchedServerIP = "SELECT watch_id FROM `" + table
+				+ "` WHERE watch_state = 1 AND watch_ip = ? AND watch_server = ? AND UUID IS NULL;";
+
+		public static final String createWatch = "INSERT INTO `" + table
+				+ "`(UUID, watch_staff, watch_server, watch_end, watch_reason) VALUES (?, ?, ?, ?, ?);";
+
+		public static final String createWatchIP = "INSERT INTO `" + table
+				+ "`(watch_ip, watch_staff, watch_server, watch_end, watch_reason) VALUES (?, ?, ?, ?, ?);";
+
+		public static final String unWatch = "UPDATE `" + table
+				+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = NOW() "
+				+ "WHERE UUID = ? AND watch_state = 1;";
+		public static final String unWatchServer = "UPDATE `" + table
+				+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = NOW() "
+				+ "WHERE UUID = ? AND watch_server = ? AND watch_state = 1;";
+
+		public static final String unWatchIP = "UPDATE `" + table
+				+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = NOW()  "
+				+ "WHERE watch_ip = ? AND UUID IS NULL;";
+		public static final String unWatchIPServer = "UPDATE `" + table
+				+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = NOW()  "
+				+ "WHERE watch_ip = ? AND watch_server = ? AND UUID IS NULL;";
+
+		public static final String getWatch = "SELECT * FROM `"
+				+ table + "`" + " WHERE UUID = ? ORDER BY watch_state DESC, watch_end DESC;";
+		public static final String getWatchIP = "SELECT * FROM `"
+				+ table + "`" + " WHERE watch_ip = ? AND UUID IS NULL ORDER BY watch_state DESC, watch_end DESC;";
+
+		public static final String getManagedWatch = "SELECT * FROM `"
+				+ table + "`" + " WHERE watch_staff = ? OR watch_unwatchstaff = ? ORDER BY watch_state DESC, watch_end DESC;";
+		
+		public static final String getWatchMessage = "SELECT watch_reason, watch_end, watch_staff, watch_begin FROM `" 
+				+ table + "` WHERE (UUID = ? OR watch_ip = ?) AND watch_state = 1 AND watch_server = ?;";
+		
+		public static final String updateExpiredWatch = "UPDATE `" + table + "` SET watch_state = 0 "
+				+ "WHERE watch_state = 1 AND (watch_end != 0 AND watch_end < NOW());";
+
+		public static class SQLite {
+			public final static String[] createTable = {
+				"CREATE TABLE IF NOT EXISTS `" + table + "` (" + "`watch_id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "`UUID` varchar(100) NULL," + "`watch_ip` varchar(50) NULL,"
+
+							+ "`watch_staff` varchar(30) NOT NULL," + "`watch_reason` varchar(100) NULL,"
+							+ "`watch_server` varchar(30) NOT NULL,"
+							+ "`watch_begin` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+							+ "`watch_end` timestamp NULL," + "`watch_state` bool NOT NULL default 1,"
+
+							+ "`watch_unwatchdate` timestamp NULL," + "`watch_unwatchstaff` varchar(30) NULL,"
+							+ "`watch_unwatchreason` varchar(100) NULL" + ");",
+							"CREATE INDEX IF NOT EXISTS `watch.uuid_index` ON " + table + " (`UUID`);",
+							"CREATE INDEX IF NOT EXISTS `watch.ip_index` ON " + table + " (`watch_ip`);" };
+
+			public static final String unWatch = "UPDATE `"
+					+ table
+					+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = datetime() "
+					+ "WHERE UUID = ? AND watch_state = 1;";
+			public static final String unWatchServer = "UPDATE `"
+					+ table
+					+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = datetime() "
+					+ "WHERE UUID = ? AND watch_server = ? AND watch_state = 1;";
+			public static final String unWatchIP = "UPDATE `"
+					+ table
+					+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = datetime()  "
+					+ "WHERE watch_ip = ? AND UUID IS NULL;";
+			public static final String unWatchIPServer = "UPDATE `"
+					+ table
+					+ "` SET watch_state = 0, watch_unwatchreason = ?, watch_unwatchstaff = ?, watch_unwatchdate = datetime()  "
+					+ "WHERE watch_ip = ? AND watch_server = ? AND UUID IS NULL;";
+
+			public static final String getWatch = "SELECT *, "
+					+ "strftime('%s',watch_begin), strftime('%s',watch_end), strftime('%s',watch_unwatchdate)"
+					+ "FROM `" + table + "`" + " WHERE UUID = ? ORDER BY watch_state DESC, watch_end DESC;";
+			public static final String getWatchIP = "SELECT *, "
+					+ "strftime('%s',watch_begin), strftime('%s',watch_end), strftime('%s',watch_unwatchdate)"
+					+ "FROM `" + table + "`" + " WHERE watch_ip = ? AND UUID IS NULL ORDER BY watch_state DESC, watch_end DESC;";
+			
+			public static final String getManagedWatch = "SELECT *, "
+					+ "strftime('%s',watch_begin), strftime('%s',watch_end), strftime('%s',watch_unwatchdate) "
+					+ "FROM `" + table + "`" + " WHERE watch_staff = ? OR watch_unwatchstaff = ? ORDER BY watch_state DESC, watch_end DESC;";
+			
+			public static final String getWatchMessage = "SELECT watch_reason, watch_staff, strftime('%s',watch_begin), watch_end FROM `" 
+					+ table + "` WHERE (UUID = ? OR watch_ip = ?) AND watch_state = 1 AND watch_server = ?;";
+			
+			public static final String updateExpiredWatch = "UPDATE `" + table + "` SET watch_state = 0 "
+					+ "WHERE watch_state = 1 AND watch_end != 0 AND (watch_end / 1000) < CAST(strftime('%s', 'now') as integer);";
+		}
+	}
 
 	public static class Mute {
 		public final static String table = "BAT_mute";

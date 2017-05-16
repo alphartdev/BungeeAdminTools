@@ -29,6 +29,7 @@ import fr.Alphart.BAT.Modules.Comment.CommentEntry;
 import fr.Alphart.BAT.Modules.Comment.CommentEntry.Type;
 import fr.Alphart.BAT.Modules.Kick.KickEntry;
 import fr.Alphart.BAT.Modules.Mute.MuteEntry;
+import fr.Alphart.BAT.Modules.Watch.WatchEntry;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.Utils;
@@ -56,16 +57,25 @@ public class LookupFormatter {
         }
 
         final EntityEntry ipDetails = new EntityEntry(Core.getPlayerIP(pName));
+
         boolean isBan = false;
         boolean isBanIP = false;
         int bansNumber = 0;
         final List<String> banServers = Lists.newArrayList();
         final List<String> banIPServers = Lists.newArrayList();
+
         boolean isMute = false;
         boolean isMuteIP = false;
         int mutesNumber = 0;
         final List<String> muteServers = Lists.newArrayList();
         final List<String> muteIPServers = Lists.newArrayList();
+
+        boolean isWatched = false;
+        boolean isWatchedIP = false;
+        int watchesNumber = 0;
+        final List<String> watchServers = Lists.newArrayList();
+        final List<String> watchIPServers = Lists.newArrayList();
+
         int kicksNumber = 0;
         // Compute player's state (as well as his ip) concerning ban and mute
         for (final BanEntry banEntry : pDetails.getBans()) {
@@ -80,10 +90,10 @@ public class LookupFormatter {
                 banIPServers.add(banEntry.getServer());
             }
         }
-        for (final MuteEntry muteEntry : pDetails.getMutes()) {
-            if (muteEntry.isActive()) {
-                isMute = true;
-                muteServers.add(muteEntry.getServer());
+        for (final WatchEntry watchEntry : pDetails.getWatches()) {
+            if (watchEntry.isActive()) {
+                isWatched = true;
+                watchServers.add(watchEntry.getServer());
             }
         }
         for (final MuteEntry muteEntry : ipDetails.getMutes()) {
@@ -94,6 +104,7 @@ public class LookupFormatter {
         }
         bansNumber = pDetails.getBans().size() + ipDetails.getBans().size();
         mutesNumber = pDetails.getMutes().size() + ipDetails.getMutes().size();
+        watchesNumber = pDetails.getWatches().size() + ipDetails.getWatches().size();
         kicksNumber = pDetails.getKicks().size();
         
         // Load the lookup pattern
@@ -131,6 +142,12 @@ public class LookupFormatter {
                 : _("none");
         final String muteip_servers = !muteIPServers.isEmpty()
                 ? Joiner.on(joinChar).join(muteIPServers).toLowerCase()
+                : _("none");
+        final String watch_servers = !watchServers.isEmpty()
+                ? Joiner.on(joinChar).join(watchServers).toLowerCase()
+                : _("none");
+        final String watchip_servers = !watchIPServers.isEmpty()
+                ? Joiner.on(joinChar).join(watchIPServers).toLowerCase()
                 : _("none");
 
         final String first_login = pDetails.getFirstLogin() != EntityEntry.noDateFound
@@ -193,8 +210,10 @@ public class LookupFormatter {
                 .replace("{connection_state}", connection_state)
                 .replace("{ban_servers}", ban_servers).replace("{banip_servers}", banip_servers)
                 .replace("{mute_servers}", mute_servers).replace("{muteip_servers}", muteip_servers)
+                .replace("{watch_servers}", watch_servers).replace("{watchip_servers}", watchip_servers)
                 .replace("{first_login}", first_login).replace("{last_login}", last_login).replace("{last_ip}", last_ip)
                 .replace("{bans_number}", String.valueOf(bansNumber)).replace("{mutes_number}", String.valueOf(mutesNumber))
+                .replace("{watches_number}", String.valueOf(watchesNumber))
                 .replace("{kicks_number}", String.valueOf(kicksNumber)).replace("{comments_number}", String.valueOf(commentsNumber))
                 .replace("{name_history_list}", name_history_list).replaceAll("\\{last_comments:\\d\\}", last_comments)
                 .replace("{player}", pName).replace("{uuid}", Core.getUUID(pName))
@@ -433,8 +452,104 @@ public class LookupFormatter {
 
         return FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&', msg.toString()));
     }
+
+
+    public List<BaseComponent[]> formatWatchLookup(final String entity, final List<WatchEntry> watches,
+            int page, final boolean staffLookup) throws InvalidModuleException {
+        final StringBuilder msg = new StringBuilder();
+
+        int totalPages = (int) Math.ceil((double)watches.size()/entriesPerPage);
+        if(watches.size() > entriesPerPage){
+            if(page > totalPages){
+                page = totalPages;
+            }
+            int beginIndex = (page - 1) * entriesPerPage;
+            int endIndex = (beginIndex + entriesPerPage < watches.size()) ? beginIndex + entriesPerPage : watches.size();
+            for(int i=watches.size() -1; i > 0; i--){
+                if(i >= beginIndex && i < endIndex){
+                    continue;
+                }
+                watches.remove(i);
+            }
+        }
+        msg.append(lookupHeader.replace("{entity}", entity).replace("{module}", "Watch")
+                .replace("{page}", page + "/" + totalPages));
+        
+        boolean isWatched = false;
+        for (final WatchEntry watchEntry : watches) {
+            if (watchEntry.isActive()) {
+                isWatched = true;
+            }
+        }
+
+        // We begin with active ban
+        if(isWatched){
+            msg.append("&6&lActive watches: &e");
+            final Iterator<WatchEntry> it = watches.iterator();
+            while(it.hasNext()){
+                final WatchEntry watch = it.next();
+                if(!watch.isActive()){
+                    break;
+                }
+                final String begin = Core.defaultDF.format(watch.getBeginDate());
+                final String server = watch.getServer();
+                final String reason = watch.getReason();
+                final String end;
+                if(watch.getEndDate() == null){
+                    end = "permanent watch";
+                }else{
+                    end = Core.defaultDF.format(watch.getEndDate());
+                }
+                
+                msg.append("\n");
+                if(staffLookup){
+                    msg.append(_("activeStaffWatchLookupRow", 
+                            new String[] { watch.getEntity(), begin, server, reason, end}));
+                }else{
+                    msg.append(_("activeWatchLookupRow", 
+                            new String[] { begin, server, reason, watch.getStaff(), end}));
+                }
+                it.remove();
+            }
+        }
+        
+        if(!watches.isEmpty()){
+            msg.append("\n&7&lArchive watches: &e");
+            for(final WatchEntry watch : watches){
+                final String begin = Core.defaultDF.format(watch.getBeginDate());
+                final String server = watch.getServer();
+                final String reason = watch.getReason();
+                
+                final String unwatchDate;
+                if(watch.getUnwatchDate() == null){
+                    unwatchDate = Core.defaultDF.format(watch.getEndDate());
+                }else{
+                    unwatchDate = Core.defaultDF.format(watch.getUnwatchDate());
+                }
+                final String unwatchReason = watch.getUnwatchReason();
+                String unwatchStaff = watch.getUnwatchStaff();
+                if(unwatchStaff == "null"){
+                    unwatchStaff = "temporary watch";
+                }
+                
+                msg.append("\n");
+                if(staffLookup){
+                    msg.append(_("archiveStaffWatchLookupRow", 
+                            new String[] { watch.getEntity(), begin, server, reason, unwatchDate, unwatchReason, unwatchStaff}));
+                }else{
+                    msg.append(_("archiveWatchLookupRow", 
+                            new String[] { begin, server, reason, watch.getStaff(), unwatchDate, unwatchReason, unwatchStaff}));
+                }
+            }
+        }
+
+        msg.append(lookupFooter.replace("{entity}", entity).replace("{module}", "Watch")
+                .replace("{page}", page + "/" + totalPages));
+
+        return FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&', msg.toString()));
+    }
     
-    public List<BaseComponent[]> formatMuteLookup(final String entity, final List<MuteEntry> mutes,
+    public List<BaseComponent[]> formatMuteLookup(final String entity, final List<MuteEntry> mutes, 
             int page, final boolean staffLookup) throws InvalidModuleException {
         final StringBuilder msg = new StringBuilder();
 
@@ -528,7 +643,7 @@ public class LookupFormatter {
 
         return FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&', msg.toString()));
     }
-    
+
     public List<BaseComponent[]> formatKickLookup(final String entity, final List<KickEntry> kicks,
             int page, final boolean staffLookup) throws InvalidModuleException {
         final StringBuilder msg = new StringBuilder();

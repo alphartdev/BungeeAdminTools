@@ -26,6 +26,21 @@ wasMutedNotif=You were muted. Reason : {0}
 wasUnmutedNotif=You were unmuted. Reason : {0}
 loadingMutedata=Loading of data in progress: you may speak in a little while.
 
+# Watch module
+alreadyWatch=&cThis player is already watched from this server!
+isWatched=You were watched on {1} by {2} from this server for: {0}
+isWatchTemp=You were temporarily watched on {2} by {3} from this server, you were watched for: Reason: {0} This watch ends in: {1}
+watchBroadcast=&a{0}&e was &6watched permanently&e by &a{1}&e from the server &a{2}&e. Reason : {3}
+watchTempBroadcast=&a{0}&e was &6watched&e for &a{1}&e by &a{2}&e from the server &a{3}&e. Reason : {4}
+notWatched=&c{0} isn''t watched from this server.
+notWatchedAny=&c{0} isn''t watched from any server !
+notWatchedIP=&c{0} isn''t  watched from this server.
+unWatchBroadcast=&a{0}&e was &6unwatched &eby &a{1}&e from the server &a{2}&e. Reason : {3}
+wasWatchedNotif=You were watched. Reason : {0}
+wasWatchedNotif=You were unwatched. Reason : {0}
+loadingWatchdata=Loading of data in progress: you may be unwatched in a little while.
+watchConnectBroadcast=watched player &a{0}&e has connected to server &a{1}&e.
+
 # Kick module
 kickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the server &a{2}&e. Reason : {3}
 gKickBroadcast=&a{0}&e was &6kicked&e by &a{1}&e from the network. Reason : {2}
@@ -57,6 +72,8 @@ playerLookup=&f---- &9Lookup &b{player} &f----\n\
 &eState : \n\
 ¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
 ¤¤&c&lIP Banned &efrom:&3 {banip_servers}\n\
+¤¤&c&lWatched &efrom:&3 {watch_servers}\n\
+¤¤&c&lIP Watched &efrom:&3 {watchip_servers}\n\
 ¤¤&c&lMuted &efrom:&3 {mute_servers}\n\
 ¤¤&c&lIP Muted &efrom:&3 {muteip_servers}\n\
 &eFirst login: &a{first_login}\n\
@@ -64,6 +81,7 @@ playerLookup=&f---- &9Lookup &b{player} &f----\n\
 &eLast IP: &a{last_ip}\n\
 &eHistory: &a{bans_number} bans\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} mutes\n\
+¤¤¤¤¤¤¤¤¤¤¤¤&a{watches_number} watches\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{kicks_number} kicks\n\
 &eLast three comments: \n\
 ¤¤&a{last_comments:3}\n\
@@ -81,6 +99,7 @@ staffLookup=&f---- &9&nSTAFF Lookup&r &b{staff} &f----\n\
 &eStatistics :\n\
 ¤¤&b{staff}&e has issued &a{bans_number}&e bans and &a{unbans_number}&e unbans\n\
 ¤¤&b{staff}&e has issued &a{mutes_number}&e mutes and &a{unmutes_number}&e unmutes\n\
+¤¤&b{staff}&e has issued &a{watches_number}&e watches and &a{unwatches_number}&e unwatches\n\
 ¤¤&b{staff}&e has issued &a{kicks_number}&e kicks and &a{warnings_number}&e warnings\n\
 ¤¤&b{staff}&e has written &a{comments_number}&e comments\n\
 &f---- &9&nSTAFF Lookup&r &b{staff} &f----
@@ -93,9 +112,11 @@ ipLookup=&f---- &9Lookup &b{ip} &f----\n\
 ¤&3{ip_users}\n\
 &eState:\n\
 ¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
+¤¤&c&lWatched &efrom:&3 {watch_servers}\n\
 ¤¤&c&lMute &efrom:&3 {mute_servers}\n\
 &eHistory: &a{bans_number} bans\n\
 ¤¤¤¤¤¤¤¤¤¤¤¤&a{mutes_number} mutes\n\
+¤¤¤¤¤¤¤¤¤¤¤¤&a{watches_number} watches\n\
 &f---- &9Lookup &b{ip} &f----
 
 

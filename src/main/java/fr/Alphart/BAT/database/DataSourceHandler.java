@@ -191,7 +191,7 @@ public class DataSourceHandler {
 					}
 				}
 				String backupCmd = "mysqldump -u {user} -p --add-drop-database -r {path} {database} {tables}";
-				final String tables = Joiner.on(' ').join(Arrays.asList(SQLQueries.Ban.table, SQLQueries.Mute.table,
+				final String tables = Joiner.on(' ').join(Arrays.asList(SQLQueries.Ban.table, SQLQueries.Mute.table,SQLQueries.Watch.table,
 						SQLQueries.Kick.table, SQLQueries.Comments.table, SQLQueries.Core.table));
 				String backupPath = backupFile.getAbsolutePath();
 				if(backupPath.contains(" ")){

@@ -15,6 +15,9 @@ public class PermissionManager {
 		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
 				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),
 
+		WATCH("watch"), WATCHIP("watchip"), TEMPWATCH("tempwatch"), TEMPWATCHIP("tempwatchip"), UNWATCH("unwatch"), UNWATCHIP(
+				"unwatchip"), WATCH_BROADCAST("watch.broadcast"),
+
 		KICK("kick"), WARN("warn"), WARN_BROADCAST("warn.broadcast"), KICK_BROADCAST("kick.broadcast"),
 		
 		LOOKUP("lookup");
