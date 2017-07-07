@@ -38,6 +38,8 @@ public class LookupFormatter {
     private static final int entriesPerPage = 15;
     private final String lookupHeader;
     private final String lookupFooter;
+    private final String currentPunishmentHover= "{effect=\"hover\" text=\"{server}\" onHoverText=\"&eStaff: &a{staff}, &eReason: &a{reason},"
+        + "{newlinehover} &eBegin: &a{begin}\"}";
     
     public LookupFormatter(){
         lookupHeader = _("perModuleLookupHeader");
@@ -71,25 +73,33 @@ public class LookupFormatter {
         for (final BanEntry banEntry : pDetails.getBans()) {
             if (banEntry.isActive()) {
                 isBan = true;
-                banServers.add(banEntry.getServer());
+                banServers.add(currentPunishmentHover.replace("{server}", banEntry.getServer())
+                    .replace("{staff}", banEntry.getStaff()).replace("{reason}", banEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(banEntry.getBeginDate())));
             }
         }
         for (final BanEntry banEntry : ipDetails.getBans()) {
             if (banEntry.isActive()) {
                 isBanIP = true;
-                banIPServers.add(banEntry.getServer());
+                banIPServers.add(currentPunishmentHover.replace("{server}", banEntry.getServer())
+                    .replace("{staff}", banEntry.getStaff()).replace("{reason}", banEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(banEntry.getBeginDate())));
             }
         }
         for (final MuteEntry muteEntry : pDetails.getMutes()) {
             if (muteEntry.isActive()) {
                 isMute = true;
-                muteServers.add(muteEntry.getServer());
+                muteServers.add(currentPunishmentHover.replace("{server}", muteEntry.getServer())
+                    .replace("{staff}", muteEntry.getStaff()).replace("{reason}", muteEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(muteEntry.getBeginDate())));
             }
         }
         for (final MuteEntry muteEntry : ipDetails.getMutes()) {
             if (muteEntry.isActive()) {
                 isMuteIP = true;
-                muteIPServers.add(muteEntry.getServer());
+                muteIPServers.add(currentPunishmentHover.replace("{server}", muteEntry.getServer())
+                    .replace("{staff}", muteEntry.getStaff()).replace("{reason}", muteEntry.getReason())
+                    .replace("{begin}", Core.defaultDF.format(muteEntry.getBeginDate())));
             }
         }
         bansNumber = pDetails.getBans().size() + ipDetails.getBans().size();
@@ -97,7 +107,7 @@ public class LookupFormatter {
         kicksNumber = pDetails.getKicks().size();
         
         // Load the lookup pattern
-        final String lookupPattern = _("playerLookup");
+        String lookupPattern = _("playerLookup");
         
         // Initialize all the strings to prepare the big replace
         String connection_state;
