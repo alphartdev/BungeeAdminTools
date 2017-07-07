@@ -112,13 +112,14 @@ public class BAT extends Plugin {
 			final String database = config.getMysql_database();
 			final String port = config.getMysql_port();
 			final String host = config.getMysql_host();
+			final String urlParameters = config.getMysql_urlParameters();
 			// BoneCP can accept no database and we want to avoid that
 			Preconditions.checkArgument(!"".equals(database), "You must set the database.");
 			ProxyServer.getInstance().getScheduler().runAsync(this, new Runnable() {
 				@Override
 				public void run() {
 				    try{
-				        dsHandler = new DataSourceHandler(host, port, database, username, password);
+				        dsHandler = new DataSourceHandler(host, port, database, username, password, urlParameters);
 	                    final Connection c = dsHandler.getConnection();
 	                    if (c != null) {
                             c.close();

@@ -56,7 +56,7 @@ public class DataSourceHandler {
 	 * @param password
 	 * @throws SQLException 
 	 */
-	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) throws SQLException{
+	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password, final String urlParameters) throws SQLException{
 		// Check database's informations and init connection
 		this.host = Preconditions.checkNotNull(host);
 		this.port = Preconditions.checkNotNull(port);
@@ -67,8 +67,12 @@ public class DataSourceHandler {
 		BAT.getInstance().getLogger().config("Initialization of HikariCP in progress ...");
 		BasicConfigurator.configure(new NullAppender());
 		ds = new HikariDataSource();
-		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
-				"?useLegacyDatetimeCode=false&characterEncoding=utf8&serverTimezone=" + TimeZone.getDefault().getID());
+		String connUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
+            "?useLegacyDatetimeCode=false&characterEncoding=utf8&serverTimezone=" + TimeZone.getDefault().getID();
+		if(!urlParameters.isEmpty()){
+		  connUrl+= "&" + urlParameters;
+		}
+		ds.setJdbcUrl(connUrl);
 		ds.setUsername(this.username);
 		ds.setPassword(this.password);
 		ds.addDataSourceProperty("cachePrepStmts", "true");
