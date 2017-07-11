@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.md_5.bungee.api.ProxyServer;
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.Utils.Utils;
@@ -29,7 +29,7 @@ public class OfflinemodeConverter {
    * the UNIQUE constraint on BAT_player)
    */
   public static boolean isMigrationRequired(final Connection conn){
-    if(ProxyServer.getInstance().getConfig().isOnlineMode()){
+    if(Core.isOnlineMode()){
       return false;
     }
     

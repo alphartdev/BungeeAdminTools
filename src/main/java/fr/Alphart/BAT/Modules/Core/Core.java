@@ -49,7 +49,7 @@ public class Core implements IModule, Listener {
 	           new CacheLoader<String, String>() {
 	             public String load(final String pName) throws UUIDNotFoundException{
 	               // If offline mode, no need to query the UUID just compute it
-  	               if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
+  	               if(!isOnlineMode()){
   	                 return Utils.getOfflineUUID(pName);
   	               }
 	               
@@ -292,6 +292,14 @@ public class Core implements IModule, Listener {
 		}else{
 			return sender.getPermissions();	
 		}
+	}
+	
+	public static boolean isOnlineMode(){
+	  if(BAT.getInstance().getConfiguration().isForceOfflineMode()){
+	    return false;
+	  }
+	  
+	  return ProxyServer.getInstance().getConfig().isOnlineMode();
 	}
 	
 	public void initMetrics() throws IOException{

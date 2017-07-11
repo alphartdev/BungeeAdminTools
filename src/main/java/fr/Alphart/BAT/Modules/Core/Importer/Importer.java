@@ -6,13 +6,13 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
-import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
 
+import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
@@ -24,7 +24,7 @@ public abstract class Importer {
     protected final LoadingCache<String, String> uuidCache = CacheBuilder.newBuilder().maximumSize(10000)
             .expireAfterAccess(30, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
                 public String load(final String pName) throws UUIDNotFoundException {
-                    if (ProxyServer.getInstance().getConfig().isOnlineMode()) {
+                    if (Core.isOnlineMode()) {
                         String uuid = MojangAPIProvider.getUUID(pName);
                         if (uuid != null) {
                             return uuid;
