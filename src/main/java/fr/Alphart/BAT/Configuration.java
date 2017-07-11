@@ -40,6 +40,8 @@ public class Configuration extends YamlConfig {
 	private boolean litteralDate = true;
 	@Comment("Enable BETA (experimental) Redis support, requires RedisBungee")
 	private boolean redisSupport = false;
+	@Comment("For special setups, leave to false by default")
+	private boolean forceOfflineMode = false;
 	@Comment("The debug mode enables verbose logging. All the logged message will be in the debug.log file in BAT folder")
 	private boolean debugMode = false;
 	

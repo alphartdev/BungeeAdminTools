@@ -155,7 +155,7 @@ public class LookupFormatter {
                 
         String name_history_list;
         // Create a function for that or something better than a big chunk of code inside the lookup
-        if(ProxyServer.getInstance().getConfig().isOnlineMode()){
+        if(Core.isOnlineMode()){
             try{
                 name_history_list = Joiner.on("&e, &a").join(MojangAPIProvider.getPlayerNameHistory(pName));
             }catch(final RuntimeException e){

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import net.md_5.bungee.api.ProxyServer;
-
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -60,7 +58,7 @@ public class MojangAPIProvider {
    * @throws RuntimeException | if any error is met or if the server is offline mode
    */
   public static List<String> getPlayerNameHistory(final String pName) throws RuntimeException{
-      if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
+      if(!Core.isOnlineMode()){
           throw new RuntimeException("Can't get player name history from an offline server !");
       }
       // Fetch player's name history from Mojang servers
