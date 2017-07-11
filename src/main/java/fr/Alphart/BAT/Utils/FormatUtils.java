@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ObjectArrays;
 
 import fr.Alphart.BAT.BAT;
+import fr.Alphart.BAT.I18n.I18n;
 import fr.Alphart.BAT.Modules.BATCommand;
 
 public class FormatUtils {
@@ -45,7 +46,7 @@ public class FormatUtils {
 			seconds -= 2678400;
 		}
 		if (months > 0) {
-			item.add(months + " months");
+			item.add(months + I18n._("months"));
 		}
 
 		int days = 0;
@@ -54,7 +55,7 @@ public class FormatUtils {
 			seconds -= 86400;
 		}
 		if (days > 0) {
-			item.add(days + " days");
+			item.add(days + I18n._("days"));
 		}
 
 		int hours = 0;
@@ -63,7 +64,7 @@ public class FormatUtils {
 			seconds -= 3600;
 		}
 		if (hours > 0) {
-			item.add(hours + " hours");
+			item.add(hours + I18n._("hours"));
 		}
 
 		int mins = 0;
@@ -72,11 +73,11 @@ public class FormatUtils {
 			seconds -= 60;
 		}
 		if (mins > 0) {
-			item.add(mins + " mins");
+			item.add(mins + I18n._("minutes"));
 		}
 
 		if (seconds > 0) {
-			item.add(seconds + " secs");
+			item.add(seconds + I18n._("seconds"));
 		}
 
 		return Joiner.on(", ").join(item);
