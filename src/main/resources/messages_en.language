@@ -56,7 +56,7 @@ commentIDCleared=The comment &b#{0}&e of &a{1}&e was deleted.
 # '\n' to make a new line --> will appear ingame
 # '\' to be able to use multiple lines in this FILE will have no impact InGame
 # '¤' will be replaced by space InGame, needed for spaces at the beginning of a line
-playerLookup=&f---- &9Lookup &b{player} &f----\n\
+playerLookup=&f---- &9Lookup {effect="hover" text="&b{player}" onHoverText="{uuid}"} &f----\n\
 {connection_state}\n\
 &eState : \n\
 ¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
