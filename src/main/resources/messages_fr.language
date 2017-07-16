@@ -52,7 +52,7 @@ noCommentIDFound=&a{0}&e n''a pas de commentaire avec un tel ID.
 # '\n' to make a new line --> will appear ingame
 # '\' to be able to use multiple lines in this FILE will have no impact InGame
 # '¤' will be replaced by space InGame, needed for spaces at the beginning of a line
-playerLookup=&f---- &9Lookup &b{player} &f----\n\
+playerLookup=&f---- &9Lookup {effect="hover" text="&b{player}" onHoverText="{uuid}"} &f----\n\
 {connection_state}\n\
 &eEtat : \n\
 ¤¤&c&lBanni &ede :&3 {ban_servers}\n\
