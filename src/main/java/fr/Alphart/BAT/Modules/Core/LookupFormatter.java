@@ -198,9 +198,14 @@ public class LookupFormatter {
             last_comments = "Unable to parse the number of last_comments";
         }
         
-        final String ip_users = !ipDetails.getUsers().isEmpty()
-            ? Joiner.on(joinChar).join(ipDetails.getUsers())
-            : _("none");
+        final String ip_users;
+        if("0.0.0.0".equals(pDetails.getLastIP())){
+          ip_users = _("unknownIp");
+        }else{
+          ip_users = !ipDetails.getUsers().isEmpty()
+              ? Joiner.on(joinChar).join(ipDetails.getUsers())
+              : _("none");
+        }
         
         final List<BaseComponent[]> finalMessage = FormatUtils.formatNewLine(ChatColor.translateAlternateColorCodes('&',
                 lookupPattern
