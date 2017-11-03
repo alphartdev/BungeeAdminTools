@@ -340,6 +340,30 @@ public class CoreCommand extends BATCommand{
 		}
 
 	}
+	
+	@RunAsync
+	public static class UUIDLookupCmd extends BATCommand {
+	    @Getter
+		private static LookupFormatter lookupFormatter;
+		private ModulesManager modules;
+		
+		public UUIDLookupCmd() {
+			super("lookupuuid", "<UUID> [module] [page]", "Displays an UUID related information (universal or per module).", Action.LOOKUP.getPermission());
+			modules = BAT.getInstance().getModules();
+			lookupFormatter = new LookupFormatter();
+		}
+
+		@Override
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
+				throws IllegalArgumentException {
+			args[0] = Core.getPlayerName(args[0].replace("-", ""));
+			if(args.length > 0){
+				LookupCmd lcmd = new LookupCmd();
+				lcmd.onCommand(sender, args, confirmedCmd, broadcast);
+			}
+		}
+
+	}
 		
 	@RunAsync
 	public static class StaffLookupCmd extends BATCommand {
