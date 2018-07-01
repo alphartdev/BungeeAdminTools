@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.zaxxer.hikari.HikariDataSource;
 import net.md_5.bungee.api.ProxyServer;
@@ -40,6 +41,7 @@ public class DataSourceHandler {
 	private String database;
 	private String port;
 	private String host;
+	private Boolean use_ssl;
 	
 	private static boolean sqlite = false; // If sqlite is used or not
 	private Connection SQLiteConn;
@@ -52,21 +54,31 @@ public class DataSourceHandler {
 	 * @param database
 	 * @param username
 	 * @param password
+	 * @param use_ssl True, if connection to mysql server is ssl protected; false otherwise.
 	 * @throws SQLException 
 	 */
-	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) throws SQLException{
+	public DataSourceHandler(final String host, final String port, final String database, final String username,
+							 final String password, final Boolean use_ssl) throws SQLException{
 		// Check database's informations and init connection
 		this.host = Preconditions.checkNotNull(host);
 		this.port = Preconditions.checkNotNull(port);
 		this.database = Preconditions.checkNotNull(database);
 		this.username = Preconditions.checkNotNull(username);
 		this.password = Preconditions.checkNotNull(password);
+		this.use_ssl = Preconditions.<Boolean>checkNotNull(use_ssl);
 
-		BAT.getInstance().getLogger().config("Initialization of HikariCP in progress ...");
+		Logger logger = BAT.getInstance().getLogger();
+		logger.config("Initialization of HikariCP in progress ...");
 		BasicConfigurator.configure(new NullAppender());
 		ds = new HikariDataSource();
-		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
-				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
+		ds.setJdbcUrl(String.format(
+				"jdbc:mysql://%s:%s/%s" +
+						"?useLegacyDatetimeCode=false"
+						+ "&serverTimezone=" + TimeZone.getDefault().getID()
+						+ "&useSSL=%s"
+				, this.host, this.port, this.database, this.use_ssl));
+
+		logger.config("Using jdbc connection url: " + ds.getJdbcUrl());
 		ds.setUsername(this.username);
 		ds.setPassword(this.password);
 		ds.addDataSourceProperty("cachePrepStmts", "true");
