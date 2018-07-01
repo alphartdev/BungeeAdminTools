@@ -56,8 +56,12 @@ public class Configuration extends YamlConfig {
     @Path(value = "mysql.host")
 	private String mysql_host = "localhost";
 	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
-    @Path(value = "mysql.port")
+	@Path(value = "mysql.port")
 	private String mysql_port = "3306";
+	@Comment("Set this to true, if you configured mysql server to use ssl and provided truststore for server " +
+			"certificate verification (Just leave it as it is, if you don't know what I am talking about.)")
+	@Path(value = "mysql.ssl")
+	private boolean mysql_ssl = false;
 	public Locale getLocale() {
 		if (language.length() != 2) {
 			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");
