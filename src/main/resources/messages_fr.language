@@ -11,6 +11,10 @@ notBannedAny=&c{0} n''est banni d''aucun serveur !
 notBannedIP=&c{0} n''est pas banni IP de ce serveur.
 unbanBroadcast=&a{0}&e a été &6débanni &epar &a{1}&e du serveur &a{2}&e. Raison : {3}
 wasBannedNotif=Vous avez été banni de ce serveur. Raison : {0}
+banListHeader=&e---- &cBan list -&6 Page {page} &e----
+activeBanListRow=&6* &cActif &eEntité/IP: &a{0} &eDébut:&a {1} &eServer:&a {2} &eRaison:&a {3} &eStaff:&a {4} &eFin:&a {5}\n
+archiveBanListRow=&6* &aExpiré &eEntité/IP: &a{0} &eDébut:&a {1} &eServer:&a {2} &eRaison:&a {3} &eStaff:&a {4}\
+\n&6Unban date:&a {5} &6Unban raison:&a {6} &6Unban staff:&a {7}\n
 
 # Mute module
 alreadyMute=&cCe joueur est déjà mute de ce serveur !
@@ -105,10 +109,10 @@ perModuleLookupHeader=&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {
 perModuleLookupFooter=\n&f---- &9Lookup &f- &b{entity} &f-&a {module} &f-&6 Page {page} &f----
 
 # Per module player lookup
-activeBanLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+activeBanLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eFin:&a {4}
 archiveBanLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
 \n&6Date unban:&a {4} &6Raison unban:&a {5} &6Staff unban:&a {6}
-activeMuteLookupRow=&6* &eDebut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eEnd:&a {4}
+activeMuteLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3} &eFin:&a {4}
 archiveMuteLookupRow=&6* &eDébut:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}\
 \n&6Date unmute:&a {4} &6Raison unmute:&a {5} &6Staff unmute:&a {6}
 kickLookupRow=&6* &eDate:&a {0} &eServeur:&a {1} &eRaison:&a {2} &eStaff:&a {3}
