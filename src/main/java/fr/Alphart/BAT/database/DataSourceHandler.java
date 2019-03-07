@@ -15,8 +15,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import com.zaxxer.hikari.HikariDataSource;
 import net.md_5.bungee.api.ProxyServer;
 
 import org.apache.log4j.BasicConfigurator;
@@ -26,13 +28,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-import com.zaxxer.hikari.HikariDataSource;
 
 import fr.Alphart.BAT.BAT;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer;
-import fr.Alphart.BAT.Modules.Core.Importer.Importer.ImportStatus;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
-import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 
 public class DataSourceHandler {
 	// Connection informations
@@ -56,7 +54,7 @@ public class DataSourceHandler {
 	 * @param password
 	 * @throws SQLException 
 	 */
-	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password, final String urlParameters) throws SQLException{
+	public DataSourceHandler(final String host, final String port, final String database, final String username, final String password) throws SQLException{
 		// Check database's informations and init connection
 		this.host = Preconditions.checkNotNull(host);
 		this.port = Preconditions.checkNotNull(port);
@@ -67,12 +65,8 @@ public class DataSourceHandler {
 		BAT.getInstance().getLogger().config("Initialization of HikariCP in progress ...");
 		BasicConfigurator.configure(new NullAppender());
 		ds = new HikariDataSource();
-		String connUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
-            "?useLegacyDatetimeCode=false&characterEncoding=utf8&serverTimezone=" + TimeZone.getDefault().getID();
-		if(!urlParameters.isEmpty()){
-		  connUrl+= "&" + urlParameters;
-		}
-		ds.setJdbcUrl(connUrl);
+		ds.setJdbcUrl("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + 
+				"?useLegacyDatetimeCode=false&serverTimezone=" + TimeZone.getDefault().getID());
 		ds.setUsername(this.username);
 		ds.setPassword(this.password);
 		ds.addDataSourceProperty("cachePrepStmts", "true");
@@ -96,48 +90,10 @@ public class DataSourceHandler {
 			}
 			throw e;
 		}
-		
-		// Check for the offline mode migration. Only for MySQL has SQLite is not supported anymore
-		try(Connection conn = ds.getConnection()){
-	        if(OfflinemodeConverter.isMigrationRequired(conn)){
-	          BAT.getInstance().getLogger().info("Hi! An old database scheme has been detected (before you updated)."
-	              + "In order to work BAT will convert those datas to the database scheme.");
-	          BAT.getInstance().getLogger().info("This operation may result in a loss of data. Therefore we"
-	              + " strongly advise you to backup your database (with PhpMyAdmin and dump the data for example).");
-	          BAT.getInstance().getLogger().severe("To proceed the migration, please create a file called 'forcemigration'"
-	              + "in BAT directory and the migration will begin... Thanks for your understanding :)");
-	          
-	          if(new File(BAT.getInstance().getDataFolder(), "forcemigration").exists()){
-	              BAT.getInstance().getLogger().info("forcemigration file detected. Migration is starting...");
-    	          OfflinemodeConverter.convertToNewScheme(new ProgressCallback<Importer.ImportStatus>() {
-                    @Override
-                    public void done(ImportStatus result, Throwable throwable) {
-                      if(throwable == null){
-                        BAT.getInstance().getLogger().info("Congratulations, the migration is a success. Enjoy offline mode compatibility");
-                      }else{
-                        BAT.getInstance().getLogger()
-                          .log(Level.SEVERE, "An error was met. Please report it on BAT thread for assistance", throwable);
-                      }
-                    }
-                    @Override
-                    public void onProgress(ImportStatus progressStatus) {
-                      BAT.getInstance().getLogger().info(progressStatus.getProgressionPercent() + "% done ( "
-                          + progressStatus.getTotalEntries() + " total entries to convert).");
-                    }
-                    @Override
-                    public void onMinorError(String errorMessage) {
-                      BAT.getInstance().getLogger().warning(errorMessage);
-                    }
-                  }, conn);
-	          }
-	        }
-		}
-		
 		sqlite = false;
 	}
 
 	/**
-	 * <b>NOTE: SQLite support isn't provided ANYMORE!</b>
 	 * Constructor used for SQLite
 	 */
 	public DataSourceHandler() {

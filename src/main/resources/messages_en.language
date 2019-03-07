@@ -11,10 +11,6 @@ notBannedAny=&c{0} isn''t banned from any server !
 notBannedIP=&c{0} isn''t IP banned from this server.
 unbanBroadcast=&a{0}&e was &6unbanned &eby &a{1}&e from the server &a{2}&e. Reason : {3}
 wasBannedNotif=You were banned. Reason : {0}
-banListHeader=&e---- &cBan list -&6 Page {page} &e----
-activeBanListRow=&6* &cActive &ePlayer/IP: &a{0} &eBegin:&a {1} &eServer:&a {2} &eReason:&a {3} &eStaff:&a {4} &eEnd:&a {5}\n
-archiveBanListRow=&6* &aExpired &ePlayer/IP: &a{0} &eBegin:&a {1} &eServer:&a {2} &eReason:&a {3} &eStaff:&a {4}\
-\n&6Unban date:&a {5} &6Unban reason:&a {6} &6Unban staff:&a {7}\n
 
 # Mute module
 alreadyMute=&cThis player is already muted from this server!
@@ -56,7 +52,7 @@ commentIDCleared=The comment &b#{0}&e of &a{1}&e was deleted.
 # '\n' to make a new line --> will appear ingame
 # '\' to be able to use multiple lines in this FILE will have no impact InGame
 # '¤' will be replaced by space InGame, needed for spaces at the beginning of a line
-playerLookup=&f---- &9Lookup {effect="hover" text="&b{player}" onHoverText="{uuid}"} &f----\n\
+playerLookup=&f---- &9Lookup &b{player} &f----\n\
 {connection_state}\n\
 &eState : \n\
 ¤¤&c&lBanned &efrom:&3 {ban_servers}\n\
@@ -73,7 +69,6 @@ playerLookup=&f---- &9Lookup {effect="hover" text="&b{player}" onHoverText="{uui
 ¤¤&a{last_comments:3}\n\
 &ePlayer's name history: &a{name_history_list}\n\
 &eUUID: &a{uuid}\n\
-&eSame IP players: &3{ip_users}\n\
 &f---- &9Lookup &b{player} &f----
 # END of the player lookup message
 # Placeholders for the player lookup
@@ -157,8 +152,3 @@ tomorrow=tomorrow
 yesterday=yesterday
 at=at
 none=none
-months=months
-days=days
-hours=hours
-minutes=mins
-seconds=secs

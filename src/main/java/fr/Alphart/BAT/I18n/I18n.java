@@ -136,9 +136,10 @@ public class I18n {
 	}
 
 	/**
-	 * Return message by its key
+	 * Format a message with given object. Parse color
 	 * 
 	 * @param message
+	 * @param formatObject
 	 * @return String
 	 */
 	public static String _(final String message) {

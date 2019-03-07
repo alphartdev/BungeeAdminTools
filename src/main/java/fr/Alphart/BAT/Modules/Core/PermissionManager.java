@@ -10,7 +10,7 @@ public class PermissionManager {
 
 	public static enum Action {
 		BAN("ban"), BANIP("banip"), TEMPBAN("tempban"), TEMPBANIP("tempbanip"), UNBAN("unban"), UNBANIP("unbanip"), banBroadcast(
-				"ban.broadcast"), banList("banlist"),
+				"ban.broadcast"),
 
 		MUTE("mute"), MUTEIP("muteip"), TEMPMUTE("tempmute"), TEMPMUTEIP("tempmuteip"), UNMUTE("unmute"), UNMUTEIP(
 				"unmuteip"), MUTE_BROADCAST("mute.broadcast"),

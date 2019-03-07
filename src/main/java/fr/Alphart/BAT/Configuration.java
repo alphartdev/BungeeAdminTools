@@ -1,9 +1,6 @@
 package fr.Alphart.BAT;
 
-import java.io.File;
-import java.util.Locale;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.Setter;
 import net.cubespace.Yamler.Config.Comment;
@@ -11,7 +8,9 @@ import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.cubespace.Yamler.Config.Path;
 import net.cubespace.Yamler.Config.YamlConfig;
 
-import com.google.common.collect.Maps;
+import java.io.File;
+import java.util.Locale;
+import java.util.Map;
 
 @Getter
 public class Configuration extends YamlConfig {
@@ -40,8 +39,6 @@ public class Configuration extends YamlConfig {
 	private boolean litteralDate = true;
 	@Comment("Enable BETA (experimental) Redis support, requires RedisBungee")
 	private boolean redisSupport = false;
-	@Comment("For special setups, leave to false by default")
-	private boolean forceOfflineMode = false;
 	@Comment("The debug mode enables verbose logging. All the logged message will be in the debug.log file in BAT folder")
 	private boolean debugMode = false;
 	
@@ -61,9 +58,6 @@ public class Configuration extends YamlConfig {
 	@Comment("If you don't know it, just leave it like this (3306 = default mysql port)")
     @Path(value = "mysql.port")
 	private String mysql_port = "3306";
-	@Comment("Advanced parameters which should be happened at the end of mysql connection url, leave blank by default")
-    @Path(value = "mysql.urlParameters")
-    private String mysql_urlParameters = "";
 	public Locale getLocale() {
 		if (language.length() != 2) {
 			BAT.getInstance().getLogger().severe("Incorrect language set ... The language was set to english.");

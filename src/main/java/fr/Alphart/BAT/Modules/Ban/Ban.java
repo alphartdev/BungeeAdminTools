@@ -25,6 +25,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
+import com.google.common.base.Charsets;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 
 import fr.Alphart.BAT.BAT;
@@ -138,14 +139,14 @@ public class Ban implements IModule, Listener {
 					? SQLQueries.Ban.SQLite.getBanMessage
 					: SQLQueries.Ban.getBanMessage);
 			try{
-				final String pUUID;
-	        	if(pConn.getUniqueId() != null && ProxyServer.getInstance().getConfig().isOnlineMode()){
-	        		pUUID = pConn.getUniqueId().toString().replace("-", "");
+				final UUID pUUID;
+	        	if(pConn.getUniqueId() != null){
+	        		pUUID = pConn.getUniqueId();
 	        	}
 	        	else{
-	        		pUUID = Utils.getOfflineUUID(pConn.getName());
+	        		pUUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pConn.getName() ).getBytes(Charsets.UTF_8));
 	        	}
-				statement.setString(1, pUUID);
+				statement.setString(1, pUUID.toString().replace("-", ""));
 				statement.setString(2, pConn.getAddress().getAddress().getHostAddress());
 				statement.setString(3, server);
 			}catch(final UUIDNotFoundException e){
@@ -285,14 +286,9 @@ public class Ban implements IModule, Listener {
 				
 				if (BAT.getInstance().getRedis().isRedisEnabled()) {
 				    	for (final UUID pUUID : RedisBungee.getApi().getPlayersOnline()) {
-				    	    // Though they're provided by RedisBungee itself, sometimes Redis can't return PlayerIP or Server of this player so we just skip it
-				    	    if(RedisBungee.getApi().getPlayerIp(pUUID) == null || RedisBungee.getApi().getServerFor(pUUID)==null){
-				    	      BAT.getInstance().getLogger().config("Skipping UUID " + pUUID + " while iterating through players @ Redis support banip");
-				    	      continue;
-				    	    }
-				    	    if (ip.equals(RedisBungee.getApi().getPlayerIp(pUUID)) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(RedisBungee.getApi().getServerFor(pUUID).getName()))) {
-				    	      BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
-				    	    }
+				    	    	if (RedisBungee.getApi().getPlayerIp(pUUID).equals(ip) && (GLOBAL_SERVER.equals(server) || server.equalsIgnoreCase(RedisBungee.getApi().getServerFor(pUUID).getName()))) {
+				    	    	    	BAT.getInstance().getRedis().sendGKickPlayer(pUUID, _("wasBannedNotif", new String[] { reason }));
+				    	    	}
 				    	}
 				}
 
@@ -591,55 +587,6 @@ public class Ban implements IModule, Listener {
 		return banList;
 	}
 	
-	/**
-	 * @param amount
-	 * @param startIndex
-	 * @return Return <i>amount</i> ban entries starting from the <i>startIndex</i>th one, sorted by date
-	 */
-	public List<BanEntry> getBans(int amount, int startIndex){
-	  final List<BanEntry> banList = new ArrayList<BanEntry>();
-      PreparedStatement statement = null;
-      ResultSet resultSet = null;
-      try (Connection conn = BAT.getConnection()) {
-          statement = conn.prepareStatement("SELECT * FROM `BAT_ban` ORDER BY ban_begin DESC LIMIT ? OFFSET ?;");
-          statement.setInt(1, amount);
-          statement.setInt(2, startIndex);
-          resultSet = statement.executeQuery();
-          
-          while (resultSet.next()) {
-              final String staff = resultSet.getString("ban_staff");
-              final Timestamp beginDate = resultSet.getTimestamp("ban_begin");
-              final Timestamp endDate = resultSet.getTimestamp("ban_end");
-              final Timestamp unbanDate = resultSet.getTimestamp("ban_unbandate");
-
-              final String server = resultSet.getString("ban_server");
-              String reason = resultSet.getString("ban_reason");
-              if(reason == null){
-                  reason = NO_REASON;
-              }
-              String entity = (resultSet.getString("ban_ip") != null) 
-                      ? resultSet.getString("ban_ip")
-                      : Core.getPlayerName(resultSet.getString("UUID"));
-              // If the UUID search failed
-              if(entity == null){
-                  entity = "UUID:" + resultSet.getString("UUID");
-              }
-              final boolean active = (resultSet.getBoolean("ban_state") ? true : false);
-              String unbanReason = resultSet.getString("ban_unbanreason");
-              if(unbanReason == null){
-                  unbanReason = NO_REASON;
-              }
-              final String unbanStaff = resultSet.getString("ban_unbanstaff");
-              banList.add(new BanEntry(entity, server, reason, staff, beginDate, endDate, unbanDate, unbanReason, unbanStaff, active));
-          }
-      } catch (final SQLException e) {
-          DataSourceHandler.handleException(e);
-      } finally {
-          DataSourceHandler.close(statement, resultSet);
-      }
-      return banList;
-	}
-	
 	// Event listener
 	
 	@EventHandler
@@ -684,18 +631,18 @@ public class Ban implements IModule, Listener {
 
 	        PreparedStatement statement = null;
 	        ResultSet resultSet = null;
-	        String uuid = null;
+	        UUID uuid = null;
 	        try(Connection conn = BAT.getConnection()){ 
 	        	statement = conn.prepareStatement("SELECT ban_id FROM `BAT_ban` WHERE ban_state = 1 AND UUID = ? AND ban_server = '" + GLOBAL_SERVER + "';");
 	        	// If this is an online mode server, the uuid will be already set
-	        	if(ev.getConnection().getUniqueId() != null  && ProxyServer.getInstance().getConfig().isOnlineMode()){
-	        		uuid = ev.getConnection().getUniqueId().toString().replaceAll( "-", "" );
+	        	if(ev.getConnection().getUniqueId() != null){
+	        		uuid = ev.getConnection().getUniqueId();
 	        	}
 	        	// Otherwise it's an offline mode server, so we're gonna generate the UUID using player name (hashing)
 	        	else{
-	        		uuid = Utils.getOfflineUUID(ev.getConnection().getName());
+	        		uuid = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + ev.getConnection().getName() ).getBytes(Charsets.UTF_8));
 	        	}
-	            statement.setString(1, uuid.toString());
+	            statement.setString(1, uuid.toString().replaceAll( "-", "" ));
 	        	
 	            resultSet = statement.executeQuery();
 	            if (resultSet.next()){

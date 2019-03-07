@@ -1,4 +1,4 @@
-package fr.Alphart.BAT.Utils.thirdparty;
+package fr.Alphart.BAT.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+
+import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -58,7 +60,7 @@ public class MojangAPIProvider {
    * @throws RuntimeException | if any error is met or if the server is offline mode
    */
   public static List<String> getPlayerNameHistory(final String pName) throws RuntimeException{
-      if(!Core.isOnlineMode()){
+      if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
           throw new RuntimeException("Can't get player name history from an offline server !");
       }
       // Fetch player's name history from Mojang servers

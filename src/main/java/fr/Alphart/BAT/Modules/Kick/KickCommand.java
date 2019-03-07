@@ -18,7 +18,6 @@ import fr.Alphart.BAT.Modules.BATCommand.RunAsync;
 import fr.Alphart.BAT.Modules.CommandHandler;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.InvalidModuleException;
-import fr.Alphart.BAT.Modules.Core.Core;
 import fr.Alphart.BAT.Modules.Core.PermissionManager;
 import fr.Alphart.BAT.Modules.Core.PermissionManager.Action;
 import fr.Alphart.BAT.Utils.FormatUtils;
@@ -40,7 +39,7 @@ public class KickCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			if (args[0].equals("help")) {
 				try {
@@ -72,18 +71,13 @@ public class KickCommand extends CommandHandler {
 
    				final String returnedMsg = kick.kick(player, sender.getName(),
 					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
-                if(broadcast){
-                  BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
-                }
+   				BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 	    	}else{
 	    		if(!BAT.getInstance().getRedis().isRedisEnabled()){
 	    			throw new IllegalArgumentException(_("playerNotFound"));
 	    		}
 	    		// Check if the per server kick with Redis is working fine.
-		    	UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
-		    	if(!ProxyServer.getInstance().getConfig().isOnlineMode()){
-		    	  pUUID = Core.getUUIDfromString(Core.getUUID(pName));
-		    	}
+		    	final UUID pUUID = RedisBungee.getApi().getUuidFromName(pName, true);
 		    	final String pServer = RedisBungee.getApi().getServerFor(pUUID).getName();
 		    	checkArgument(pUUID != null, _("playerNotFound"));
 		    	// Check if the server of the target isn't the default one. We assume there is the same default server on both Bungee
@@ -99,13 +93,10 @@ public class KickCommand extends CommandHandler {
                 checkArgument(PermissionManager.canExecuteAction(Action.KICK, sender, pServer), _("noPerm"));
 		    	
 		    	final String returnedMsg;
-		    	returnedMsg = kick.kickSQL(pUUID.toString().replaceAll("-", ""), RedisBungee.getApi().getServerFor(pUUID).getName(), sender.getName(), 
+		    	returnedMsg = kick.kickSQL(pUUID, RedisBungee.getApi().getServerFor(pUUID).getName(), sender.getName(), 
 		    		(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 	    	    BAT.getInstance().getRedis().sendMoveDefaultServerPlayer(pUUID);
-	    	    
-	    	    if(broadcast){
-	    	      BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
-	    	    }
+    	    	BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 	    	}
 		}
 	}
@@ -118,7 +109,7 @@ public class KickCommand extends CommandHandler {
 		}
 
 		@Override
-		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd, boolean broadcast)
+		public void onCommand(final CommandSender sender, final String[] args, final boolean confirmedCmd)
 				throws IllegalArgumentException {
 			final String pName = args[0];
                         
@@ -137,14 +128,11 @@ public class KickCommand extends CommandHandler {
 			    	    	returnedMsg = kick.gKick(player, sender.getName(),
 			    	    		(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 			    	} else {
-				    	returnedMsg = kick.gKickSQL(pUUID.toString().replace("-", ""), sender.getName(),
+				    	returnedMsg = kick.gKickSQL(pUUID, sender.getName(),
 				    		(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 			    	        BAT.getInstance().getRedis().sendGKickPlayer(pUUID, returnedMsg);
 			    	}
-		    	    
-			    	if(broadcast){
-			    	  BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
-			    	}
+		    	    	BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 			} else {
 			final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 				checkArgument(player != null, _("playerNotFound"));
@@ -154,9 +142,7 @@ public class KickCommand extends CommandHandler {
 				final String returnedMsg = kick.gKick(player, sender.getName(),
 					(args.length == 1) ? IModule.NO_REASON : Utils.getFinalArg(args, 1));
 
-				if(broadcast){
-				    BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
-				}
+				BAT.broadcast(returnedMsg, Action.KICK_BROADCAST.getPermission());
 			}
 		}
 	}

@@ -1,5 +1,11 @@
 package fr.Alphart.BAT.Utils;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,22 +17,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import com.google.common.base.Charsets;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-
-import fr.Alphart.BAT.BAT;
-
 public class Utils {
     private static Gson gson = new Gson();
 	private static StringBuilder sb = new StringBuilder();
-	private static String ipRegex = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-	private static Pattern exactIpPattern = Pattern.compile(ipRegex);
-	private static Pattern containIpPattern = Pattern.compile("(.*?)(" + ipRegex + ")(.*)");
+	private static Pattern ipPattern = Pattern
+			.compile("(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
 	private final static Pattern timePattern = Pattern.compile("(?:([0-9]+)\\s*y[a-z]*[,\\s]*)?"
 			+ "(?:([0-9]+)\\s*mo[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*w[a-z]*[,\\s]*)?"
 			+ "(?:([0-9]+)\\s*d[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*h[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*m[a-z]*[,\\s]*)?"
@@ -146,18 +141,8 @@ public class Utils {
 	}
 
 	public static boolean validIP(final String ip) {
-		return exactIpPattern.matcher(ip).matches();
+		return ipPattern.matcher(ip).matches();
 	}
-	
-	public static String extractIpFromString(final String string){
-	  Matcher m = containIpPattern.matcher(string);
-	  if(m.matches()){
-	    return m.group(2);
-	  }else{
-	    return "";
-	  }
-	}
-	
 
 	/**
 	 * Little extra for the ip lookup : get server location using freegeoip api
@@ -204,29 +189,4 @@ public class Utils {
 			}
 		}
 	}
-	
-    public static int getBCBuild() {
-        final Pattern p = Pattern.compile(".*?:(.*?:){3}(\\d*)");
-        final Matcher m = p.matcher(ProxyServer.getInstance().getVersion());
-        int BCBuild;
-        try {
-          if (m.find()) {
-            BCBuild = Integer.parseInt(m.group(2));
-          } else {
-            throw new NumberFormatException();
-          }
-        } catch (final NumberFormatException e) {
-          // We can't determine BC build, just display a message, and set the build so it doesn't
-          // trigger the security
-          BAT.getInstance().getLogger().info(
-                  "BC build can't be detected. If you encounter any problems, please report that message. Otherwise don't take into account");
-          BCBuild = BAT.requiredBCBuild;
-        }
-        return BCBuild;
-    }
-    
-    public static String getOfflineUUID(String pName){
-      return java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName.toLowerCase()) //Dsiable case sensitivity
-          .getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
-    }
 }

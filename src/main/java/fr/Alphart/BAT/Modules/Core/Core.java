@@ -20,6 +20,7 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -30,14 +31,14 @@ import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.BATCommand;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Modules.ModuleConfiguration;
+import fr.Alphart.BAT.Utils.BPInterfaceFactory;
+import fr.Alphart.BAT.Utils.BPInterfaceFactory.PermissionProvider;
+import fr.Alphart.BAT.Utils.Metrics;
+import fr.Alphart.BAT.Utils.Metrics.Graph;
 import fr.Alphart.BAT.Utils.EnhancedDateFormat;
+import fr.Alphart.BAT.Utils.MojangAPIProvider;
 import fr.Alphart.BAT.Utils.UUIDNotFoundException;
 import fr.Alphart.BAT.Utils.Utils;
-import fr.Alphart.BAT.Utils.thirdparty.BPInterfaceFactory;
-import fr.Alphart.BAT.Utils.thirdparty.BPInterfaceFactory.PermissionProvider;
-import fr.Alphart.BAT.Utils.thirdparty.Metrics;
-import fr.Alphart.BAT.Utils.thirdparty.Metrics.Graph;
-import fr.Alphart.BAT.Utils.thirdparty.MojangAPIProvider;
 import fr.Alphart.BAT.database.DataSourceHandler;
 import fr.Alphart.BAT.database.SQLQueries;
 
@@ -48,20 +49,20 @@ public class Core implements IModule, Listener {
 	       .build(
 	           new CacheLoader<String, String>() {
 	             public String load(final String pName) throws UUIDNotFoundException{
-	               // If offline mode, no need to query the UUID just compute it
-  	               if(!isOnlineMode()){
-  	                 return Utils.getOfflineUUID(pName);
-  	               }
-	               
 	            	final ProxiedPlayer player = ProxyServer.getInstance().getPlayer(pName);
 	         		if (player != null) {
+	         			// Note: if it's an offline server, the UUID will be generated using
+	         			// this
+	         			// function java.util.UUID.nameUUIDFromBytes, however it's an
+	         			// prenium or cracked account
+	         			// Online server : bungee handle great the UUID
 	         			return player.getUniqueId().toString().replaceAll("-","");
 	         		}
 
-                    // Try to get the UUID from the BAT db
 	         		PreparedStatement statement = null;
 	         		ResultSet resultSet = null;
 	         		String UUID = "";
+	         		// Try to get the UUID from the BAT db
 	         		try (Connection conn = BAT.getConnection()) {
 	         			statement = conn.prepareStatement(SQLQueries.Core.getUUID);
 	         			statement.setString(1, pName);
@@ -75,12 +76,16 @@ public class Core implements IModule, Listener {
 	         			DataSourceHandler.close(statement, resultSet);
 	         		}
 	         		
-	         		// At last try with Mojang servers (slowest method)
-	         		if(UUID.isEmpty()){
+	         		// If online server, retrieve the UUID from the mojang server
+	         		if(UUID.isEmpty() && ProxyServer.getInstance().getConfig().isOnlineMode()){
 	         			UUID = MojangAPIProvider.getUUID(pName);
 	         			if (UUID == null) {
 	         			 throw new UUIDNotFoundException(pName);
 	         			}
+	         		}
+	         		// If offline server, generate the UUID
+	         		else if(UUID.isEmpty()){
+	         			UUID = java.util.UUID.nameUUIDFromBytes(("OfflinePlayer:" + pName).getBytes(Charsets.UTF_8)).toString().replaceAll( "-", "" );
 	         		}
 
 	         		return UUID;
@@ -170,9 +175,10 @@ public class Core implements IModule, Listener {
 	 * @throws UUIDNotFoundException
 	 * @return String which is the UUID
 	 */
+	@SuppressWarnings("deprecation")
 	public static String getUUID(final String pName){
 		try {
-			return uuidCache.get(pName.toLowerCase());
+			return uuidCache.get(pName);
 		} catch (final Exception e) {
 			if(e.getCause() instanceof UUIDNotFoundException){
 				throw (UUIDNotFoundException)e.getCause();
@@ -224,7 +230,7 @@ public class Core implements IModule, Listener {
 		PreparedStatement statement = null;
 		try (Connection conn = BAT.getConnection()) {
 			final String ip = Utils.getPlayerIP(player);
-			final String UUID = getUUID(player.getName());
+			final String UUID = player.getUniqueId().toString().replaceAll("-","");
 			statement = (DataSourceHandler.isSQLite()) ? conn.prepareStatement(SQLQueries.Core.SQLite.updateIPUUID)
 					: conn.prepareStatement(SQLQueries.Core.updateIPUUID);
 			statement.setString(1, player.getName());
@@ -292,14 +298,6 @@ public class Core implements IModule, Listener {
 		}else{
 			return sender.getPermissions();	
 		}
-	}
-	
-	public static boolean isOnlineMode(){
-	  if(BAT.getInstance().getConfiguration().isForceOfflineMode()){
-	    return false;
-	  }
-	  
-	  return ProxyServer.getInstance().getConfig().isOnlineMode();
 	}
 	
 	public void initMetrics() throws IOException{
