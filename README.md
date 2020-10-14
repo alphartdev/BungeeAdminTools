@@ -1,3 +1,14 @@
+# A Note from PeacefulCraft
+We've forked this plugin and will be maintaining it first and for most to address changes, features, and bugs that impact our use cases. We do not have the capacity to commit to providing general, regular support for this project, nor have we expressly obtained consent from the original maintainer to do so under the official BAT name. That said, we welcome pull requests and issue tickets, but please know that they will be addressed only as we have capacity to attend to them. Note that the code of conduct for project contributions enumerated below will be enforced on this fork as well.
+
+This also means that we do not guarantee backwards compatibility with previous versions of BAT or cross-copatibility with any other forks of BAT. If you are planning to migrate to our fork or use changes that we have made after commit [a3a32ce](https://github.com/peacefulcraft-network/BungeeAdminTools/commit/a3a32ce81fc291eddbf021a19aeae134a64ec9db), test them in a development environment and backup your data before deploying any of our modified code.
+
+**Changes from Upstream**
+- Removed Lombok
+- Dependecy updates
+
+
+
 # Bungee Admin Tools
 The plugin page can be found [here](http://www.spigotmc.org/resources/bungee-admin-tools.444/)
 
