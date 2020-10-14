@@ -16,14 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import lombok.Getter;
-import net.cubespace.Yamler.Config.InvalidConfigurationException;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -51,6 +43,12 @@ import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
 import fr.Alphart.BAT.Utils.FormatUtils;
 import fr.Alphart.BAT.Utils.Utils;
 import fr.Alphart.BAT.database.DataSourceHandler;
+import net.cubespace.Yamler.Config.InvalidConfigurationException;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class CoreCommand extends BATCommand{
 	private final BaseComponent[] CREDIT;
@@ -239,8 +237,8 @@ public class CoreCommand extends BATCommand{
 	
 	@RunAsync
 	public static class LookupCmd extends BATCommand {
-	    @Getter
 		private static LookupFormatter lookupFormatter;
+			public static LookupFormatter getLookupFormatter() { return lookupFormatter; }
 		private ModulesManager modules;
 		
 		public LookupCmd() {

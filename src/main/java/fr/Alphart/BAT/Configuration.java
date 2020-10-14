@@ -1,8 +1,6 @@
 package fr.Alphart.BAT;
 
 import com.google.common.collect.Maps;
-import lombok.Getter;
-import lombok.Setter;
 import net.cubespace.Yamler.Config.Comment;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.cubespace.Yamler.Config.Path;
@@ -12,7 +10,6 @@ import java.io.File;
 import java.util.Locale;
 import java.util.Map;
 
-@Getter
 public class Configuration extends YamlConfig {
 	public Configuration(){
 		CONFIG_HEADER = new String[]{"Bungee Admin Tools - Configuration file"};
@@ -27,6 +24,86 @@ public class Configuration extends YamlConfig {
 
 	private String language = "en";
 	private String prefix = "&6[&4BAT&6]&e ";
+
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public String getPrefix() {
+		return this.prefix;
+	}
+
+	public boolean getMustGiveReason() {
+		return this.mustGiveReason;
+	}
+
+	public boolean isMustGiveReason() {
+		return this.mustGiveReason;
+	}
+
+	public boolean getConfirmCommand() {
+		return this.confirmCommand;
+	}
+
+	public boolean isConfirmCommand() {
+		return this.confirmCommand;
+	}
+
+	public Map<String,Boolean> getSimpleAliasesCommands() {
+		return this.simpleAliasesCommands;
+	}
+
+	public boolean getLitteralDate() {
+		return this.litteralDate;
+	}
+
+	public boolean isLitteralDate() {
+		return this.litteralDate;
+	}
+
+	public boolean getRedisSupport() {
+		return this.redisSupport;
+	}
+
+	public boolean isRedisSupport() {
+		return this.redisSupport;
+	}
+
+	public boolean getDebugMode() {
+		return this.debugMode;
+	}
+
+	public boolean isDebugMode() {
+		return this.debugMode;
+	}
+
+	public boolean getMysql_enabled() {
+		return this.mysql_enabled;
+	}
+
+	public boolean isMysql_enabled() {
+		return this.mysql_enabled;
+	}
+
+	public String getMysql_user() {
+		return this.mysql_user;
+	}
+
+	public String getMysql_password() {
+		return this.mysql_password;
+	}
+
+	public String getMysql_database() {
+		return this.mysql_database;
+	}
+
+	public String getMysql_host() {
+		return this.mysql_host;
+	}
+
+	public String getMysql_port() {
+		return this.mysql_port;
+	}
 	
     @Comment("Force players to give reason when /ban /unban /kick /mute /unmute etc.")
 	private boolean mustGiveReason= false;
@@ -44,9 +121,9 @@ public class Configuration extends YamlConfig {
 	
 	
 	@Comment("Set to true to use MySQL. Otherwise SQL Lite will be used")
-	@Setter
     @Path(value = "mysql.enabled")
 	private boolean mysql_enabled = true;
+		public void mysql_enable(boolean enabled) { mysql_enabled = enabled; }
     @Path(value = "mysql.user")
 	private String mysql_user = "user";
     @Path(value = "mysql.password")

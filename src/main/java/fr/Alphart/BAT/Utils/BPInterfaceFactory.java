@@ -2,7 +2,8 @@ package fr.Alphart.BAT.Utils;
 
 import java.util.Collection;
 
-import lombok.RequiredArgsConstructor;
+import net.alpenblock.bungeeperms.BungeePerms;
+import net.alpenblock.bungeeperms.platform.bungee.BungeePlugin;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -24,9 +25,12 @@ public class BPInterfaceFactory{
         public Collection<String> getPermissions(final CommandSender sender);
     }
     
-    @RequiredArgsConstructor
     static class BungeePermsV3 implements PermissionProvider{
-        private final net.alpenblock.bungeeperms.platform.bungee.BungeePlugin bpPlugin;
+        private net.alpenblock.bungeeperms.platform.bungee.BungeePlugin bpPlugin;
+
+        public BungeePermsV3(BungeePlugin bPlugin) {
+            this.bpPlugin = bPlugin;
+        }
         
         @Override
         public Collection<String> getPermissions(CommandSender sender) {
@@ -34,11 +38,14 @@ public class BPInterfaceFactory{
         }
         
     }
-    
-    @RequiredArgsConstructor
+
     static class BungeePermsV2 implements PermissionProvider{
-        private final net.alpenblock.bungeeperms.BungeePerms bpPlugin;
+        private net.alpenblock.bungeeperms.BungeePerms bpPlugin;
         
+        public BungeePermsV2(BungeePerms bPlugin) {
+            this.bpPlugin = bPlugin;
+        }
+
         @Override
         public Collection<String> getPermissions(CommandSender sender) {
             return bpPlugin.getPermissionsManager().getUser(sender.getName()).getEffectivePerms();

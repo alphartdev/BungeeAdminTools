@@ -93,7 +93,6 @@ public class Core implements IModule, Listener {
 	           });
 	private final String name = "core";
 	private List<BATCommand> cmds;
-	private Gson gson = new Gson();
 	private static PermissionProvider bungeePerms;
 	public static EnhancedDateFormat defaultDF = new EnhancedDateFormat(false);
 
@@ -175,7 +174,6 @@ public class Core implements IModule, Listener {
 	 * @throws UUIDNotFoundException
 	 * @return String which is the UUID
 	 */
-	@SuppressWarnings("deprecation")
 	public static String getUUID(final String pName){
 		try {
 			return uuidCache.get(pName);

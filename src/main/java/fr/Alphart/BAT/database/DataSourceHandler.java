@@ -15,22 +15,20 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-
-import com.zaxxer.hikari.HikariDataSource;
-import net.md_5.bungee.api.ProxyServer;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.varia.NullAppender;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
+import com.zaxxer.hikari.HikariDataSource;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.varia.NullAppender;
 
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Utils.CallbackUtils.Callback;
+import net.md_5.bungee.api.ProxyServer;
 
 public class DataSourceHandler {
 	// Connection informations

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import lombok.Getter;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import fr.Alphart.BAT.BAT;
 import net.cubespace.Yamler.Config.YamlConfig;
@@ -36,8 +35,8 @@ public abstract class ModuleConfiguration extends YamlConfig {
         load();
 	}
 
-	@Getter
 	private boolean enabled = true;
+		public boolean isEnabled() { return enabled; }
 
 	private Map<String, Boolean> commands = new HashMap<String, Boolean>();
 

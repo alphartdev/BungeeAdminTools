@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import lombok.Getter;
 import fr.Alphart.BAT.BAT;
 import fr.Alphart.BAT.Modules.IModule;
 import fr.Alphart.BAT.Utils.CallbackUtils.ProgressCallback;
@@ -116,7 +115,6 @@ public class MinecraftPreUUIDImporter extends Importer{
         }
     }
     
-    @Getter
     private class Minecraft1v6_BanRecord{
         private String uuid = null;
         private String pName = null;
@@ -125,6 +123,34 @@ public class MinecraftPreUUIDImporter extends Importer{
         private String staffBan;
         private Timestamp beginBan;
         private Timestamp expirationBan;
+
+        public String getUuid() {
+            return this.uuid;
+        }
+    
+        public String getPName() {
+            return this.pName;
+        }
+    
+        public String getIp() {
+            return this.ip;
+        }
+    
+        public String getReason() {
+            return this.reason;
+        }
+    
+        public String getStaffBan() {
+            return this.staffBan;
+        }
+    
+        public Timestamp getBeginBan() {
+            return this.beginBan;
+        }
+    
+        public Timestamp getExpirationBan() {
+            return this.expirationBan;
+        }    
         
         /**
          * Parse a line of banned-xx.txt file

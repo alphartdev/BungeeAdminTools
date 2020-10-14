@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 
 import com.google.common.base.Charsets;
@@ -39,6 +38,7 @@ public abstract class Importer {
                 }
             });
     protected ImportStatus status;
+        public ImportStatus getImportStatus() { return status; }
     
     protected abstract void importData(final ProgressCallback<ImportStatus> progressionCallback, final String... additionnalsArgs) throws Exception;
     
@@ -65,11 +65,12 @@ public abstract class Importer {
         stmt.executeUpdate();
     }
     
-    @Getter
     public class ImportStatus{
         // The total number of entries to process (processed and remaining)
         private final int totalEntries;
+            public int getTotalEntries() { return totalEntries; }
         private int convertedEntries;
+            public int getConvertedEntries() { return convertedEntries; }
         
         public ImportStatus(final int totalEntries){
             if(totalEntries < 1){

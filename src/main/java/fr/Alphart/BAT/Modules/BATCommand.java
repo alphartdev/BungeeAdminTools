@@ -14,7 +14,6 @@ import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -40,8 +39,8 @@ public abstract class BATCommand extends net.md_5.bungee.api.plugin.Command impl
 	private boolean runAsync = false;
 	private boolean coreCommand = false;
 
-	@Setter
 	private int minArgs = 0;
+		public void setMinArgs(int minArgs) { this.minArgs = minArgs; }
 
 	/**
 	 * Constructor

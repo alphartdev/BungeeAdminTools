@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import lombok.Getter;
 import net.cubespace.Yamler.Config.Comment;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -125,13 +124,13 @@ public class Mute implements IModule, Listener {
 		}
 		
 		@Comment("Forbidden commands when a player is mute")
-		@Getter
 		private List<String> forbiddenCmds = new ArrayList<String>(){
 			private static final long serialVersionUID = 1L;
 
 		{
 			add("msg");
 		}};
+		public List<String> getForbiddenCmds() { return forbiddenCmds; }
 	}
 
 	public void loadMuteMessage(final String pName, final String server){

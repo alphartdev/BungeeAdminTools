@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import lombok.Getter;
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -131,16 +130,16 @@ public class Comment implements IModule{
 			"  pattern: reason which must be provided to trigger this",
 			"  commands: list of commands that should be executed when it triggers, you can use {player} variable",
 			"  triggerNumber: the number at which this triggers"})
-		@Getter
 		private Map<String, Trigger> triggers = new HashMap<String, Trigger>(){
 			private static final long serialVersionUID = 1L;
 		{
 			put("example", new Trigger());
 		}};
+			public Map<String, Trigger> getTriggers() { return triggers; }
 		
-		@Getter
 		@net.cubespace.Yamler.Config.Comment("Interval in seconds between two comments on the same player")
 		private int cooldown = 3;
+			public int getCooldown() { return cooldown; }
 	}
 	
 	/**
