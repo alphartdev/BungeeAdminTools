@@ -16,7 +16,7 @@
 		</repository>
 		<repository>
 			<id>md-5-repo</id>
-			<url>http://repo.md-5.net/content/groups/public/</url>
+			<url>https://repo.md-5.net/content/groups/public/</url>
 		</repository>
 	</repositories>
 
@@ -24,14 +24,14 @@
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.16-R0.3</version>
+			<version>1.16-R0.5-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.16-R0.3</version>
+			<version>1.16-R0.5-SNAPSHOT</version>
 			<type>javadoc</type>
 			<scope>provided</scope>
 		</dependency>
@@ -63,10 +63,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.28</version>
-			<scope>provided</scope>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>2.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.xerial</groupId>
@@ -121,7 +120,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.2</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -129,10 +128,28 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<minimizeJar>true</minimizeJar>
+							<!-- <minimizeJar>true</minimizeJar> -->
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 							</artifactSet>
+							<relocations>
+                <relocation>
+                  <pattern>com.zaxxer.hikari</pattern>
+                  <shadedPattern>net.peacefulcraft.shaded.hikari</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.slf4j</pattern>
+                  <shadedPattern>net.peacefulcraft.shaded.slf4j</shadedPattern>
+                </relocation>
+			          <relocation>
+                    <pattern>org.mariadb.jdbc</pattern>
+                   <shadedPattern>net.peacefulcraft.shaded.mariadb</shadedPattern>
+                </relocation>
+			          <relocation>
+                    <pattern>org.apache</pattern>
+                   <shadedPattern>net.peacefulcraft.shaded.apache</shadedPattern>
+                </relocation>
+              </relocations>
 						</configuration>
 					</execution>
 				</executions>

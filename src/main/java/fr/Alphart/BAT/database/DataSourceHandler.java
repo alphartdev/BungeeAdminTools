@@ -15,12 +15,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.apache.log4j.BasicConfigurator;
@@ -69,6 +67,7 @@ public class DataSourceHandler {
 		ds.setPassword(this.password);
 		ds.addDataSourceProperty("cachePrepStmts", "true");
 		ds.setMaximumPoolSize(8);
+		ds.setDriverClassName("org.mariadb.jdbc.Driver");
 		try {
 			final Connection conn = ds.getConnection();
 		    int intOffset = Calendar.getInstance().getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000;
@@ -80,12 +79,7 @@ public class DataSourceHandler {
 		} catch (final SQLException e) {
 			BAT.getInstance().getLogger().severe("BAT encounters a problem during the initialization of the database connection."
 					+ " Please check your logins and database configuration.");
-			if(e.getCause() instanceof CommunicationsException){
-			    BAT.getInstance().getLogger().severe(e.getCause().getMessage());
-			}
-			if(BAT.getInstance().getConfiguration().isDebugMode()){
-			    BAT.getInstance().getLogger().log(Level.SEVERE, e.getMessage(), e);
-			}
+			BAT.getInstance().getLogger().severe(e.getCause().getMessage());
 			throw e;
 		}
 		sqlite = false;
@@ -131,12 +125,10 @@ public class DataSourceHandler {
 		} catch (final SQLException e) {
 			BAT.getInstance().getLogger().severe(
 			        "BAT can't etablish connection with the database. Please report this and include the following lines :");
-			if(e.getCause() instanceof CommunicationsException){
-			    BAT.getInstance().getLogger().severe(e.getCause().getMessage());
+			BAT.getInstance().getLogger().severe(e.getCause().getMessage());
+			if (BAT.getInstance().getConfiguration().isDebugMode()) {
+					e.printStackTrace();
 			}
-            if (BAT.getInstance().getConfiguration().isDebugMode()) {
-                e.printStackTrace();
-            }
 			return null;
 		}
 	}
